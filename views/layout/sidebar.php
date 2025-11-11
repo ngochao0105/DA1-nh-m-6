@@ -82,6 +82,8 @@
 
   <!-- Navigation -->
   <a href="index.php" class="nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="?act=tour-category" class="nav-link"><i class="bi bi-map"></i> Quản lý danh mục</a>
+
   <a href="?act=tour-list" class="nav-link"><i class="bi bi-map"></i> Quản lý Tour</a>
   <a href="#" class="nav-link"><i class="bi bi-person-badge"></i>Quản Lý Hướng dẫn viên</a>
   <a href="#" class="nav-link"><i class="bi bi-people"></i> Khách hàng</a>

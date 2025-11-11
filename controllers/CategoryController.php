@@ -1,6 +1,6 @@
 <?php
 // có class chứa các function thực thi xử lý logic 
-class TourController
+class CategoryController
 {
     public $modelTour;
 
@@ -13,9 +13,9 @@ class TourController
     {
         require_once './views/trangchu.php';
     }
-    public function TourList()
+    public function TourCategory()
     {
         
-        require_once "./views/TourList.php";
+        require_once "./views/TourCategory.php";
     }
 }
