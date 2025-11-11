@@ -1,21 +1,25 @@
 <?php
-// có class chứa các function thực thi xử lý logic 
+
 class CategoryController
 {
     public $modelTour;
 
     public function __construct()
     {
-        $this->modelTour = new TourModel();
+       
+        $this->modelTour = new CategoryModel();
     }
 
     public function Home()
     {
         require_once './views/trangchu.php';
     }
+
     public function TourCategory()
     {
         
+        $categories = $this->modelTour->getAllCategories();
+       
         require_once "./views/TourCategory.php";
     }
 }
