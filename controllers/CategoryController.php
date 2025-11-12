@@ -7,7 +7,7 @@ class CategoryController
     public function __construct()
     {
        
-        $this->modelTour = new CategoryModel();
+        $this->modelTour = new TourModel();
     }
 
     public function Home()

@@ -91,11 +91,11 @@
 </head>
 <body>
 
-<!-- ===== HEADER / NAVBAR ===== -->
+
 <nav class="navbar navbar-dark fixed-top">
   <div class="container-fluid">
     <a class="navbar-brand text-white" href="index.php">
-      <i class="bi bi-compass"></i> Tour Manager
+      <i class="bi bi-compass"></i> Admin Panel
     </a>
   </div>
 </nav>
