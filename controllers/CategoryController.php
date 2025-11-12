@@ -16,6 +16,6 @@ class CategoryController
     public function TourCategory()
     {
         
-        require_once "./views/TourCategory.php";
+        require_once "./views/TourList.php";
     }
 }

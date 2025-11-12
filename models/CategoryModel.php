@@ -9,16 +9,8 @@ class CategoryModel
     }
 
     // Viết truy vấn danh sách sản phẩm 
-      public function getAllCategories() {
-        $sql = "SELECT * FROM DanhMucTour";
-        $result = $this->conn->query($sql);
-
-        $categories = [];
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $categories[] = $row;
-            }
-        }
-        return $categories;
+    public function getAllTour()
+    {
+        
     }
 }
