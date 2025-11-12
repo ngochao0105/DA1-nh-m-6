@@ -111,13 +111,13 @@ $isAdminPage = str_starts_with($currentAct, 'admin/');
 </head>
 <body>
 
-<!-- ===== HEADER / NAVBAR (LUÔN HIỂN THỊ) ===== -->
+
 <nav class="navbar navbar-dark fixed-top">
-    <div class="container-fluid">
-        <a class="navbar-brand text-white" href="?act=/">
-            <!-- <i class="bi bi-compass"></i> Tour Manager -->
-        </a>
-    </div>
+  <div class="container-fluid">
+    <a class="navbar-brand text-white" href="index.php">
+      <i class="bi bi-compass"></i> Admin Panel
+    </a>
+  </div>
 </nav>
 
 <?php
