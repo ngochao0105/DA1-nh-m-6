@@ -3,7 +3,20 @@
 require_once './commons/env.php'; // Khai báo biến môi trường
 require_once './commons/function.php'; // Hàm hỗ trợ (CÓ checkAuth())
 
-// 2. Lấy action
+// Require toàn bộ file Controllers
+require_once './controllers/TourController.php';
+require_once './controllers/CategoryController.php';
+
+
+
+
+// Require toàn bộ file Models
+require_once './models/ProductModel.php';
+require_once './models/CategoryModel.php';
+
+
+
+// Route
 $act = $_GET['act'] ?? '/';
 
 // 3. (!!!) BẢO VỆ ROUTE (!!!)
