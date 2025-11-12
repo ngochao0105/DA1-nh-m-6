@@ -8,6 +8,10 @@ class CategoryModel
         $this->conn = connectDB();
     }
 
+    // Viết truy vấn danh sách sản phẩm 
+    public function getAllTour()
+    {}
+        
     public function getAllCategories()
     {
         try {
