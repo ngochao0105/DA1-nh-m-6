@@ -39,7 +39,7 @@ require_once './controllers/TourController.php';
 require_once './controllers/CategoryController.php';
 require_once './controllers/AuthController.php';
 
-require_once './models/ProductModel.php';
+require_once './models/TourModel.php';
 require_once './models/CategoryModel.php';
 require_once './models/UserModel.php';
 
