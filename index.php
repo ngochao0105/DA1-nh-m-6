@@ -50,6 +50,7 @@ match ($act) {
     '/' => (new TourController())->Home(),
     'tour-list' => (new TourController())->TourList(),
     'tour-category' => (new CategoryController())->TourCategory(),
+    'createtour' =>(new CategoryController())->CreateTour(),
     
     // Auth routes
     'login' => (new AuthController())->login(),
