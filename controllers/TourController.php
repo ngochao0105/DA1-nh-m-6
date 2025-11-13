@@ -2,19 +2,26 @@
 
 class TourController
 {
-    public $modelTour;
+       public $modelTour;
+    public $modelGuide;
 
     public function __construct()
     {
-       
         $this->modelTour = new TourModel();
+        $this->modelGuide = new GuideModel();
     }
 
     public function Home()
     {
+        // Lấy tổng số Tour
+        $totalTour = $this->modelTour->countTours();
+
+        // Lấy tổng số hướng dẫn viên
+        $totalHDV = $this->modelGuide->countGuide();
+
+        // Truyền dữ liệu sang View
         require_once './views/trangchu.php';
     }
-
     public function TourList()
     {
         

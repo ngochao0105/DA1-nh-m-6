@@ -9,6 +9,17 @@ class GuideModel
         $this->conn = connectDB();
     }
 
+   public function countGuide()
+{
+    try {
+        $sql = "SELECT COUNT(*) AS total FROM nhansu";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    } catch (PDOException $e) {
+        die("Lỗi SQL: " . $e->getMessage());
+    }
+}
     // Lấy tất cả hướng dẫn viên
     public function getAllGuides()
     {
@@ -16,29 +27,29 @@ class GuideModel
             $sql = "SELECT * FROM nhansu ORDER BY id DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-          
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
-     public function deleteGuide($id)
+    public function deleteGuide($id)
     {
         try {
             $sql = "DELETE FROM nhansu WHERE id = ?";
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([$id]);
-             $this->conn->query("SET @count = 0;");
-    $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
-    $this->conn->query("ALTER TABLE nhansu AUTO_INCREMENT = 1;");
+            $this->conn->query("SET @count = 0;");
+            $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
+            $this->conn->query("ALTER TABLE nhansu AUTO_INCREMENT = 1;");
         } catch (PDOException $e) {
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
 
-//thêm hdv
+    //thêm hdv
 
- public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $average_rating)
+    public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $average_rating)
     {
         try {
             $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, average_rating) 
@@ -49,22 +60,22 @@ class GuideModel
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
-public function resetGuideIds()
-{
-    $this->conn->query("SET @count = 0;");
-    $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
-    $this->conn->query("ALTER TABLE nhansu AUTO_INCREMENT = 1;");
-}
+    public function resetGuideIds()
+    {
+        $this->conn->query("SET @count = 0;");
+        $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
+        $this->conn->query("ALTER TABLE nhansu AUTO_INCREMENT = 1;");
+    }
 
 
-//sửa hdv
- public function getAllhdv()
+    //sửa hdv
+    public function getAllhdv()
     {
         try {
             $sql = "SELECT * FROM nhansu ORDER BY id DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-          
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             die("Lỗi SQL: " . $e->getMessage());
@@ -108,11 +119,4 @@ public function resetGuideIds()
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
-
-
-
-
-
-
 }
-?>
