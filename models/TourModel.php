@@ -10,7 +10,7 @@ class TourModel
 
     // Viết truy vấn danh sách sản phẩm 
     
-    public function getAllCategories()
+    public function getAllTour()
     {
         try {
             $sql = "SELECT * FROM tour ORDER BY id DESC";
@@ -46,11 +46,16 @@ class TourModel
     ":price" => $price,
     ":id_danh_muc" => $id_danh_muc,
     ":status" => $status
-]);
-}
+    ]);
+    }
 
    public function getCateogries() {
     $sql = "SELECT * FROM danhmuctour ORDER BY id DESC";
     return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function deleteTour($id) {
+        $sql = "DELETE FROM tour WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id'=>$id]);
     }
 }

@@ -58,9 +58,7 @@
         <th>Điểm đến</th>
         <th>Giá</th>
         <th>Danh mục tour</th>
-        <!-- === THÊM CỘT TRẠNG THÁI === -->
         <th>Trạng thái</th>
-        <!-- === KẾT THÚC THÊM CỘT === -->
         <th>Thao tác</th>
       </tr>
     </thead>
@@ -87,7 +85,10 @@
           <a href="?act=edit-category&id=<?= $cat['id'] ?>" class="btn btn-sm btn-warning text-white">
             <i class="bi bi-pencil"></i>
           </a>
-          <a href="?act=delete-category&id=<?= $cat['id'] ?>" class="btn btn-sm btn-danger">
+          <a href="?act=deletetour&id=<?= $cat['id'] ?>" class="btn btn-sm btn-danger"
+          onclick ="return confirm('Bạn có chắc muốn xóa không')";
+          >
+            
             <i class="bi bi-trash"></i>
           </a>
         </td>

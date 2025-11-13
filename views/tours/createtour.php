@@ -77,8 +77,6 @@
             <label class="form-label">Danh mục tour</label>
             <select name="id_danh_muc" class="form-select">
               <option value="">-- Chọn danh mục --</option>
-
-              <!-- PHP: Tự động load danh mục -->
               <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $cat): ?>
                   <option value="<?= $cat['id'] ?>">
@@ -88,7 +86,7 @@
               <?php endif; ?>
 
             </select>
-          </div>
+          </div>  
 
           <!-- Mô tả -->
           <div class="col-12">

@@ -5,19 +5,13 @@ require_once './commons/function.php'; // Hàm hỗ trợ (CÓ checkAuth())
 
 // Require toàn bộ file Controllers
 require_once './controllers/TourController.php';
-require_once './controllers/CategoryController.php';
 require_once './controllers/GuideController.php';
-
 
 
 
 // Require toàn bộ file Models
 require_once './models/TourModel.php';
-require_once './models/CategoryModel.php';
 require_once './models/GuideModel.php';
-
-
-
 // Route
 $act = $_GET['act'] ?? '/';
 
@@ -39,11 +33,10 @@ $publicRoutes = [
 // 4. Require Controllers & Models
 // Code ở đây chỉ chạy NẾU ĐÃ VƯỢT QUA checkAuth()
 require_once './controllers/TourController.php';
-require_once './controllers/CategoryController.php';
 require_once './controllers/AuthController.php';
 
 require_once './models/TourModel.php';
-require_once './models/CategoryModel.php';
+
 require_once './models/UserModel.php';
 
 // 5. Routing
@@ -52,15 +45,13 @@ match ($act) {
     // Trang chủ
     '/' => (new TourController())->Home(),
     'tour-list' => (new TourController())->TourList(),
-    'tour-category' => (new CategoryController())->TourCategory(),
+    'createtour' =>(new TourController())->CreateTour(),
+    'deletetour' =>(new TourController())->DeleteTour(),
 
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 
     'add-guide' => (new GuideController())->addGuide(),
      'edit-guide' => (new GuideController())->editGuide(),
-
-    'createtour' =>(new CategoryController())->CreateTour(),
-
     
     // Auth routes
     'login' => (new AuthController())->login(),
