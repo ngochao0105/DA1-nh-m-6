@@ -6,6 +6,7 @@ require_once './commons/function.php'; // Hàm hỗ trợ (CÓ checkAuth())
 // Require toàn bộ file Controllers
 require_once './controllers/TourController.php';
 require_once './controllers/CategoryController.php';
+require_once './controllers/GuideController.php';
 
 
 
@@ -13,6 +14,7 @@ require_once './controllers/CategoryController.php';
 // Require toàn bộ file Models
 require_once './models/TourModel.php';
 require_once './models/CategoryModel.php';
+require_once './models/GuideModel.php';
 
 
 
@@ -22,6 +24,7 @@ $act = $_GET['act'] ?? '/';
 // 3. (!!!) BẢO VỆ ROUTE (!!!)
 // Đây là "người gác cổng" chính
 // Liệt kê TẤT CẢ các route KHÔNG cần đăng nhập
+
 $publicRoutes = [
     'login', 
     'register'
@@ -50,7 +53,14 @@ match ($act) {
     '/' => (new TourController())->Home(),
     'tour-list' => (new TourController())->TourList(),
     'tour-category' => (new CategoryController())->TourCategory(),
+
+    'guide-management' => (new GuideController())->GuideManagement(),
+    'delete-guide' => (new GuideController())->deleteGuide(), 
+    'add-guide' => (new GuideController())->addGuide(),
+     'edit-guide' => (new GuideController())->editGuide(),
+
     'createtour' =>(new CategoryController())->CreateTour(),
+
     
     // Auth routes
     'login' => (new AuthController())->login(),
