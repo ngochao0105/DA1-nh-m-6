@@ -15,7 +15,7 @@ class CategoryModel
     public function getAllCategories()
     {
         try {
-            $sql = "SELECT * FROM danhmuctour ORDER BY id DESC";
+            $sql = "SELECT * FROM tour ORDER BY id DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
