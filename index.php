@@ -45,20 +45,13 @@ match ($act) {
     // Trang chủ
     '/' => (new TourController())->Home(),
     'tour-list' => (new TourController())->TourList(),
-<<<<<<< HEAD
     'createtour' =>(new TourController())->CreateTour(),
     'deletetour' =>(new TourController())->DeleteTour(),
-=======
-    'tour-category' => (new CategoryController())->TourCategory(),
 
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 
     'add-guide' => (new GuideController())->addGuide(),
      'edit-guide' => (new GuideController())->editGuide(),
-
-    'createtour' =>(new CategoryController())->CreateTour(),
-
->>>>>>> 466b918aa58e281d1d4645dce79511ea457c03f5
     
     // Auth routes
     'login' => (new AuthController())->login(),
