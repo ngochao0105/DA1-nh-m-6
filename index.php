@@ -14,11 +14,6 @@ require_once './models/TourModel.php';
 require_once './models/GuideModel.php';
 // Route
 $act = $_GET['act'] ?? '/';
-
-// 3. (!!!) BẢO VỆ ROUTE (!!!)
-// Đây là "người gác cổng" chính
-// Liệt kê TẤT CẢ các route KHÔNG cần đăng nhập
-
 $publicRoutes = [
     'login', 
     'register'
@@ -26,6 +21,15 @@ $publicRoutes = [
     // 'tour-list',
     // 'tour-category',
 ];
+
+if (!in_array($act, $publicRoutes)) {
+    checkAuth(); // Hàm này đã có trong function.php
+}
+
+// 3. (!!!) BẢO VỆ ROUTE (!!!)
+// Đây là "người gác cổng" chính
+// Liệt kê TẤT CẢ các route KHÔNG cần đăng nhập
+
 
 // Nếu $act KHÔNG nằm trong danh sách public
 

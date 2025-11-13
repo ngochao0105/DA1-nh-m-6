@@ -69,13 +69,6 @@
             <input type="password" name="confirm_password" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Quyền tài khoản</label>
-            <select name="role" class="form-select">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
 
         <button type="submit" class="btn btn-primary mt-2">Đăng ký</button>
 
