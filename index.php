@@ -53,10 +53,14 @@ match ($act) {
     '/' => (new TourController())->Home(),
     'tour-list' => (new TourController())->TourList(),
     'tour-category' => (new CategoryController())->TourCategory(),
+
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 
     'add-guide' => (new GuideController())->addGuide(),
      'edit-guide' => (new GuideController())->editGuide(),
+
+    'createtour' =>(new CategoryController())->CreateTour(),
+
     
     // Auth routes
     'login' => (new AuthController())->login(),
