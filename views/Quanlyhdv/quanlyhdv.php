@@ -21,7 +21,7 @@
         <th>email</th>
         <th>Loại hướng dẫn </th>
         <th>Đánh giá hướng dẫn viên </th>
-        <th>Action</th>
+        <th>Thao Tác</th>
       </tr>
     </thead>
     <tbody>
@@ -34,7 +34,20 @@
           <td><?= htmlspecialchars($guide['phone'] ?? '') ?></td>
           <td><?= htmlspecialchars($guide['email'] ?? '') ?></td>
           <td><?= htmlspecialchars($guide['guide_type'] ?? '') ?></td>
-          <td><?= htmlspecialchars($guide['average_rating'] ?? '') ?></td>
+          <td>
+  <?php
+    $rating = $guide['average_rating'] ?? 0;
+    for ($i = 1; $i <= 5; $i++) {
+        if ($i <= floor($rating)) {
+            echo '<i class="bi bi-star-fill" style="color: gold;"></i>';
+        } elseif ($i - $rating < 1) {
+            echo '<i class="bi bi-star-half" style="color: gold;"></i>';
+        } else {
+            echo '<i class="bi bi-star" style="color: gold;"></i>';
+        }
+    }
+  ?>
+</td>
           <td>
             <a href="?act=edit-guide&id=<?= $guide['id'] ?>" class="btn btn-sm btn-warning">Sửa</a>
             <a href="?act=delete-guide&id=<?= $guide['id'] ?>" class="btn btn-sm btn-danger"
