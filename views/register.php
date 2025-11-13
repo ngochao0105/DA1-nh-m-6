@@ -1,27 +1,89 @@
-<?php require_once './views/layout/header.php'; // Gọi header ?>
+<?php require_once './views/layout/header.php'; ?>
 
-<div class="container" style="padding: 20px;">
-    <h2>Đăng ký</h2>
+<style>
+/* === FORM REGISTER ĐẸP – CHUẨN ADMIN PANEL === */
 
-    <!-- Hiển thị lỗi nếu có -->
-    <?php if (isset($error)): ?>
-        <p style="color: red;"><?php echo $error; ?></p>
+.register-wrapper {
+    max-width: 420px;
+    margin: 100px auto;
+    padding: 30px 25px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.register-wrapper h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.register-wrapper label {
+    font-weight: 500;
+}
+
+.register-wrapper button {
+    width: 100%;
+    font-weight: 600;
+    padding: 10px;
+}
+
+.register-wrapper .link {
+    text-align: center;
+    margin-top: 12px;
+}
+</style>
+
+
+<div class="register-wrapper">
+
+    <h2>Đăng ký tài khoản</h2>
+
+    <!-- Hiển thị lỗi -->
+    <?php if (!empty($errors)): ?>
+        <div class="alert alert-danger">
+            <?php foreach ($errors as $e): ?>
+                <div><?php echo $e; ?></div>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
-    <!-- action trỏ về ?act=register -->
     <form action="?act=register" method="POST">
-        <div>
-            <label>Tên đăng nhập:</label>
-            <input type="text" name="username" required>
+
+        <div class="mb-3">
+            <label class="form-label">Tên đăng nhập</label>
+            <input type="text" 
+                   name="username" 
+                   class="form-control"
+                   required 
+                   value="<?php echo $username ?? ''; ?>">
         </div>
-        <div style="margin-top: 10px;">
-            <label>Mật khẩu:</label>
-            <input type="password" name="password" required>
+
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu</label>
+            <input type="password" name="password" class="form-control" required>
         </div>
-        <button type="submit" style="margin-top: 15px;">Đăng ký</button>
+
+        <div class="mb-3">
+            <label class="form-label">Nhập lại mật khẩu</label>
+            <input type="password" name="confirm_password" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Quyền tài khoản</label>
+            <select name="role" class="form-select">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Đăng ký</button>
+
+        <div class="link">
+            <p>Đã có tài khoản? <a href="?act=login">Đăng nhập</a></p>
+        </div>
     </form>
-    
-    <p>Đã có tài khoản? <a href="?act=login">Đăng nhập</a></p>
+
 </div>
 
-<?php require_once './views/layout/footer.php'; // Gọi footer ?>
+<?php require_once './views/layout/footer.php'; ?>

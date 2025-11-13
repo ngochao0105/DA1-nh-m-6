@@ -1,6 +1,9 @@
 <?php include "views/layout/header.php"; ?>
 <?php include "views/layout/sidebar.php"; ?>
 <div class="container-fluid px-4 mt-4">
+  <hr>
+  <hr>
+  <hr>
   
   <h3>Danh mục Tour Du Lịch</h3>
   <a href="?act=add-category" class="btn btn-primary float-end mb-3">

@@ -75,10 +75,14 @@
 </style>
 
 <div class="sidebar">
+  <hr>
+  <hr>
+  <br>
   <!-- Header -->
   <div class="sidebar-header">
     <h4><i class="bi bi-compass"></i> Tour Manager</h4>
   </div>
+  
 
   <!-- Navigation -->
   <a href="index.php" class="nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
