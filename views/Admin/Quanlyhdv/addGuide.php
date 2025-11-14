@@ -30,9 +30,7 @@
       <select class="form-control" id="guide_type" name="guide_type">
         <option value="">Chọn loại hướng dẫn</option>
         <option value="Tiếng Anh">Tiếng Anh</option>
-        <option value="Tiếng Pháp">Tiếng Pháp</option>
         <option value="Tiếng Trung">Tiếng Trung</option>
-        <option value="Tiếng Nhật">Tiếng Nhật</option>
         <option value="Tiếng Việt">Tiếng Việt</option>
       </select>
     </div>
