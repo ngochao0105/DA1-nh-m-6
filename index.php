@@ -26,9 +26,7 @@ if (!in_array($act, $publicRoutes)) {
     checkAuth(); // Hàm này đã có trong function.php
 }
 
-// 3. (!!!) BẢO VỆ ROUTE (!!!)
-// Đây là "người gác cổng" chính
-// Liệt kê TẤT CẢ các route KHÔNG cần đăng nhập
+
 
 
 // Nếu $act KHÔNG nằm trong danh sách public

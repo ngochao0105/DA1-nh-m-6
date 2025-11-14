@@ -12,7 +12,7 @@ class GuideController
     public function GuideManagement()
     {
         $guides = $this->modelGuide->getAllGuides();
-        require_once './views/Quanlyhdv/quanlyhdv.php';
+        require_once './views/Admin/Quanlyhdv/quanlyhdv.php';
     }
 //thêm hdv
 public function addGuide()
@@ -31,7 +31,7 @@ public function addGuide()
                 exit();
             }
         }
-        require_once './views/Quanlyhdv/AddGuide.php';
+        require_once './views/Admin/Quanlyhdv/AddGuide.php';
     }
 
 
@@ -87,7 +87,7 @@ public function addGuide()
             exit();
         }
 
-        require_once './views/Quanlyhdv/EditGuide.php';
+        require_once './views/Admin/Quanlyhdv/EditGuide.php';
     }
 
 

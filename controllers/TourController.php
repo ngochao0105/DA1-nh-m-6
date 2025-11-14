@@ -20,14 +20,14 @@ class TourController
         $totalHDV = $this->modelGuide->countGuide();
 
         // Truyền dữ liệu sang View
-        require_once './views/trangchu.php';
+        require_once './views/Admin/trangchu.php';
     }
     public function TourList()
     {
         
         $categories = $this->modelTour->getAllTour();
        
-        require_once "./views/tours/TourList.php";
+        require_once "./views/Admin/Quanlytour/TourList.php";
     }
     public function CreateTour()
     {
@@ -58,7 +58,7 @@ class TourController
     }
         }
         
-        require_once "./views/tours/createtour.php";
+        require_once "./views/Admin/Quanlytour/createtour.php";
     }
     public function DeleteTour() 
     {
