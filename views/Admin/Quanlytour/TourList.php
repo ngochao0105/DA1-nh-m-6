@@ -72,7 +72,7 @@
         <td><?= htmlspecialchars($cat['start_date'] ?? '') ?></td>
         <td><?= htmlspecialchars($cat['end_date'] ?? '') ?></td>
         <td><?= htmlspecialchars($cat['destination'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['price'] ?? '') ?></td>
+     <td><?= number_format($cat['price'], 0, ',', '.') ?> VNĐ</td>
         <td><?= htmlspecialchars($cat['category_name'] ?? '') ?></td>
         <td>
         <?php 

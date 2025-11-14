@@ -26,9 +26,7 @@ if (!in_array($act, $publicRoutes)) {
     checkAuth(); // Hàm này đã có trong function.php
 }
 
-// 3. (!!!) BẢO VỆ ROUTE (!!!)
-// Đây là "người gác cổng" chính
-// Liệt kê TẤT CẢ các route KHÔNG cần đăng nhập
+
 
 
 // Nếu $act KHÔNG nằm trong danh sách public
@@ -40,6 +38,7 @@ require_once './controllers/TourController.php';
 require_once './controllers/AuthController.php';
 
 require_once './models/TourModel.php';
+
 require_once './models/UserModel.php';
 
 // 5. Routing
@@ -50,7 +49,6 @@ match ($act) {
     'tour-list' => (new TourController())->TourList(),
     'createtour' =>(new TourController())->CreateTour(),
     'deletetour' =>(new TourController())->DeleteTour(),
-    'edittour' =>(new TourController())->EditTour(),
 
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 
