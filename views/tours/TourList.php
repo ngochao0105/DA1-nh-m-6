@@ -73,14 +73,24 @@
         <td><?= htmlspecialchars($cat['end_date'] ?? '') ?></td>
         <td><?= htmlspecialchars($cat['destination'] ?? '') ?></td>
         <td><?= htmlspecialchars($cat['price'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['id_danh_muc'] ?? '') ?></td>
+        <td><?= htmlspecialchars($cat['category_name'] ?? '') ?></td>
         <td>
-          <?php 
-            $status = $cat['status'] ?? 1;
-            $statusClass = $status == 1 ? 'bg-success' : 'bg-danger';
-            $statusText = $status == 1 ? 'Đang mở' : 'Đã đóng';
+        <?php 
+              $status = $cat['status'] ?? 1;
+              $statusClass = 'bg-secondary';  
+              $statusText = 'Không xác định';  
+              if ($status == 1 || $status === 'open') {
+                  $statusClass = 'bg-success';
+                  $statusText = 'Đang mở';
+              } elseif ($status == 0 || $status === 'closed') {
+                  $statusClass = 'bg-danger';
+                  $statusText = 'Đã đóng';
+              } elseif ($status == 2 || $status === 'upcoming') {
+                  $statusClass = 'bg-warning text-dark';
+                  $statusText = 'Sắp mở';
+              }
           ?>
-          <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($statusText) ?></span> 
+          <span class="badge <?= htmlspecialchars($statusClass) ?>"><?= htmlspecialchars($statusText) ?></span> 
         <td>
           <a href="?act=edit-category&id=<?= $cat['id'] ?>" class="btn btn-sm btn-warning text-white">
             <i class="bi bi-pencil"></i>

@@ -36,7 +36,6 @@ require_once './controllers/TourController.php';
 require_once './controllers/AuthController.php';
 
 require_once './models/TourModel.php';
-
 require_once './models/UserModel.php';
 
 // 5. Routing
@@ -47,6 +46,7 @@ match ($act) {
     'tour-list' => (new TourController())->TourList(),
     'createtour' =>(new TourController())->CreateTour(),
     'deletetour' =>(new TourController())->DeleteTour(),
+    'edittour' =>(new TourController())->EditTour(),
 
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 

@@ -80,7 +80,7 @@
               <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $cat): ?>
                   <option value="<?= $cat['id'] ?>">
-                    <?= htmlspecialchars($cat['id_danh_muc']) ?>
+                    <?= htmlspecialchars($cat['category_name']) ?>
                   </option>
                 <?php endforeach; ?>
               <?php endif; ?>
@@ -98,9 +98,9 @@
           <div class="col-md-6">
             <label class="form-label">Trạng thái</label>
             <select name="status" class="form-select">
-              <option value="open">Đang mở</option>
-              <option value="closed">Đã đóng</option>
-              <option value="upcoming">Sắp mở</option>
+              <option value="1">Đang mở</option>
+              <option value="0">Đã đóng</option>
+              <option value="2">Sắp mở</option>
             </select>
           </div>
 
