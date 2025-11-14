@@ -93,7 +93,7 @@
           ?>
           <span class="badge <?= htmlspecialchars($statusClass) ?>"><?= htmlspecialchars($statusText) ?></span> 
         <td>
-          <a href="?act=edit-category&id=<?= $cat['id'] ?>" class="btn btn-sm btn-warning text-white">
+          <a href="?act=edit-tour&id=<?= $cat['id'] ?>" class="btn btn-sm btn-warning text-white">
             <i class="bi bi-pencil"></i>
           </a>
           <a href="?act=deletetour&id=<?= $cat['id'] ?>" class="btn btn-sm btn-danger"

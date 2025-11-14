@@ -60,6 +60,44 @@ class TourController
         
         require_once "./views/Admin/Quanlytour/createtour.php";
     }
+    public function EditTOur() 
+    {
+        if (!isset($_GET['id'])) {
+        header("Location: index.php?act=tour-list");
+        exit;
+        }
+        $id = $_GET['id'];
+        $tour = $this->modelTour->getOneTour($id);
+        $categories =$this->modelTour->getCategories();
+         if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $tour_name = $_POST['tour_name'];
+            $description = $_POST['description'];
+            $start_date = $_POST['start_date'];
+            $end_date = $_POST['end_date'];
+            $destination = $_POST['destination'];
+            $price = $_POST['price'];
+            $id_danh_muc = $_POST['id_danh_muc'];
+            $status = $_POST['status'];
+        if($tour_name === '' || $description === '' || $start_date=== '' || $end_date==='' || $destination==='' || $price==='' || $id_danh_muc==='' || $status===''){
+
+        }else{
+            $this->modelTour->updateTour(
+            $id,
+            $tour_name,
+            $description,
+            $start_date,
+            $end_date,
+            $destination,
+            $price,
+            $id_danh_muc,
+            $status
+        );
+        header("Location: index.php?act=tour-list");
+    }
+        }
+        
+        require_once "./views/Admin/Quanlytour/edittour.php";
+    }
     public function DeleteTour() 
     {
         if(!isset($_GET['id'])){
