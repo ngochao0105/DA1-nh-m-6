@@ -49,6 +49,7 @@ match ($act) {
     'tour-list' => (new TourController())->TourList(),
     'createtour' =>(new TourController())->CreateTour(),
     'deletetour' =>(new TourController())->DeleteTour(),
+    'edit-tour' =>(new TourController())->EditTour(),
 
     'guide-management' => (new GuideController())->GuideManagement(),
     'delete-guide' => (new GuideController())->deleteGuide(), 

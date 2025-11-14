@@ -64,6 +64,49 @@ class TourModel
             ":status" => $status
         ]);
     }
+    public function updateTour(
+            $id,
+        $tour_name,
+        $description,
+        $start_date,
+        $end_date,
+        $destination,
+        $price,
+        $id_danh_muc,
+        $status
+    )
+    {
+         $sql = "UPDATE tour 
+            SET tour_name = :tour_name,
+                description = :description,
+                start_date = :start_date,
+                end_date = :end_date,
+                destination = :destination,
+                price = :price,
+                id_danh_muc = :id_danh_muc,
+                status = :status
+            WHERE id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ":id" =>$id,
+            ":tour_name" => $tour_name,
+            ":description" => $description,
+            ":start_date" => $start_date,
+            ":end_date" => $end_date,
+            ":destination" => $destination,
+            ":price" => $price,
+            ":id_danh_muc" => $id_danh_muc,
+            ":status" => $status
+        ]);
+    }
+    public function getOneTour($id) 
+    {
+        $sql = "SELECT * FROM tour WHERE id  = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+         return $stmt->fetch(PDO::FETCH_ASSOC); 
+    }
    public function getCategories() {
     $sql = "SELECT id,category_name FROM danhmuctour ORDER BY category_name ASC";
     return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
