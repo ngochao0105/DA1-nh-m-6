@@ -31,7 +31,7 @@ class TourController
     }
     public function CreateTour()
     {
-     $categories = $this->modelTour->getAllTour();
+     $categories = $this->modelTour->getCategories();
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $tour_name = $_POST['tour_name'];
             $description = $_POST['description'];

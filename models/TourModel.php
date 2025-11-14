@@ -24,14 +24,19 @@ class TourModel
     public function getAllTour()
     {
         try {
-            $sql = "SELECT * FROM tour ORDER BY id DESC";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute();
-            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT tour.*, danhmuctour.category_name 
+                FROM tour
+                LEFT JOIN danhmuctour 
+                ON tour.id_danh_muc = danhmuctour.id
+                ORDER BY tour.id DESC";
 
-            return $categories;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+        die("Lỗi SQL: " . $e->getMessage());
         }
     }
     public function createTour(
@@ -59,11 +64,10 @@ class TourModel
             ":status" => $status
         ]);
     }
+   public function getCategories() {
+    $sql = "SELECT id,category_name FROM danhmuctour ORDER BY category_name ASC";
+    return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
-    public function getCateogries()
-    {
-        $sql = "SELECT * FROM danhmuctour ORDER BY id DESC";
-        return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
     public function deleteTour($id)
     {
