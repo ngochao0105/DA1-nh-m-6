@@ -115,6 +115,10 @@
        class="nav-link <?php echo ($act == 'tour-list' ? 'active' : ''); ?>">
        <i class="bi bi-map"></i> Quản lý Tour
     </a>
+    <a href="?act=" 
+   class="nav-link <?php echo ($act == 'booking-management' ? 'active' : ''); ?>">
+   <i class="bi bi-journal-check"></i> Quản lý Booking
+</a>
 
     <a href="?act=guide-management" 
        class="nav-link <?php echo ($act == 'guide-management' ? 'active' : ''); ?>">
