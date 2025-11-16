@@ -8,12 +8,13 @@ require_once './models/UserModel.php';
 require_once './models/TourModel.php';
 require_once './models/GuideModel.php';
 require_once './models/HdvModel.php'; 
-
+require_once './models/BookingModel.php';
 
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/HdvController.php'; 
+require_once './controllers/BookingController.php'; 
 
 // 4. Route
 $act = $_GET['act'] ?? '/';
@@ -62,7 +63,9 @@ switch ($act) {
         (new TourController())->EditTour();
         break;
 
-
+    case 'booking-list':
+        (new BookingController())->BookingList();
+        break;
 
     case 'guide-management':
         (new GuideController())->GuideManagement();
