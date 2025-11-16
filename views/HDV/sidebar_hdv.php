@@ -27,12 +27,7 @@ $act = $_GET['act'] ?? 'hdv_dashboard';
        <i class="bi bi-calendar-check"></i> Lịch làm việc
     </a>
 
-    <a href="?act=hdv_profile" 
-       class="nav-link <?php echo ($act == 'hdv_profile' ? 'active' : ''); ?>">
-       <i class="bi bi-person-circle"></i> Hồ sơ cá nhân
-    </a>
 
-  <div class="sidebar-footer" style="margin-top: auto; padding: 15px; text-align: center; color: #bdc3c7; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <small>© 2025 HDV Panel</small>
-  </div>
+
+  
 </div>

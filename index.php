@@ -7,54 +7,89 @@ require_once './commons/function.php'; // Hàm hỗ trợ (CÓ checkAuth() và r
 require_once './models/UserModel.php';
 require_once './models/TourModel.php';
 require_once './models/GuideModel.php';
-require_once './models/HdvModel.php'; // <-- THÊM MỚI
+require_once './models/HdvModel.php'; 
 
-// 3. Require toàn bộ file Controllers (Tải 1 lần ở đầu)
+
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
 require_once './controllers/GuideController.php';
-require_once './controllers/HdvController.php'; // <-- THÊM MỚI
+require_once './controllers/HdvController.php'; 
 
 // 4. Route
 $act = $_GET['act'] ?? '/';
 
-// 5. Xác định các route công khai (không cần đăng nhập)
+
 $publicRoutes = [
     'login',
-    'register'
-    // (Nếu bạn có trang 'tour-list' công khai, hãy thêm vào đây)
+    
 ];
 
-// 6. Kiểm tra Auth
-// Nếu $act KHÔNG nằm trong $publicRoutes, thì yêu cầu đăng nhập
+
 if (!in_array($act, $publicRoutes)) {
     checkAuth(); // Hàm này kiểm tra xem CÓ đăng nhập hay không
 }
 
 // 7. Routing (Điều hướng)
-match ($act) {
-    // === Auth routes (Công khai) ===
-    'login' => (new AuthController())->login(),
+switch ($act) {
 
-    // === Route chung (Phải đăng nhập) ===
-    'logout' => (new AuthController())->logout(),
+    case 'login':
+        (new AuthController())->login();
+        break;
 
-    // === Admin Routes (Đã được checkAuth() bảo vệ) ===
-    // (Lưu ý: HDV vẫn có thể vào các link này. Xem "Bước 4" bên dưới)
-    '/' => (new TourController())->Home(), // Trang chủ Admin
-    'tour-list' => (new TourController())->TourList(),
-    'createtour' => (new TourController())->CreateTour(),
-    'deletetour' => (new TourController())->DeleteTour(),
-    'edit-tour' => (new TourController())->EditTour(),
+    case 'logout':
+        (new AuthController())->logout();
+        break;
 
-    'guide-management' => (new GuideController())->GuideManagement(),
-    'delete-guide' => (new GuideController())->deleteGuide(),
-    'add-guide' => (new GuideController())->addGuide(),
-    'edit-guide' => (new GuideController())->editGuide(),
 
-    // === HDV Route (MỚI - Đã được checkAuth() bảo vệ) ===
-    'hdv_dashboard' => (new HdvController())->dashboard(), // <-- TUYẾN ĐƯỜNG MỚI
-'hdv_my_tours' => (new HdvController())->myTours(),
-    // === Default ===
-    default => (new TourController())->Home()
-};
+
+    case '/':
+        (new TourController())->Home();
+        break;
+
+    case 'tour-list':
+        (new TourController())->TourList();
+        break;
+
+    case 'createtour':
+        (new TourController())->CreateTour();
+        break;
+
+    case 'deletetour':
+        (new TourController())->DeleteTour();
+        break;
+
+    case 'edit-tour':
+        (new TourController())->EditTour();
+        break;
+
+
+
+    case 'guide-management':
+        (new GuideController())->GuideManagement();
+        break;
+
+    case 'delete-guide':
+        (new GuideController())->deleteGuide();
+        break;
+
+    case 'add-guide':
+        (new GuideController())->addGuide();
+        break;
+
+    case 'edit-guide':
+        (new GuideController())->editGuide();
+        break;
+
+    case 'hdv_dashboard':
+        (new HdvController())->dashboard();
+        break;
+
+
+    case 'hdv_my_tours':
+        (new HdvController())->myTours();
+        break;
+
+    default:
+    require_file_view('errors/404');
+    break;
+}

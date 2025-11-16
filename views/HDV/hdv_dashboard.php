@@ -15,9 +15,9 @@ require_once './views/HDV/header_hdv.php';
     </h2>
     
     <p class="text-muted">
-        Chào mừng trở lại, <strong>Trần Ngọc Hào</strong>!
+        Chào mừng trở lại, <strong><?php echo $_SESSION['full_name']?></strong>!
     </p>
-    <p>Email: ngochao@gmail.com | Phone: 0912345678</p>
+    <p>Email: <?php echo $_SESSION['email']?> | <?php echo $_SESSION['phone']?></p>
 
     <div class="row g-4 mb-4">
         <div class="col-md-4">
@@ -41,7 +41,7 @@ require_once './views/HDV/header_hdv.php';
                     </div>
                     <div>
                         <p class="mb-0 text-muted">Đánh giá trung bình</p>
-                        <h4 class="fw-bold">4.5 / 5 <i class="bi bi-star-fill text-warning"></i></h4>
+                        <h4 class="fw-bold"><?php echo $_SESSION['average_rating']?> <i class="bi bi-star-fill text-warning"></i></h4>
                     </div>
                 </div>
             </div>
@@ -127,9 +127,7 @@ require_once './views/HDV/header_hdv.php';
         </div>
     </div>
 
-    <footer class="text-center py-3 text-muted">
-        © 2025 - Trang quản lý Hướng Dẫn Viên
-    </footer>
+  
 </div>
 
 <?php require_once './views/HDV/footer_hdv.php'; ?>

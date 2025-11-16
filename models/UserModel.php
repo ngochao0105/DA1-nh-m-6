@@ -21,26 +21,5 @@ class UserModel {
         }
     }
 
-    public function create($username, $password, $role = 'user') {
 
-        try {
-            $conn = get_db_connection();
-
-            $sql = "INSERT INTO taikhoan (username, password, role)
-                    VALUES (:username, :password, :role)";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':password', $password);
-            $stmt->bindParam(':role', $role);
-
-            return $stmt->execute();
-
-        } catch (PDOException $e) {
-            return false;
-
-        } finally {
-            $conn = null;
-        }
-    }
 }
