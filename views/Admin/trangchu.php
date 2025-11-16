@@ -137,9 +137,7 @@
 
     </div>
 
-    <footer class="text-center py-3 text-muted">
-        © 2025 - Quản lý Tour Du Lịch
-    </footer>
+   
 
 </div>
 

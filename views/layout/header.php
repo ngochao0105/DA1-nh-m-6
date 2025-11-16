@@ -51,11 +51,11 @@ body {
 .user-box {
     background: #2c3e50;
     padding: 8px 14px;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     color: #ffffff;
     transition: 0.2s;
 }
@@ -64,23 +64,30 @@ body {
     background: #3d566e;
 }
 
-/* Dropdown */
+.user-box img {
+    border-radius: 50%;
+}
+
+/* Dropdown đẹp */
 .user-dropdown {
     position: absolute;
-    top: 58px;
-    right: 15px;
+    top: 65px;
+    right: 20px;
     background: #ffffff;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #dcdcdc;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 180px;
+    width: 210px;
     display: none;
     animation: fadeIn 0.15s ease-out;
+    overflow: hidden;
 }
 
 .user-dropdown a {
-    display: block;
-    padding: 10px 15px;
+    display: flex;
+    padding: 12px 16px;
+    gap: 10px;
+    align-items: center;
     color: #333;
     text-decoration: none;
     font-weight: 500;
@@ -88,6 +95,15 @@ body {
 
 .user-dropdown a:hover {
     background: #f2f2f2;
+}
+
+.logout-btn {
+    background: #ffe6e6;
+    color: #c0392b !important;
+}
+
+.logout-btn:hover {
+    background: #ffd6d6 !important;
 }
 
 @keyframes fadeIn {
@@ -153,13 +169,22 @@ body {
     <!-- User Box -->
     <?php if(isset($_SESSION['username'])): ?>
     <div class="user-box" onclick="toggleUserDropdown()">
-        <i class="bi bi-person-circle" style="font-size:20px;"></i>
+
+        <!-- Avatar auto theo tên -->
+        <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['username']); ?>&background=34495e&color=fff&size=50"
+             width="32" height="32" alt="avatar">
+
         <span><?php echo $_SESSION['username']; ?></span>
+        <i class="bi bi-chevron-down"></i>
     </div>
 
-    <!-- Dropdown -->
+    <!-- Dropdown đẹp -->
     <div class="user-dropdown" id="userDropdown">
-        <a href="?act=logout">
+        <a href="?act=admin_profile">
+            <i class="bi bi-person"></i> Hồ sơ quản trị
+        </a>
+
+        <a href="?act=logout" class="logout-btn">
             <i class="bi bi-box-arrow-right"></i> Đăng xuất
         </a>
     </div>
@@ -167,7 +192,6 @@ body {
 
   </div>
 </nav>
-
 
 <!-- ======================== SIDEBAR ADMIN ======================== -->
 <?php
@@ -195,7 +219,10 @@ document.addEventListener("click", function(e) {
     const userBox = document.querySelector(".user-box");
     const dropdown = document.getElementById("userDropdown");
 
-    if (!userBox.contains(e.target) && !dropdown.contains(e.target)) {
+    if (userBox && dropdown &&
+        !userBox.contains(e.target) &&
+        !dropdown.contains(e.target)) {
+
         dropdown.style.display = "none";
     }
 });

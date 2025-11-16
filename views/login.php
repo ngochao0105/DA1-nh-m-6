@@ -57,9 +57,7 @@
 
         <button type="submit" class="btn btn-primary">Đăng nhập</button>
 
-        <div class="link">
-            <p>Chưa có tài khoản? <a href="?act=register">Đăng ký ngay</a></p>
-        </div>
+
 
     </form>
 

@@ -140,15 +140,21 @@ body {
 
     <?php if(isset($_SESSION['username'])): ?>
     <div class="user-box" onclick="toggleUserDropdown()">
-        <i class="bi bi-person-circle" style="font-size:20px;"></i>
-        <span><?php echo $_SESSION['username']; ?></span>
-    </div>
+    <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['full_name']); ?>&background=2c3e50&color=fff&size=32"
+         width="22" height="22" style="border-radius:50%;">
 
-    <div class="user-dropdown" id="userDropdown">
-        <a href="?act=logout">
-            <i class="bi bi-box-arrow-right"></i> Đăng xuất
-        </a>
-    </div>
+    <span><?php echo $_SESSION['full_name']; ?></span>
+    <i class="bi bi-chevron-down"></i>
+</div>
+
+<div class="user-dropdown" id="userDropdown">
+    <a href="?act=hdv_profile">
+        <i class="bi bi-person"></i> Hồ sơ cá nhân
+    </a>
+    <a href="?act=logout">
+        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+    </a>
+</div>
     <?php endif; ?>
 
   </div>
