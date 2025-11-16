@@ -26,7 +26,7 @@
     </thead>
     <tbody>
       <?php if (!empty($guides)): ?>
-        <?php foreach ($guides as $guide): ?>
+        <?php foreach ($guides as $guide): ?> 
         <tr>
           <td><?= htmlspecialchars($guide['id']) ?></td>
           <td><?= htmlspecialchars($guide['full_name'] ?? $guide['name']) ?></td>
