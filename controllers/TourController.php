@@ -42,7 +42,7 @@ class TourController
             $id_danh_muc = $_POST['id_danh_muc'];
             $status = $_POST['status'];
         if($tour_name === '' || $description === '' || $start_date=== '' || $end_date==='' || $destination==='' || $price==='' || $id_danh_muc==='' || $status===''){
-
+            echo "Nhập đầy đủ thông tin";
         }else{
             $this->modelTour->createTour(
             $tour_name,
@@ -79,7 +79,7 @@ class TourController
             $id_danh_muc = $_POST['id_danh_muc'];
             $status = $_POST['status'];
         if($tour_name === '' || $description === '' || $start_date=== '' || $end_date==='' || $destination==='' || $price==='' || $id_danh_muc==='' || $status===''){
-
+            echo "Nhập đầy đủ thông tin ";
         }else{
             $this->modelTour->updateTour(
             $id,
