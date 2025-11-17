@@ -1,7 +1,26 @@
 <?php include "views/layout/header.php"; ?>
 <?php include "views/layout/sidebar.php"; ?>
 
+<!-- CSS FIX VỠ FORM -->
+<style>
+  td {
+    vertical-align: middle !important;
+  }
+
+  .actions {
+    white-space: nowrap;
+    width: 170px !important;
+  }
+
+  .actions .btn {
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    margin-right: 3px;
+  }
+</style>
+
 <div class="container-fluid px-4 mt-4">
+
   <style>
 /* ===== Card Search & Filter ===== */
 .card {
@@ -95,36 +114,55 @@ h3 {
 </div>
 
 
+ 
+
+
   <!-- === PHẦN THÊM: THANH TÌM KIẾM & LỌC === -->
   <div class="card mb-4">
     <div class="card-body">
       <form method="GET" action="" class="row g-3">
-        <input type="hidden" name="act" value="list-tours"> <!-- Giả định hành động là list-tours -->
+        <input type="hidden" name="act" value="list-tours">
+
         <div class="col-md-4">
           <label for="searchName" class="form-label">Tên tour</label>
+
           <input type="text" class="form-control" id="searchName" name="search_name" placeholder="Nhập tên tour..." value="<?= ($_GET['search_name'] ?? '') ?>">
+
+         
+
         </div>
+
         <div class="col-md-4">
           <label for="filterDestination" class="form-label">Điểm đến</label>
           <select class="form-select" id="filterDestination" name="filter_destination">
             <option value="">Tất cả</option>
+
+
+            <option value="Đà Nẵng" <?= (($_GET['filter_destination'] ?? '') == 'Đà Nẵng') ? 'selected' : '' ?>>Đà Nẵng</option>
+            <option value="Phú Quốc" <?= (($_GET['filter_destination'] ?? '') == 'Phú Quốc') ? 'selected' : '' ?>>Phú Quốc</option>
+            <option value="Hà Nội" <?= (($_GET['filter_destination'] ?? '') == 'Hà Nội') ? 'selected' : '' ?>>Hà Nội</option>
+            <option value="Sapa" <?= (($_GET['filter_destination'] ?? '') == 'Sapa') ? 'selected' : '' ?>>Sapa</option>
+            <option value="Nha Trang" <?= (($_GET['filter_destination'] ?? '') == 'Nha Trang') ? 'selected' : '' ?>>Nha Trang</option>
+
           </select>
         </div>
+
         <div class="col-md-4">
           <label for="filterStatus" class="form-label">Trạng thái</label>
           <select class="form-select" id="filterStatus" name="filter_status">
             <option value="">Tất cả</option>
-            <option value="1" <?= (isset($_GET['filter_status']) && $_GET['filter_status'] == '1') ? 'selected' : '' ?>>Đang mở</option>
-            <option value="0" <?= (isset($_GET['filter_status']) && $_GET['filter_status'] == '0') ? 'selected' : '' ?>>Đã đóng</option>
+            <option value="1" <?= (($_GET['filter_status'] ?? '') == '1') ? 'selected' : '' ?>>Đang mở</option>
+            <option value="0" <?= (($_GET['filter_status'] ?? '') == '0') ? 'selected' : '' ?>>Đã đóng</option>
           </select>
         </div>
+
         <div class="col-md-12 d-flex justify-content-end">
           <button type="submit" class="btn btn-primary">Lọc</button>
         </div>
       </form>
     </div>
   </div>
-  <!-- === KẾT THÚC PHẦN THÊM === -->
+  <!-- === END LỌC === -->
 
   <table class="table table-bordered align-middle mt-3">
     <thead class="table-dark">
@@ -141,7 +179,9 @@ h3 {
         <th>Thao tác</th>
       </tr>
     </thead>
+
     <tbody>
+
   <?php if (!empty($categories)): ?>
     <?php foreach ($categories as $cat): ?>
       <tr>
@@ -189,6 +229,7 @@ h3 {
     </tr>
   <?php endif; ?>
 </tbody>
+
   </table>
 </div>
 

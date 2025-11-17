@@ -118,4 +118,15 @@ class TourModel
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
     }
+    public function getTourById($id)
+{
+    try {
+        $sql = "SELECT * FROM tour WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Lỗi SQL: " . $e->getMessage());
+    }
+}
 }
