@@ -41,8 +41,6 @@ switch ($act) {
         (new AuthController())->logout();
         break;
 
-
-
     case '/':
         (new TourController())->Home();
         break;

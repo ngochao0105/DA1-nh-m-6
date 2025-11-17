@@ -2,14 +2,98 @@
 <?php include "views/layout/sidebar.php"; ?>
 
 <div class="container-fluid px-4 mt-4">
-  <hr>
-  <hr>
-  <hr>
+  <style>
+/* ===== Card Search & Filter ===== */
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.card-body label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ===== Table Style ===== */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+}
+
+.table thead {
+    background: #343a40;
+    color: #fff;
+}
+
+.table tbody tr:hover {
+    background: #f5f7fa;
+    transition: .25s;
+}
+
+.table td, .table th {
+    vertical-align: middle !important;
+    padding: 12px 14px;
+}
+
+/* ===== Badge Status ===== */
+.badge {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+/* ===== Button ===== */
+.btn {
+    border-radius: 6px !important;
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.btn-primary {
+    background: #4b7bec;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #3867d6;
+}
+
+.btn-warning {
+    background: #f1c40f;
+    border: none;
+}
+
+.btn-warning:hover {
+    background: #f39c12;
+}
+
+.btn-danger {
+    background: #eb3b5a;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #d63031;
+}
+
+/* ===== Page title ===== */
+h3 {
+    font-weight: 700;
+    color: #2d3436;
+    letter-spacing: .5px;
+    margin-bottom: 20px;
+}
+</style>
   
-  <h3>Danh mục Tour Du Lịch</h3>
-  <a href="?act=createtour" class="btn btn-primary float-end mb-3">
-    <i class="bi bi-plus-circle"></i> Thêm tour mới
-  </a>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Danh mục Tour Du Lịch</h3>
+    <a href="?act=createtour" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm tour mới
+    </a>
+</div>
+
 
   <!-- === PHẦN THÊM: THANH TÌM KIẾM & LỌC === -->
   <div class="card mb-4">
@@ -18,18 +102,12 @@
         <input type="hidden" name="act" value="list-tours"> <!-- Giả định hành động là list-tours -->
         <div class="col-md-4">
           <label for="searchName" class="form-label">Tên tour</label>
-          <input type="text" class="form-control" id="searchName" name="search_name" placeholder="Nhập tên tour..." value="<?= htmlspecialchars($_GET['search_name'] ?? '') ?>">
+          <input type="text" class="form-control" id="searchName" name="search_name" placeholder="Nhập tên tour..." value="<?= ($_GET['search_name'] ?? '') ?>">
         </div>
         <div class="col-md-4">
           <label for="filterDestination" class="form-label">Điểm đến</label>
           <select class="form-select" id="filterDestination" name="filter_destination">
             <option value="">Tất cả</option>
-            <!-- Dưới đây là ví dụ, bạn cần lấy danh sách điểm đến từ DB hoặc config -->
-            <option value="Đà Nẵng" <?= (isset($_GET['filter_destination']) && $_GET['filter_destination'] == 'Đà Nẵng') ? 'selected' : '' ?>>Đà Nẵng</option>
-            <option value="Phú Quốc" <?= (isset($_GET['filter_destination']) && $_GET['filter_destination'] == 'Phú Quốc') ? 'selected' : '' ?>>Phú Quốc</option>
-            <option value="Hà Nội" <?= (isset($_GET['filter_destination']) && $_GET['filter_destination'] == 'Hà Nội') ? 'selected' : '' ?>>Hà Nội</option>
-            <option value="Sapa" <?= (isset($_GET['filter_destination']) && $_GET['filter_destination'] == 'Sapa') ? 'selected' : '' ?>>Sapa</option>
-            <option value="Nha Trang" <?= (isset($_GET['filter_destination']) && $_GET['filter_destination'] == 'Nha Trang') ? 'selected' : '' ?>>Nha Trang</option>
           </select>
         </div>
         <div class="col-md-4">
@@ -68,13 +146,13 @@
     <?php foreach ($categories as $cat): ?>
       <tr>
         <td><?= $cat['id'] ?></td>
-        <td><?= htmlspecialchars($cat['tour_name'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['description'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['start_date'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['end_date'] ?? '') ?></td>
-        <td><?= htmlspecialchars($cat['destination'] ?? '') ?></td>
+        <td><?= ($cat['tour_name'] ?? '') ?></td>
+        <td><?= ($cat['description'] ?? '') ?></td>
+        <td><?= ($cat['start_date'] ?? '') ?></td>
+        <td><?= ($cat['end_date'] ?? '') ?></td>
+        <td><?= ($cat['destination'] ?? '') ?></td>
      <td><?= number_format($cat['price'], 0, ',', '.') ?> VNĐ</td>
-        <td><?= htmlspecialchars($cat['category_name'] ?? '') ?></td>
+        <td><?= ($cat['category_name'] ?? '') ?></td>
         <td>
         <?php 
               $status = $cat['status'] ?? 1;
@@ -91,7 +169,7 @@
                   $statusText = 'Sắp mở';
               }
           ?>
-          <span class="badge <?= htmlspecialchars($statusClass) ?>"><?= htmlspecialchars($statusText) ?></span> 
+          <span class="badge <?= ($statusClass) ?>"><?= ($statusText) ?></span> 
         <td>
           <a href="?act=edit-tour&id=<?= $cat['id'] ?>" class="btn btn-sm btn-warning text-white">
             <i class="bi bi-pencil"></i>
