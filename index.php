@@ -7,14 +7,14 @@ require_once './commons/function.php'; // Hàm hỗ trợ (CÓ checkAuth() và r
 require_once './models/UserModel.php';
 require_once './models/TourModel.php';
 require_once './models/GuideModel.php';
-require_once './models/HdvModel.php'; 
+require_once './models/HdvModel.php';
 require_once './models/BookingModel.php';
 
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
 require_once './controllers/GuideController.php';
-require_once './controllers/HdvController.php'; 
-require_once './controllers/BookingController.php'; 
+require_once './controllers/HdvController.php';
+require_once './controllers/BookingController.php';
 
 // 4. Route
 $act = $_GET['act'] ?? '/';
@@ -22,7 +22,7 @@ $act = $_GET['act'] ?? '/';
 
 $publicRoutes = [
     'login',
-    
+
 ];
 
 
@@ -83,6 +83,21 @@ switch ($act) {
         (new GuideController())->editGuide();
         break;
 
+
+   case 'assign-guide':
+    (new GuideController())->assignGuide();
+    break;
+
+case 'save-assign-guide':
+    (new GuideController())->saveAssignGuide();
+    break;
+
+case 'delete-assign':
+    (new GuideController())->deleteAssign();
+    break;
+
+
+        
     case 'hdv_dashboard':
         (new HdvController())->dashboard();
         break;
@@ -93,6 +108,6 @@ switch ($act) {
         break;
 
     default:
-    require_file_view('errors/404');
-    break;
+        require_file_view('errors/404');
+        break;
 }
