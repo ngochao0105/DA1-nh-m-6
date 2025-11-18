@@ -8,7 +8,87 @@
   <a href="?act=add-guide" class="btn btn-primary float-end mb-3"> <!-- <-- sửa -->
     <i class="bi bi-plus-circle"></i> Thêm hướng dẫn viên
   </a>
+<style>
+  /* ===================== PAGE TITLE ===================== */
+h3 {
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 20px;
+}
 
+/* ===================== BUTTON ===================== */
+.btn-primary {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #1e90ff, #3aa0ff) !important;
+    border: none;
+    font-size: 14px;
+}
+
+.btn-warning {
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    border-radius: 6px;
+    color: white !important;
+    background: #ffb300 !important;
+    border: none;
+}
+
+.btn-danger {
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    border-radius: 6px;
+}
+
+/* ===================== TABLE ===================== */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.table thead {
+    background: #2c3e50 !important;
+}
+
+.table thead th {
+    color: white;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+}
+
+/* Hover row */
+.table tbody tr:hover {
+    background: #f1f5ff !important;
+    transition: 0.2s;
+}
+
+/* ===================== TABLE CELLS ===================== */
+.table td {
+    vertical-align: middle !important;
+    font-size: 14px;
+    padding: 10px 12px;
+}
+
+/* ===================== STAR ICONS ===================== */
+.bi-star-fill, .bi-star-half, .bi-star {
+    font-size: 16px;
+    margin-right: 2px;
+}
+
+/* ===================== ACTIONS COLUMN ===================== */
+td:last-child {
+    white-space: nowrap;
+}
+
+/* Add spacing above content */
+.container-fluid, .container {
+    margin-top: 20px;
+}
+
+</style>
 
 
   <table class="table table-bordered align-middle mt-3">
