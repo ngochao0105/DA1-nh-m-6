@@ -33,24 +33,18 @@
   <div class="card mb-4">
     <div class="card-body">
       <form method="GET" action="" class="row g-3">
-        <input type="hidden" name="act" value="list-tours">
+        <input type="hidden" name="act" value="tour-list">
 
         <div class="col-md-4">
           <label for="searchName" class="form-label">Tên tour</label>
           <input type="text" class="form-control" id="searchName" name="search_name"
             placeholder="Nhập tên tour..."
-            value="<?= htmlspecialchars($_GET['search_name'] ?? '') ?>">
+            value="<?= ($_GET['search_name'] ?? '') ?>">
         </div>
 
         <div class="col-md-4">
           <label for="filterDestination" class="form-label">Điểm đến</label>
           <select class="form-select" id="filterDestination" name="filter_destination">
-            <option value="">Tất cả</option>
-            <option value="Đà Nẵng" <?= (($_GET['filter_destination'] ?? '') == 'Đà Nẵng') ? 'selected' : '' ?>>Đà Nẵng</option>
-            <option value="Phú Quốc" <?= (($_GET['filter_destination'] ?? '') == 'Phú Quốc') ? 'selected' : '' ?>>Phú Quốc</option>
-            <option value="Hà Nội" <?= (($_GET['filter_destination'] ?? '') == 'Hà Nội') ? 'selected' : '' ?>>Hà Nội</option>
-            <option value="Sapa" <?= (($_GET['filter_destination'] ?? '') == 'Sapa') ? 'selected' : '' ?>>Sapa</option>
-            <option value="Nha Trang" <?= (($_GET['filter_destination'] ?? '') == 'Nha Trang') ? 'selected' : '' ?>>Nha Trang</option>
           </select>
         </div>
 
@@ -60,6 +54,7 @@
             <option value="">Tất cả</option>
             <option value="1" <?= (($_GET['filter_status'] ?? '') == '1') ? 'selected' : '' ?>>Đang mở</option>
             <option value="0" <?= (($_GET['filter_status'] ?? '') == '0') ? 'selected' : '' ?>>Đã đóng</option>
+            <option value="2" <?= (($_GET['filter_status'] ?? '') == '2') ? 'selected' : '' ?>>Sắp mở</option>
           </select>
         </div>
 
@@ -92,13 +87,13 @@
         <?php foreach ($categories as $cat): ?>
           <tr>
             <td><?= $cat['id'] ?></td>
-            <td><?= htmlspecialchars($cat['tour_name']) ?></td>
-            <td><?= htmlspecialchars($cat['description']) ?></td>
+            <td><?= ($cat['tour_name']) ?></td>
+            <td><?= ($cat['description']) ?></td>
             <td><?= date('d-m-Y', strtotime($cat['start_date'])) ?></td>
             <td><?= date('d-m-Y', strtotime($cat['end_date'])) ?></td>
-            <td><?= htmlspecialchars($cat['destination']) ?></td>
+            <td><?= ($cat['destination']) ?></td>
             <td><?= number_format($cat['price'], 0, ',', '.') ?> VNĐ</td>
-            <td><?= htmlspecialchars($cat['category_name']) ?></td>
+            <td><?= ($cat['category_name']) ?></td>
 
             <!-- TRẠNG THÁI -->
             <td>
@@ -137,9 +132,9 @@
                 <i class="bi bi-trash"></i>
               </a>
 
-              <!-- Phân công HDV -->
+              
               <a href="?act=assign-guide&id=<?= $cat['id'] ?>"
-                class="btn btn-info btn-sm text-white" title="Phân công HDV">
+                class="btn btn-info btn-sm text-white" title="Tạo booking">
                 <i class="bi bi-people"></i>
               </a>
 
