@@ -80,7 +80,7 @@
               <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $cat): ?>
                   <option value="<?= $cat['id'] ?>">
-                    <?= htmlspecialchars($cat['category_name']) ?>
+                    <?= ($cat['category_name']) ?>
                   </option>
                 <?php endforeach; ?>
               <?php endif; ?>
