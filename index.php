@@ -9,12 +9,16 @@ require_once './models/TourModel.php';
 require_once './models/GuideModel.php';
 require_once './models/HdvModel.php';
 require_once './models/BookingModel.php';
+require_once './models/CustomerModel.php';
 
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/HdvController.php';
 require_once './controllers/BookingController.php';
+require_once './controllers/CustomerController.php';
+
+
 
 // 4. Route
 $act = $_GET['act'] ?? '/';
@@ -106,6 +110,24 @@ case 'delete-assign':
     case 'hdv_my_tours':
         (new HdvController())->myTours();
         break;
+
+  // Customer routes
+    case 'customer-list':
+        (new CustomerController())->list();
+        break;
+
+    case 'customer-add':
+        (new CustomerController())->add();
+        break;
+
+    case 'customer-edit':
+        (new CustomerController())->edit();
+        break;
+
+    case 'customer-delete':
+        (new CustomerController())->delete();
+        break;
+
 
     default:
         require_file_view('errors/404');

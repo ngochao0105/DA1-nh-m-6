@@ -9,7 +9,7 @@ class BookingController
     }
     public function BookingList() 
     {
-        $bookings = $this->modelBooking->getAllBooking();
+    $bookings = $this->modelBooking->getAllBooking();
 
         require_once "./views/Admin/QuanlyBooking/BookingList.php";
     }

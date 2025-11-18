@@ -125,8 +125,17 @@
        <i class="bi bi-person-badge"></i> Quản lý hướng dẫn viên
     </a>
 
-</li>
-  <a href="#" class="nav-link"><i class="bi bi-people"></i> Khách hàng</a>
+<!-- </li>
+  <li class="nav-item"><a class="nav-link" href="?act=customer-list">Quản lý khách hàng</a></li> -->
+
+
+
+  <a href="?act=customer-list" 
+       class="nav-link <?php echo ($act == 'customer-list' ? 'active' : ''); ?>">
+       <i class="bi bi-person-badge"></i> Quản lý khách hàng
+    </a>
+
+
   <a href="#" class="nav-link"><i class="bi bi-bar-chart"></i> Báo cáo</a>
 
   <!-- Footer -->
