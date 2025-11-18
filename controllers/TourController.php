@@ -24,8 +24,16 @@ class TourController
     }
     public function TourList()
     {
-        
-        $categories = $this->modelTour->getAllTour();
+       
+    $filterStatus = $_GET['filter_status'] ?? '';
+
+    if ($filterStatus !== '') {
+    
+    $categories = $this->modelTour->getStatus($filterStatus);
+    } else {
+    
+    $categories = $this->modelTour->getAllTour();
+    }
        
         require_once "./views/Admin/Quanlytour/TourList.php";
     }
