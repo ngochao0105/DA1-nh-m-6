@@ -64,7 +64,15 @@ switch ($act) {
     case 'booking-list':
         (new BookingController())->BookingList();
         break;
-
+    case 'add-booking' : 
+        (new BookingController())->CreateBooking();
+        break;
+    case 'update-booking-status':
+        (new BookingController())->updateStatus();
+        break;
+    case 'booking-logs':
+        (new BookingController())->BookingLogs();
+        break;
     case 'guide-management':
         (new GuideController())->GuideManagement();
         break;
