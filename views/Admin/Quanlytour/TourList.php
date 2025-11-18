@@ -132,9 +132,9 @@
                 <i class="bi bi-trash"></i>
               </a>
 
-              <!-- Phân công HDV -->
+              
               <a href="?act=assign-guide&id=<?= $cat['id'] ?>"
-                class="btn btn-info btn-sm text-white" title="Phân công HDV">
+                class="btn btn-info btn-sm text-white" title="Tạo booking">
                 <i class="bi bi-people"></i>
               </a>
 
