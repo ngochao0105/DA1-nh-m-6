@@ -3,27 +3,112 @@
 
 <!-- CSS FIX VỠ FORM -->
 <style>
-  td {
-    vertical-align: middle !important;
-  }
+ /* Tổng thể */
+.container-fluid h3 {
+    font-weight: 600;
+}
 
-  .actions {
+/* Card filter */
+.card {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.card-body label {
+    font-weight: 500;
+}
+
+/* Bảng */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
     white-space: nowrap;
-    width: 170px !important;
-  }
+}
 
-  .actions .btn {
-    padding: 4px 6px !important;
-    font-size: 12px !important;
-    margin-right: 3px;
-  }
+.table tbody tr:hover {
+    background: #f7f7f7;
+    transition: 0.2s;
+}
+
+/* Cột thao tác */
+.actions {
+    white-space: nowrap;
+    width: 180px !important;
+}
+
+.actions .btn {
+    padding: 5px 8px !important;
+    border-radius: 6px;
+    font-size: 13px !important;
+    margin-right: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.actions .btn-warning {
+    background-color: #ffb300 !important;
+    border: none;
+}
+
+.actions .btn-danger {
+    background-color: #e53935 !important;
+}
+
+.actions .btn-info {
+    background-color: #0288d1 !important;
+}
+
+.actions .btn-secondary {
+    background-color: #616161 !important;
+}
+
+/* Badge trạng thái */
+.badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.bg-success {
+    background-color: #4caf50 !important;
+}
+
+.bg-danger {
+    background-color: #e53935 !important;
+}
+
+.bg-warning {
+    background-color: #ffb300 !important;
+}
+
+.bg-info {
+    background-color: #0288d1 !important;
+}
+
+/* Form tìm kiếm */
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+/* Nút thêm tour */
+.btn-primary {
+    padding: 8px 14px !important;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Khoảng cách trên dưới trang */
+.container-fluid {
+    margin-bottom: 40px;
+}
+
+
 </style>
 
 <div class="container-fluid px-4 mt-4">
-  <hr>
-  <hr>
-  <hr>
-
   <h3>Danh mục Tour Du Lịch</h3>
   <a href="?act=createtour" class="btn btn-primary float-end mb-3">
     <i class="bi bi-plus-circle"></i> Thêm tour mới

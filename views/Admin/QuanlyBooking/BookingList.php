@@ -8,7 +8,110 @@
         <i class="bi bi-plus-circle"></i> Tạo Booking Mới
     </a>
 </div>
+<style>
+    /* ====================== TABLE STYLE ====================== */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
 
+.table thead {
+    background: linear-gradient(135deg, #1f2b38, #243447);
+}
+
+.table thead th {
+    color: #fff;
+    font-weight: 600;
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    transition: 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: #f4f8ff;
+}
+
+.table td {
+    padding: 12px 10px;
+    vertical-align: middle !important;
+    font-size: 14px;
+}
+
+/* ====================== BADGES (TRẠNG THÁI) ====================== */
+.badge {
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+}
+
+.bg-warning {
+    background-color: #fbc02d !important; 
+    color: #000 !important;
+}
+
+.bg-info {
+    background-color: #0288d1 !important;
+}
+
+.bg-success {
+    background-color: #4caf50 !important;
+}
+
+.bg-danger {
+    background-color: #e53935 !important;
+}
+
+/* ====================== ACTION BUTTONS ====================== */
+.btn-sm {
+    padding: 6px 10px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    transition: 0.2s;
+}
+
+.btn-sm:hover {
+    transform: scale(1.06);
+}
+
+.btn-info {
+    background-color: #0288d1 !important;
+    border: none !important;
+}
+
+.btn-primary {
+    border-radius: 8px !important;
+}
+
+/* Nút tạo booking mới */
+.btn-success {
+    padding: 8px 12px !important;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Dropdown nhỏ */
+.form-select-sm {
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+}
+
+/* ====================== CONTAINER ====================== */
+.container-fluid h3 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.container-fluid {
+    padding-bottom: 40px;
+}
+
+</style>
     <table class="table table-bordered mt-3">
         <thead class="table-dark">
             <tr>
