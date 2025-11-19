@@ -11,7 +11,7 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>ID Booking</th>
+        <th>Tên Booking </th>
         <th>Tên khách</th>
         <th>Phone</th>
         <th>Check-in</th>
