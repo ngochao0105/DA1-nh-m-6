@@ -26,7 +26,10 @@ class GuideModel
     public function getAllGuides()
     {
         try {
-            $sql = "SELECT * FROM nhansu ORDER BY id DESC";
+            $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
+                    FROM nhansu ns
+                    LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
+                    ORDER BY ns.id DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -35,28 +38,59 @@ class GuideModel
         }
     }
 
-    // Xóa HDV
+    // Xóa HDV và tài khoản liên quan
     public function deleteGuide($id)
     {
         try {
+            $this->conn->beginTransaction();
+
+            // 1. Lấy id_taikhoan
+            $guide = $this->getGuideById($id);
+            $accountId = $guide['id_taikhoan'] ?? null;
+
+            // 2. Xóa nhân sự
             $sql = "DELETE FROM nhansu WHERE id = ?";
             $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$id]);
+            $stmt->execute([$id]);
+
+            // 3. Xóa tài khoản nếu có
+            if ($accountId) {
+                $sqlAccount = "DELETE FROM taikhoan WHERE id = ?";
+                $stmtAccount = $this->conn->prepare($sqlAccount);
+                $stmtAccount->execute([$accountId]);
+            }
+
+            $this->conn->commit();
+            return true;
         } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+            $this->conn->rollBack();
+            throw new Exception("Lỗi SQL: " . $e->getMessage());
         }
     }
 
-    // Thêm HDV
-    public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $average_rating)
+    // Thêm HDV và tạo tài khoản
+    public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $username, $password)
     {
         try {
-            $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, average_rating) 
-                    VALUES (?, ?, ?, ?, ?, ?)";
+            $this->conn->beginTransaction();
+
+            // 1. Tạo tài khoản trong bảng taikhoan
+            $sqlAccount = "INSERT INTO taikhoan (username, password, role) VALUES (?, ?, 'hdv')";
+            $stmtAccount = $this->conn->prepare($sqlAccount);
+            $stmtAccount->execute([$username, $password]);
+            $accountId = $this->conn->lastInsertId();
+
+            // 2. Thêm nhân sự và liên kết với tài khoản
+            $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, average_rating, id_taikhoan) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$full_name, $birth_date, $phone, $email, $guide_type, $average_rating]);
+            $stmt->execute([$full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $accountId]);
+
+            $this->conn->commit();
+            return true;
         } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+            $this->conn->rollBack();
+            throw new Exception("Lỗi SQL: " . $e->getMessage());
         }
     }
 
@@ -71,7 +105,10 @@ class GuideModel
     public function getGuideById($id)
     {
         try {
-            $sql = "SELECT * FROM nhansu WHERE id = ?";
+            $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
+                    FROM nhansu ns
+                    LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
+                    WHERE ns.id = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -80,17 +117,53 @@ class GuideModel
         }
     }
 
-    // Update HDV
-    public function updateGuide($id, $full_name, $birth_date, $phone, $email, $guide_type, $average_rating)
+    // Update HDV và cập nhật tài khoản
+    public function updateGuide($id, $full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $username, $password = null)
     {
         try {
+            $this->conn->beginTransaction();
+
+            // 1. Lấy id_taikhoan hiện tại
+            $guide = $this->getGuideById($id);
+            $accountId = $guide['id_taikhoan'] ?? null;
+
+            // 2. Cập nhật thông tin nhân sự
             $sql = "UPDATE nhansu 
                     SET full_name = ?, birth_date = ?, phone = ?, email = ?, guide_type = ?, average_rating = ? 
                     WHERE id = ?";
             $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $average_rating, $id]);
+            $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $average_rating, $id]);
+
+            // 3. Cập nhật hoặc tạo tài khoản
+            if ($accountId) {
+                // Cập nhật tài khoản hiện có
+                if ($password) {
+                    $sqlAccount = "UPDATE taikhoan SET username = ?, password = ? WHERE id = ?";
+                    $stmtAccount = $this->conn->prepare($sqlAccount);
+                    $stmtAccount->execute([$username, $password, $accountId]);
+                } else {
+                    $sqlAccount = "UPDATE taikhoan SET username = ? WHERE id = ?";
+                    $stmtAccount = $this->conn->prepare($sqlAccount);
+                    $stmtAccount->execute([$username, $accountId]);
+                }
+            } else {
+                // Tạo tài khoản mới nếu chưa có
+                $sqlAccount = "INSERT INTO taikhoan (username, password, role) VALUES (?, ?, 'hdv')";
+                $stmtAccount = $this->conn->prepare($sqlAccount);
+                $stmtAccount->execute([$username, $password ?: '123456']); // Mật khẩu mặc định nếu không nhập
+                $newAccountId = $this->conn->lastInsertId();
+                
+                // Liên kết với nhân sự
+                $sqlLink = "UPDATE nhansu SET id_taikhoan = ? WHERE id = ?";
+                $stmtLink = $this->conn->prepare($sqlLink);
+                $stmtLink->execute([$newAccountId, $id]);
+            }
+
+            $this->conn->commit();
+            return true;
         } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+            $this->conn->rollBack();
+            throw new Exception("Lỗi SQL: " . $e->getMessage());
         }
     }
 

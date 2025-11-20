@@ -10,6 +10,7 @@ require_once './models/GuideModel.php';
 require_once './models/HdvModel.php';
 require_once './models/BookingModel.php';
 require_once './models/CustomerModel.php';
+require_once './models/ScheduleModel.php';
 
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
@@ -64,6 +65,22 @@ switch ($act) {
     case 'edit-tour':
         (new TourController())->EditTour();
         break;
+case 'schedule-list':
+    (new TourController())->scheduleList();
+    break;
+
+case 'schedule-create':
+    (new TourController())->scheduleCreate();
+    break;
+
+case 'schedule-edit':
+    (new TourController())->scheduleEdit();
+    break;
+
+case 'schedule-delete':
+    (new TourController())->scheduleDelete();
+    break;
+        
 
     case 'booking-list':
         (new BookingController())->BookingList();

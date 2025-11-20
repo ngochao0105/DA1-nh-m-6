@@ -23,19 +23,55 @@ class GuideController
 
     public function addGuide()
     {
+        $error = '';
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $full_name = trim($_POST['full_name'] ?? '');
+            $birth_date = trim($_POST['birth_date'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $guide_type = trim($_POST['guide_type'] ?? '');
+            $average_rating = floatval($_POST['average_rating'] ?? 0);
+            $username = trim($_POST['username'] ?? '');
+            $password = trim($_POST['password'] ?? '');
 
-            $this->modelGuide->insertGuide(
-                $_POST['full_name'],
-                $_POST['birth_date'],
-                $_POST['phone'],
-                $_POST['email'],
-                $_POST['guide_type'],
-                $_POST['average_rating']
-            );
+            // Validation
+            if (empty($full_name)) {
+                $error = "Vui lòng nhập tên hướng dẫn viên";
+            } elseif (empty($phone)) {
+                $error = "Vui lòng nhập số điện thoại";
+            } elseif (empty($username)) {
+                $error = "Vui lòng nhập tên đăng nhập";
+            } elseif (empty($password)) {
+                $error = "Vui lòng nhập mật khẩu";
+            } elseif (strlen($password) < 6) {
+                $error = "Mật khẩu phải có ít nhất 6 ký tự";
+            } else {
+                // Kiểm tra username đã tồn tại chưa
+                $userModel = new UserModel();
+                $existingUser = $userModel->getByUsername($username);
+                if ($existingUser) {
+                    $error = "Tên đăng nhập đã tồn tại";
+                } else {
+                    try {
+                        $this->modelGuide->insertGuide(
+                            $full_name,
+                            $birth_date ?: null,
+                            $phone,
+                            $email,
+                            $guide_type,
+                            $average_rating,
+                            $username,
+                            $password
+                        );
 
-            header("Location: ?act=guide-management");
-            exit;
+                        header("Location: ?act=guide-management");
+                        exit;
+                    } catch (Exception $e) {
+                        $error = "Lỗi khi thêm hướng dẫn viên: " . $e->getMessage();
+                    }
+                }
+            }
         }
 
         require_once './views/Admin/Quanlyhdv/AddGuide.php';
@@ -58,21 +94,57 @@ class GuideController
     {
         $id = $_GET['id'] ?? 0;
         $guide = $this->modelGuide->getGuideById($id);
+        $error = '';
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $this->modelGuide->updateGuide(
-                $id,
-                $_POST['full_name'],
-                $_POST['birth_date'],
-                $_POST['phone'],
-                $_POST['email'],
-                $_POST['guide_type'],
-                $_POST['average_rating']
-            );
-
+        if (!$guide) {
             header("Location: ?act=guide-management");
             exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $full_name = trim($_POST['full_name'] ?? '');
+            $birth_date = trim($_POST['birth_date'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $guide_type = trim($_POST['guide_type'] ?? '');
+            $average_rating = floatval($_POST['average_rating'] ?? 0);
+            $username = trim($_POST['username'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+
+            // Validation
+            if (empty($full_name)) {
+                $error = "Vui lòng nhập tên hướng dẫn viên";
+            } elseif (empty($phone)) {
+                $error = "Vui lòng nhập số điện thoại";
+            } elseif (empty($username)) {
+                $error = "Vui lòng nhập tên đăng nhập";
+            } else {
+                // Kiểm tra username đã tồn tại chưa (trừ chính nó)
+                $userModel = new UserModel();
+                $existingUser = $userModel->getByUsername($username);
+                if ($existingUser && $existingUser['id'] != ($guide['id_taikhoan'] ?? 0)) {
+                    $error = "Tên đăng nhập đã tồn tại";
+                } else {
+                    try {
+                        $this->modelGuide->updateGuide(
+                            $id,
+                            $full_name,
+                            $birth_date ?: null,
+                            $phone,
+                            $email,
+                            $guide_type,
+                            $average_rating,
+                            $username,
+                            $password ?: null
+                        );
+
+                        header("Location: ?act=guide-management");
+                        exit;
+                    } catch (Exception $e) {
+                        $error = "Lỗi khi cập nhật hướng dẫn viên: " . $e->getMessage();
+                    }
+                }
+            }
         }
 
         require_once './views/Admin/Quanlyhdv/EditGuide.php';
