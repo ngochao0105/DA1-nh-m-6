@@ -77,6 +77,6 @@ class BookingModel
         $stmt->execute([':booking_id' =>$booking_id]);
         return $stmt->fetchAll();
     }
-    
+
 
 }

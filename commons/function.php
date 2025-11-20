@@ -62,12 +62,17 @@ function get_db_connection() {
         die("Lỗi kết nối CSDL: " . $e->getMessage());
     }
 }
-function require_file_view($viewName) {
-    // Đường dẫn tương đối từ file index.php (file gốc chạy dự án)
+function require_file_view($viewName, $data = [])
+{
     $path = './views/' . $viewName . '.php';
 
+    // giải nén mảng thành biến
+    if (!empty($data)) {
+        extract($data);
+    }
+
     if (file_exists($path)) {
-        require_once $path;
+        require $path;
     } else {
         echo "Lỗi: Không tìm thấy file view tại đường dẫn: $path";
     }

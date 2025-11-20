@@ -56,63 +56,60 @@ class TourModel
     public function createTour(
         $tour_name,
         $description,
-        $start_date,
-        $end_date,
         $destination,
-        $price,
         $id_danh_muc,
         $status
     ) {
-        $sql = "INSERT INTO tour(tour_name,description,start_date,end_date,destination,price,id_danh_muc,status)
-    VALUES(:tour_name, :description, :start_date,:end_date,:destination,:price,:id_danh_muc,:status);";
+        try {
+            $sql = "INSERT INTO tour(tour_name, description, destination, id_danh_muc, status)
+                    VALUES(:tour_name, :description, :destination, :id_danh_muc, :status)";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
-            ":tour_name" => $tour_name,
-            ":description" => $description,
-            ":start_date" => $start_date,
-            ":end_date" => $end_date,   
-            ":destination" => $destination,
-            ":price" => $price,
-            ":id_danh_muc" => $id_danh_muc,
-            ":status" => $status
-        ]);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ":tour_name" => $tour_name,
+                ":description" => $description,
+                ":destination" => $destination,
+                ":id_danh_muc" => $id_danh_muc,
+                ":status" => $status
+            ]);
+            
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Lỗi database: " . $e->getMessage());
+        }
     }
     public function updateTour(
             $id,
         $tour_name,
         $description,
-        $start_date,
-        $end_date,
         $destination,
-        $price,
         $id_danh_muc,
         $status
     )
     {
-         $sql = "UPDATE tour 
-            SET tour_name = :tour_name,
-                description = :description,
-                start_date = :start_date,
-                end_date = :end_date,
-                destination = :destination,
-                price = :price,
-                id_danh_muc = :id_danh_muc,
-                status = :status
-            WHERE id = :id";
+        try {
+            $sql = "UPDATE tour 
+                SET tour_name = :tour_name,
+                    description = :description,
+                    destination = :destination,
+                    id_danh_muc = :id_danh_muc,
+                    status = :status
+                WHERE id = :id";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
-            ":id" =>$id,
-            ":tour_name" => $tour_name,
-            ":description" => $description,
-            ":start_date" => $start_date,
-            ":end_date" => $end_date,
-            ":destination" => $destination,
-            ":price" => $price,
-            ":id_danh_muc" => $id_danh_muc,
-            ":status" => $status
-        ]);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ":id" => $id,
+                ":tour_name" => $tour_name,
+                ":description" => $description,
+                ":destination" => $destination,
+                ":id_danh_muc" => $id_danh_muc,
+                ":status" => $status
+            ]);
+            
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Lỗi database: " . $e->getMessage());
+        }
     }
     public function getOneTour($id) 
     {
