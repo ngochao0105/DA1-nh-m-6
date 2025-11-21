@@ -23,20 +23,41 @@ class GuideModel
     }
 
     // Lấy tất cả HDV
-    public function getAllGuides()
-    {
-        try {
-            $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
-                    FROM nhansu ns
-                    LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
-                    ORDER BY ns.id DESC";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+// Lấy tất cả HDV + tìm kiếm
+public function getAllGuides($keyword = "")
+{
+    try {
+        $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
+                FROM nhansu ns
+                LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
+                WHERE 1";
+
+        if (!empty($keyword)) {
+            $sql .= " AND (
+                        ns.full_name LIKE :kw 
+                        OR ns.phone LIKE :kw
+                        OR ns.email LIKE :kw
+                        OR ns.guide_type LIKE :kw
+                    )";
         }
+
+        $sql .= " ORDER BY ns.id DESC";
+
+        $stmt = $this->conn->prepare($sql);
+
+        if (!empty($keyword)) {
+            $stmt->bindValue(":kw", "%$keyword%", PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) {
+        die("Lỗi SQL: " . $e->getMessage());
     }
+}
+
+
 
     // Xóa HDV và tài khoản liên quan
     public function deleteGuide($id)
@@ -240,4 +261,8 @@ class GuideModel
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
+
+
+
+
 }
