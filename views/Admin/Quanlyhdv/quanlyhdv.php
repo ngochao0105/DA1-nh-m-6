@@ -6,12 +6,16 @@
 </div>
 
 <!-- Action Bar -->
+ <form method="GET" action="">
 <div class="action-bar">
     <div class="action-bar-left">
         <div class="action-bar-search">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Tìm kiếm tên hướng dẫn viên...">
+            <!-- <i class="bi bi-search"></i> -->
+            <input type="text" placeholder="Tìm kiếm tên hướng dẫn viên..."
+            alue="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">                
+             <button type="submit">Tìm kiếm</button>
         </div>
+        </form>
         <div class="action-bar-filter">
             <select>
                 <option>Tất cả</option>
