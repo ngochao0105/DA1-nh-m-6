@@ -1,115 +1,296 @@
 <?php include "views/layout/header.php"; ?>
 <?php include "views/layout/sidebar.php"; ?>
 
-<div class="page-header">
-    <h1>Thêm Booking Mới</h1>
-</div>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #9CECFB, #65C7F7, #0052D4);
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 40px;
+    }
 
-<div style="background: white; border-radius: 0.75rem; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span><?= htmlspecialchars($error) ?></span>
+    .step-wrapper {
+        width: 100%;
+        max-width: 780px;
+        margin: 40px auto;
+    }
+
+    .step-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+    }
+
+    .step-header h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 700;
+        color: #1d3557;
+        font-size: 32px;
+    }
+
+    /* Progress bar */
+    .progressbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px 0 0;
+    }
+
+    .progress-step {
+        width: 30px;
+        height: 30px;
+        background: #E0E7FF;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    .progress-step.active {
+        background: #00A6FF;
+    }
+
+    .progress-line {
+        width: 110px;
+        height: 5px;
+        background: #E0E7FF;
+        border-radius: 10px;
+        margin: 0 8px;
+        transition: 0.3s;
+    }
+
+    .progress-line.active {
+        background: #00A6FF;
+    }
+
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        padding: 0 20px;
+        font-size: 15px;
+        color: #444;
+        font-weight: 500;
+    }
+
+    /* Content pages */
+    .step-page {
+        display: none;
+        animation: fadeIn .3s ease-in-out;
+        margin-top: 25px;
+    }
+    .step-page.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Title inside form */
+    .step-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #1d3557;
+    }
+
+    /* Inputs */
+    .input {
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        margin: 5px 0 20px;
+        font-size: 15px;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 25px;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        transition: 0.3s;
+    }
+    .btn.primary {
+        background: #0099ff;
+        color: white;
+    }
+    .btn.primary:hover {
+        background: #007ed6;
+    }
+
+    .btn.secondary {
+        background: #ccc;
+    }
+    .btn.secondary:hover {
+        background: #b4b4b4;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    .add-btn {
+        background: #28c76f;
+        color: white;
+        margin-bottom: 15px;
+    }
+    .add-btn:hover {
+        background: #1e9d56;
+    }
+
+    /* Customer box */
+    .customer-box {
+        background: #f3f4f6;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="step-wrapper">
+    <div class="step-card">
+
+        <!-- Header -->
+        <div class="step-header">
+            <h2>Tạo Booking</h2>
         </div>
-    <?php endif; ?>
 
-    <form action="" method="POST">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <label class="form-label">Chọn Tour <span style="color: #ef4444;">*</span></label>
-                <select name="id_tour" class="form-select" required>
+        <!-- Progress Bar -->
+        <div class="progressbar">
+            <div class="progress-step active"></div>
+            <div class="progress-line active"></div>
+            <div class="progress-step"></div>
+            <div class="progress-line"></div>
+            <div class="progress-step"></div>
+        </div>
+
+        <div class="progress-labels">
+            <span>Chọn Tour</span>
+            <span>Chọn HDV</span>
+            <span>Khách hàng</span>
+        </div>
+
+        <!-- FORM -->
+        <form id="bookingForm" action="index.php?act=booking-save" method="POST">
+
+            <!-- STEP 1 -->
+            <div class="step-page active">
+                <h3 class="step-title"> Chọn Tour</h3>
+
+                <label>Tour</label>
+                <select class="input" name="id_tour" id="tourSelect">
                     <option value="">-- Chọn tour --</option>
                     <?php foreach ($tours as $tour): ?>
-                        <option value="<?= $tour['id'] ?>">
-                            <?= htmlspecialchars($tour['tour_name']) ?> (<?= number_format($tour['price']) ?> VNĐ)
-                        </option>
+                        <option value="<?= $tour['id'] ?>"><?= htmlspecialchars($tour['tour_name']) ?></option>
                     <?php endforeach; ?>
                 </select>
+
+                <label>Ngày khởi hành</label>
+                <input type="date" class="input" name="ngay_di" id="dateSelect">
+
+                <button type="button" class="btn primary next-btn">Tiếp tục</button>
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label">Loại booking</label>
-                <select name="booking_type" class="form-select">
-                    <option value="individual">Khách lẻ (1-2 người)</option>
-                    <option value="group">Đoàn (nhiều người)</option>
-                    <option value="company">Công ty / Tổ chức</option>
+            <!-- STEP 2 -->
+            <div class="step-page">
+                <h3 class="step-title">Chọn Hướng dẫn viên</h3>
+
+                <label>Hướng dẫn viên</label>
+                <select class="input" name="id_hdv" id="hdvSelect">
+                    <option value="">-- Vui lòng chọn ngày trước --</option>
                 </select>
-            </div>
 
-            <div class="col-md-6">
-                <label class="form-label">Tên khách hàng <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="customer_name" class="form-control" required>
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">Số điện thoại <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="phone" class="form-control" required>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Số người <span style="color: #ef4444;">*</span></label>
-                <input type="number" name="people_count" class="form-control" required min="1" value="1">
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Ngày đặt <span style="color: #ef4444;">*</span></label>
-                <input type="date" name="booking_date" class="form-control" required>
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">Trạng thái</label>
-                <select name="status" class="form-select">
-                    <option value="pending">Chờ xác nhận</option>
-                    <option value="deposit">Đã cọc</option>
-                    <option value="cancelled">Hủy</option>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Yêu cầu đặc biệt</label>
-                <select name="special_type" id="specialSelect" class="form-select">
-                    <option value="">Không có</option>
-                    <option value="Ăn chay">Ăn chay</option>
-                    <option value="Dị ứng">Dị ứng</option>
-                    <option value="Bệnh lý">Bệnh lý</option>
-                    <option value="Yêu cầu khác">Yêu cầu khác</option>
-                </select>
-            </div>
-            
-            <div class="col-12" id="specialDetailBox" style="display:none;">
-                <label class="form-label">Ghi rõ yêu cầu đặc biệt <span style="color: #ef4444;">*</span></label>
-                <textarea name="special_request" class="form-control" rows="4"
-                    placeholder="Ghi rõ yêu cầu của khách"></textarea>
-            </div>
-
-            <div class="col-12">
-                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
-                    <a href="?act=booking-list" class="btn btn-secondary">
-                        <i class="bi bi-x-circle"></i> Hủy
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle"></i> Tạo booking
-                    </button>
+                <div class="btn-group">
+                    <button type="button" class="btn secondary prev-btn">Quay lại</button>
+                    <button type="button" class="btn primary next-btn">Tiếp tục</button>
                 </div>
             </div>
-        </div>
-    </form>
+
+            <!-- STEP 3 -->
+            <div class="step-page">
+                <h3 class="step-title">Khách hàng</h3>
+
+                <div id="customerList"></div>
+
+                <button type="button" class="btn add-btn" onclick="addCustomer()">+ Thêm khách</button>
+
+                <div class="btn-group">
+                    <button type="button" class="btn secondary prev-btn">Quay lại</button>
+                    <button type="submit" class="btn primary">Hoàn tất Booking</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 <script>
-document.getElementById('specialSelect').addEventListener('change', function () {
-    let box = document.getElementById('specialDetailBox');
-    if (this.value === 'Yêu cầu khác') {
-        box.style.display = 'block';
-    } else {
-        box.style.display = 'none';
-    }
+/* STEP FORM */
+const steps = document.querySelectorAll(".progress-step");
+const lines = document.querySelectorAll(".progress-line");
+const pages = document.querySelectorAll(".step-page");
+const nextBtns = document.querySelectorAll(".next-btn");
+const prevBtns = document.querySelectorAll(".prev-btn");
+
+let currentStep = 0;
+
+function updateStep() {
+    pages.forEach((p, i) => p.classList.toggle("active", i === currentStep));
+    steps.forEach((s, i) => s.classList.toggle("active", i <= currentStep));
+    lines.forEach((l, i) => l.classList.toggle("active", i < currentStep));
+}
+
+nextBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        if (currentStep < pages.length - 1) currentStep++;
+        updateStep();
+    });
 });
+
+prevBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        if (currentStep > 0) currentStep--;
+        updateStep();
+    });
+});
+
+updateStep();
+
+/* LOAD HDV VIA AJAX */
+document.getElementById('dateSelect').addEventListener('change', function () {
+    const date = this.value;
+    if (!date) return;
+
+    fetch("index.php?act=ajax-get-hdv&ngay_di=" + date)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('hdvSelect').innerHTML = html;
+        });
+});
+
+/* ADD CUSTOMER */
+function addCustomer() {
+    const html = `
+        <div class="customer-box">
+            <input class="input" name="ten_khach[]" placeholder="Tên khách" required>
+            <input class="input" name="sdt[]" placeholder="Số điện thoại" required>
+            <textarea class="input" name="yeu_cau_dac_biet[]" placeholder="Yêu cầu đặc biệt"></textarea>
+        </div>
+    `;
+    document.getElementById('customerList').insertAdjacentHTML('beforeend', html);
+}
 </script>
 
 <?php include "views/layout/footer.php"; ?>

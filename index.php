@@ -28,8 +28,7 @@ $act = $_GET['act'] ?? '/';
 $publicRoutes = [
     'login',
 
-];
-
+];  
 
 if (!in_array($act, $publicRoutes)) {
     checkAuth(); // Hàm này kiểm tra xem CÓ đăng nhập hay không
@@ -65,19 +64,19 @@ switch ($act) {
     case 'edit-tour':
         (new TourController())->EditTour();
         break;
-case 'schedule-list':
+    case 'schedule-list':
     (new TourController())->scheduleList();
     break;
 
-case 'schedule-create':
+    case 'schedule-create':
     (new TourController())->scheduleCreate();
     break;
 
-case 'schedule-edit':
+    case 'schedule-edit':   
     (new TourController())->scheduleEdit();
     break;
 
-case 'schedule-delete':
+    case 'schedule-delete':
     (new TourController())->scheduleDelete();
     break;
         
@@ -94,6 +93,21 @@ case 'schedule-delete':
     case 'booking-logs':
         (new BookingController())->BookingLogs();
         break;
+    case 'ajax-get-schedule':
+        (new BookingController())->AjaxGetSchedule();
+        break;
+
+    case 'ajax-get-hdv':
+        (new BookingController())->AjaxGetHdv();
+         break;
+
+    case 'booking-save':
+        (new BookingController())->SaveBooking();
+        break;
+    case 'booking-detail':
+        (new BookingController())->BookingDetail();
+        break;
+
     case 'guide-management':
         (new GuideController())->GuideManagement();
         break;

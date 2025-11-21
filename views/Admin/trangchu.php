@@ -364,7 +364,7 @@
             </div>
             <div style="flex: 1;">
                 <div class="stat-label">Tổng Booking</div>
-                <div class="stat-value">24</div>
+                <div class="stat-value" <?= $totalBooking ?? 0 ?>></div>
                 <div class="stat-trend up">
                     <i class="bi bi-arrow-up"></i>
                     <span>+12% tháng này</span>
