@@ -6,16 +6,20 @@
 </div>
 
 <!-- Action Bar -->
- <form method="GET" action="">
 <div class="action-bar">
     <div class="action-bar-left">
-        <div class="action-bar-search">
-            <!-- <i class="bi bi-search"></i> -->
-            <input type="text" placeholder="Tìm kiếm tên hướng dẫn viên..."
-            alue="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">                
-             <button type="submit">Tìm kiếm</button>
-        </div>
+
+        <!-- Form tìm kiếm -->
+        <form method="GET" action="" class="action-bar-search" style="display: flex; align-items: center;">
+            <input type="hidden" name="act" value="guide-management">
+
+            <i class="bi bi-search"></i>
+            <input type="text" 
+                   name="keyword"
+                   placeholder="Tìm kiếm tên hướng dẫn viên..."
+                   value="<?= isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '' ?>">
         </form>
+
         <div class="action-bar-filter">
             <select>
                 <option>Tất cả</option>
@@ -24,15 +28,17 @@
             </select>
         </div>
     </div>
+
     <div class="action-bar-right">
-        <button class="btn btn-secondary">
+        <a href="?act=guide-management" class="btn btn-secondary">
             <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </button>
+        </a>
         <a href="?act=add-guide" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Thêm HDV
         </a>
     </div>
 </div>
+
 
 <!-- Table -->
 <div class="table-container">

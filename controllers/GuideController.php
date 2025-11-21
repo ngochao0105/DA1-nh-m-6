@@ -15,9 +15,12 @@ class GuideController
     // QUẢN LÝ HDV
     // ==========================
 
+    // ✔ HÀM DUY NHẤT — ĐÃ SỬA HỖ TRỢ TÌM KIẾM
     public function GuideManagement()
     {
-        $guides = $this->modelGuide->getAllGuides();
+        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : "";
+        $guides = $this->modelGuide->getAllGuides($keyword);
+
         require_once './views/Admin/Quanlyhdv/quanlyhdv.php';
     }
 
@@ -47,9 +50,9 @@ class GuideController
             } elseif (strlen($password) < 6) {
                 $error = "Mật khẩu phải có ít nhất 6 ký tự";
             } else {
-                // Kiểm tra username đã tồn tại chưa
                 $userModel = new UserModel();
                 $existingUser = $userModel->getByUsername($username);
+
                 if ($existingUser) {
                     $error = "Tên đăng nhập đã tồn tại";
                 } else {
@@ -111,7 +114,6 @@ class GuideController
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
-            // Validation
             if (empty($full_name)) {
                 $error = "Vui lòng nhập tên hướng dẫn viên";
             } elseif (empty($phone)) {
@@ -119,9 +121,9 @@ class GuideController
             } elseif (empty($username)) {
                 $error = "Vui lòng nhập tên đăng nhập";
             } else {
-                // Kiểm tra username đã tồn tại chưa (trừ chính nó)
                 $userModel = new UserModel();
                 $existingUser = $userModel->getByUsername($username);
+
                 if ($existingUser && $existingUser['id'] != ($guide['id_taikhoan'] ?? 0)) {
                     $error = "Tên đăng nhập đã tồn tại";
                 } else {
@@ -151,10 +153,9 @@ class GuideController
     }
 
     // ==========================
-    //  PHÂN CÔNG HDV
+    // PHÂN CÔNG HDV
     // ==========================
 
-    // Hiển thị giao diện phân công
     public function assignGuide()
     {
         $id_tour = $_GET['id'] ?? 0;
@@ -171,30 +172,25 @@ class GuideController
         require_once './views/Admin/Quanlytour/assign_guide.php';
     }
 
-    // Lưu phân công
-   public function saveAssignGuide()
-{
-    $id_tour = $_GET['id'] ?? 0;
-    $id_hdv = $_POST['id_hdv'] ?? 0;
-    $role = $_POST['role'] ?? '';
+    public function saveAssignGuide()
+    {
+        $id_tour = $_GET['id'] ?? 0;
+        $id_hdv = $_POST['id_hdv'] ?? 0;
+        $role = $_POST['role'] ?? '';
 
-    // Nếu tour đã có HDV thì không cho phân công thêm
-    if ($this->modelGuide->isTourAssigned($id_tour)) {
-        header("Location: ?act=assign-guide&id=$id_tour&error=assigned");
+        if ($this->modelGuide->isTourAssigned($id_tour)) {
+            header("Location: ?act=assign-guide&id=$id_tour&error=assigned");
+            exit();
+        }
+
+        if ($id_tour > 0 && $id_hdv > 0) {
+            $this->modelGuide->assignGuideToTour($id_tour, $id_hdv, $role);
+        }
+
+        header("Location: ?act=assign-guide&id=$id_tour&success=1");
         exit();
     }
 
-    // Nếu chưa có thì tiến hành phân công
-    if ($id_tour > 0 && $id_hdv > 0) {
-        $this->modelGuide->assignGuideToTour($id_tour, $id_hdv, $role);
-    }
-
-    header("Location: ?act=assign-guide&id=$id_tour&success=1");
-    exit();
-}
-
-
-    // Xóa phân công
     public function deleteAssign()
     {
         $assign_id = $_GET['id'];
@@ -226,3 +222,4 @@ class GuideController
         require_once './views/HDV/my_tours.php';
     }
 }
+
