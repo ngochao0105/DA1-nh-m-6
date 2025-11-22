@@ -68,9 +68,15 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Đánh giá (0-5)</label>
-                <input type="number" class="form-control" name="average_rating" 
-                       min="0" max="5" step="0.1" value="0">
+                <label class="form-label">Đánh giá năng lực</label>
+                <select class="form-select" name="competency_level">
+                    <option value="">Chọn năng lực</option>
+                    <option value="Nhân viên mới">Nhân viên mới</option>
+                    <option value="Nhân viên">Nhân viên</option>
+                    <option value="Chuyên viên">Chuyên viên</option>
+                    <option value="Chuyên viên cao cấp">Chuyên viên cao cấp</option>
+                    <option value="Quản lý">Quản lý</option>
+                </select>
             </div>
 
             <div class="col-12">

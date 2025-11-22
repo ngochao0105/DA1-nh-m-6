@@ -34,7 +34,7 @@ class GuideController
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $guide_type = trim($_POST['guide_type'] ?? '');
-            $average_rating = floatval($_POST['average_rating'] ?? 0);
+            $competency_level = trim($_POST['competency_level'] ?? '');
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
@@ -63,7 +63,7 @@ class GuideController
                             $phone,
                             $email,
                             $guide_type,
-                            $average_rating,
+                            $competency_level,
                             $username,
                             $password
                         );
@@ -110,7 +110,7 @@ class GuideController
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $guide_type = trim($_POST['guide_type'] ?? '');
-            $average_rating = floatval($_POST['average_rating'] ?? 0);
+            $competency_level = trim($_POST['competency_level'] ?? '');
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
@@ -135,7 +135,7 @@ class GuideController
                             $phone,
                             $email,
                             $guide_type,
-                            $average_rating,
+                            $competency_level,
                             $username,
                             $password ?: null
                         );
