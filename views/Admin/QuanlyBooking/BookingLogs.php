@@ -2,16 +2,15 @@
 <?php include "views/layout/sidebar.php"; ?>
 
 <?php
-// Hàm đổi trạng thái sang tiếng Việt + màu
 function statusLabel($status) {
     switch ($status) {
-        case 'pending':
+        case 'cho_xac_nhan':
             return "<span class='badge bg-warning text-dark'>Chờ xác nhận</span>";
-        case 'deposit':
+        case 'da_coc':
             return "<span class='badge bg-info text-dark'>Đã cọc</span>";
-        case 'completed':
+        case 'hoan_tat':
             return "<span class='badge bg-success'>Hoàn tất</span>";
-        case 'cancelled':
+        case 'huy':
             return "<span class='badge bg-danger'>Hủy</span>";
         default:
             return "<span class='badge bg-secondary'>Không rõ</span>";
@@ -47,7 +46,7 @@ function statusLabel($status) {
                 <td><?= $log['changed_at'] ?></td>
                 <td><?= statusLabel($log['old_status']) ?></td>
                 <td><?= statusLabel($log['new_status']) ?></td>
-                <td><?= $log['changed_by'] ?></td>
+                <td><?= htmlspecialchars($log['changed_by']) ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -58,3 +57,4 @@ function statusLabel($status) {
 </div>
 
 <?php include "views/layout/footer.php"; ?>
+            
