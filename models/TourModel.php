@@ -21,12 +21,7 @@ class TourModel
         $stmt = $this->conn->query($sql);
         return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
-    public function countBooking()
-    {
-        $sql = "SELECT COUNT(*) AS total FORM booking";
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetch()['total'];
-    }
+    
     public function getAllTour()
     {
         try {
