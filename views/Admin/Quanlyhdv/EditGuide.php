@@ -73,9 +73,38 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Đánh giá (0-5)</label>
-                <input type="number" class="form-control" name="average_rating" 
-                       min="0" max="5" step="0.1" value="<?= htmlspecialchars($guide['average_rating'] ?? 0) ?>">
+                <label class="form-label">Đánh giá năng lực</label>
+                <select class="form-select" name="competency_level">
+                    <option value="">Chọn năng lực</option>
+                    <?php
+                    $competency_levels = ['Nhân viên mới', 'Nhân viên', 'Chuyên viên', 'Chuyên viên cao cấp', 'Quản lý'];
+                    // Get competence_level from database (note: column name is competence_level with 'e')
+                    $current_level = $guide['competence_level'] ?? $guide['competency_level'] ?? '';
+                    
+                    // Handle migration from old numeric rating if needed
+                    if (is_numeric($current_level)) {
+                        $num_rating = floatval($current_level);
+                        if ($num_rating == 0) {
+                            $current_level = '';
+                        } elseif ($num_rating <= 1.5) {
+                            $current_level = 'Nhân viên mới';
+                        } elseif ($num_rating <= 2.5) {
+                            $current_level = 'Nhân viên';
+                        } elseif ($num_rating <= 3.5) {
+                            $current_level = 'Chuyên viên';
+                        } elseif ($num_rating <= 4.5) {
+                            $current_level = 'Chuyên viên cao cấp';
+                        } else {
+                            $current_level = 'Quản lý';
+                        }
+                    }
+                    
+                    foreach ($competency_levels as $level) {
+                        $selected = ($current_level === $level) ? 'selected' : '';
+                        echo "<option value=\"" . htmlspecialchars($level) . "\" $selected>" . htmlspecialchars($level) . "</option>";
+                    }
+                    ?>
+                </select>
             </div>
 
             <div class="col-12">
@@ -93,3 +122,4 @@
 </div>
 
 <?php include "views/layout/footer.php"; ?>
+                    

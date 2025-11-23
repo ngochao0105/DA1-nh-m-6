@@ -23,20 +23,44 @@ class GuideModel
     }
 
     // Lấy tất cả HDV
-    public function getAllGuides()
-    {
-        try {
-            $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
-                    FROM nhansu ns
-                    LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
-                    ORDER BY ns.id DESC";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
+    // Lấy tất cả HDV + tìm kiếm
+public function getAllGuides($keyword = "")
+{
+    try {
+        // Lấy password_display từ nhansu (mật khẩu gốc), không lấy password từ taikhoan (đã hash)
+        $sql = "SELECT ns.*, 
+                       COALESCE(ns.password_display, ns.password) as password_display,
+                       tk.username, tk.role 
+                FROM nhansu ns
+                LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
+                WHERE 1";
+
+        if (!empty($keyword)) {
+            $sql .= " AND (
+                        ns.full_name LIKE :kw 
+                        OR ns.phone LIKE :kw
+                        OR ns.email LIKE :kw
+                        OR ns.guide_type LIKE :kw
+                    )";
         }
+
+        $sql .= " ORDER BY ns.id DESC";
+
+        $stmt = $this->conn->prepare($sql);
+
+        if (!empty($keyword)) {
+            $stmt->bindValue(":kw", "%$keyword%", PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) {
+        die("Lỗi SQL: " . $e->getMessage());
     }
+}
+
+
 
     // Xóa HDV và tài khoản liên quan
     public function deleteGuide($id)
@@ -69,22 +93,35 @@ class GuideModel
     }
 
     // Thêm HDV và tạo tài khoản
-    public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $username, $password)
+    public function insertGuide($full_name, $birth_date, $phone, $email, $guide_type, $competency_level, $username, $password)
     {
         try {
             $this->conn->beginTransaction();
 
-            // 1. Tạo tài khoản trong bảng taikhoan
+            // 1. Hash mật khẩu để lưu vào taikhoan (để đăng nhập)
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+            // 2. Tạo tài khoản trong bảng taikhoan với mật khẩu đã hash
             $sqlAccount = "INSERT INTO taikhoan (username, password, role) VALUES (?, ?, 'hdv')";
             $stmtAccount = $this->conn->prepare($sqlAccount);
-            $stmtAccount->execute([$username, $password]);
+            $stmtAccount->execute([$username, $hashed_password]);
             $accountId = $this->conn->lastInsertId();
 
-            // 2. Thêm nhân sự và liên kết với tài khoản
-            $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, average_rating, id_taikhoan) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $accountId]);
+            // 3. Thêm nhân sự và liên kết với tài khoản
+            // Lưu mật khẩu gốc vào nhansu để hiển thị (nếu có cột password_display)
+            // Nếu không có cột password_display, sẽ lưu vào password column
+            $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, competence_level, id_taikhoan, password_display) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            try {
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([$full_name, $birth_date, $phone, $email, $guide_type, $competency_level, $accountId, $password]);
+            } catch (PDOException $e) {
+                // Fallback: nếu không có cột password_display, lưu vào password
+                $sql = "INSERT INTO nhansu (full_name, birth_date, phone, email, guide_type, competence_level, id_taikhoan, password) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([$full_name, $birth_date, $phone, $email, $guide_type, $competency_level, $accountId, $password]);
+            }
 
             $this->conn->commit();
             return true;
@@ -105,7 +142,10 @@ class GuideModel
     public function getGuideById($id)
     {
         try {
-            $sql = "SELECT ns.*, tk.username, tk.password, tk.role 
+            // Lấy password_display từ nhansu (mật khẩu gốc), không lấy password từ taikhoan (đã hash)
+            $sql = "SELECT ns.*, 
+                           COALESCE(ns.password_display, ns.password) as password_display,
+                           tk.username, tk.role 
                     FROM nhansu ns
                     LEFT JOIN taikhoan tk ON ns.id_taikhoan = tk.id
                     WHERE ns.id = ?";
@@ -118,7 +158,7 @@ class GuideModel
     }
 
     // Update HDV và cập nhật tài khoản
-    public function updateGuide($id, $full_name, $birth_date, $phone, $email, $guide_type, $average_rating, $username, $password = null)
+    public function updateGuide($id, $full_name, $birth_date, $phone, $email, $guide_type, $competency_level, $username, $password = null)
     {
         try {
             $this->conn->beginTransaction();
@@ -128,19 +168,40 @@ class GuideModel
             $accountId = $guide['id_taikhoan'] ?? null;
 
             // 2. Cập nhật thông tin nhân sự
-            $sql = "UPDATE nhansu 
-                    SET full_name = ?, birth_date = ?, phone = ?, email = ?, guide_type = ?, average_rating = ? 
-                    WHERE id = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $average_rating, $id]);
+            // Nếu có mật khẩu mới, cập nhật password_display trong nhansu
+            if ($password) {
+                $sql = "UPDATE nhansu 
+                        SET full_name = ?, birth_date = ?, phone = ?, email = ?, guide_type = ?, competence_level = ?, password_display = ? 
+                        WHERE id = ?";
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $competency_level, $password, $id]);
+                } catch (PDOException $e) {
+                    // Fallback: nếu không có cột password_display, dùng password
+                    $sql = "UPDATE nhansu 
+                            SET full_name = ?, birth_date = ?, phone = ?, email = ?, guide_type = ?, competence_level = ?, password = ? 
+                            WHERE id = ?";
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $competency_level, $password, $id]);
+                }
+            } else {
+                // Không đổi mật khẩu, chỉ cập nhật thông tin khác
+                $sql = "UPDATE nhansu 
+                        SET full_name = ?, birth_date = ?, phone = ?, email = ?, guide_type = ?, competence_level = ? 
+                        WHERE id = ?";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([$full_name, $birth_date ?: null, $phone, $email, $guide_type, $competency_level, $id]);
+            }
 
             // 3. Cập nhật hoặc tạo tài khoản
             if ($accountId) {
                 // Cập nhật tài khoản hiện có
                 if ($password) {
+                    // Hash mật khẩu trước khi lưu vào taikhoan
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     $sqlAccount = "UPDATE taikhoan SET username = ?, password = ? WHERE id = ?";
                     $stmtAccount = $this->conn->prepare($sqlAccount);
-                    $stmtAccount->execute([$username, $password, $accountId]);
+                    $stmtAccount->execute([$username, $hashed_password, $accountId]);
                 } else {
                     $sqlAccount = "UPDATE taikhoan SET username = ? WHERE id = ?";
                     $stmtAccount = $this->conn->prepare($sqlAccount);
@@ -148,15 +209,36 @@ class GuideModel
                 }
             } else {
                 // Tạo tài khoản mới nếu chưa có
+                $default_password = $password ?: '123456';
+                // Hash mật khẩu trước khi lưu
+                $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
                 $sqlAccount = "INSERT INTO taikhoan (username, password, role) VALUES (?, ?, 'hdv')";
                 $stmtAccount = $this->conn->prepare($sqlAccount);
-                $stmtAccount->execute([$username, $password ?: '123456']); // Mật khẩu mặc định nếu không nhập
+                $stmtAccount->execute([$username, $hashed_password]);
                 $newAccountId = $this->conn->lastInsertId();
                 
-                // Liên kết với nhân sự
-                $sqlLink = "UPDATE nhansu SET id_taikhoan = ? WHERE id = ?";
-                $stmtLink = $this->conn->prepare($sqlLink);
-                $stmtLink->execute([$newAccountId, $id]);
+                // Liên kết với nhân sự và lưu mật khẩu gốc vào nhansu
+                if ($password) {
+                    $sqlLink = "UPDATE nhansu SET id_taikhoan = ?, password_display = ? WHERE id = ?";
+                    try {
+                        $stmtLink = $this->conn->prepare($sqlLink);
+                        $stmtLink->execute([$newAccountId, $password, $id]);
+                    } catch (PDOException $e) {
+                        $sqlLink = "UPDATE nhansu SET id_taikhoan = ?, password = ? WHERE id = ?";
+                        $stmtLink = $this->conn->prepare($sqlLink);
+                        $stmtLink->execute([$newAccountId, $password, $id]);
+                    }
+                } else {
+                    $sqlLink = "UPDATE nhansu SET id_taikhoan = ?, password_display = ? WHERE id = ?";
+                    try {
+                        $stmtLink = $this->conn->prepare($sqlLink);
+                        $stmtLink->execute([$newAccountId, $default_password, $id]);
+                    } catch (PDOException $e) {
+                        $sqlLink = "UPDATE nhansu SET id_taikhoan = ?, password = ? WHERE id = ?";
+                        $stmtLink = $this->conn->prepare($sqlLink);
+                        $stmtLink->execute([$newAccountId, $default_password, $id]);
+                    }
+                }
             }
 
             $this->conn->commit();
@@ -240,4 +322,8 @@ class GuideModel
             die("Lỗi SQL: " . $e->getMessage());
         }
     }
+
+
+
+
 }

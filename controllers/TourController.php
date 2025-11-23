@@ -11,6 +11,7 @@ class TourController
     {
         $this->modelTour = new TourModel();
         $this->modelGuide = new GuideModel();
+        
 
           $this->modelSchedule = new ScheduleModel();
     }
@@ -19,7 +20,7 @@ class TourController
     {
         $totalTour = $this->modelTour->countTours();
         $totalHDV = $this->modelGuide->countGuide();
-
+            
         require_once './views/Admin/trangchu.php';
     }
 

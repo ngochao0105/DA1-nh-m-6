@@ -22,8 +22,25 @@ public function login() {
             $userModel = new UserModel();
             $user = $userModel->getByUsername($username);
 
-            // Cập nhật: Sử dụng password_verify để so sánh mật khẩu đã mã hóa
-          if (!$user || $user['password'] !== $password) {
+            // Sử dụng password_verify để so sánh mật khẩu đã hash
+            // Kiểm tra nếu mật khẩu đã được hash (bắt đầu bằng $2y$), nếu chưa thì so sánh trực tiếp (backward compatible)
+            if (!$user) {
+                $error = "Sai tên đăng nhập hoặc mật khẩu!";
+                require_file_view('login', compact('error'));
+                return;
+            }
+            
+            // Kiểm tra mật khẩu: nếu đã hash thì dùng password_verify, nếu chưa thì so sánh trực tiếp
+            $password_valid = false;
+            if (strpos($user['password'], '$2y$') === 0) {
+                // Mật khẩu đã được hash bằng password_hash()
+                $password_valid = password_verify($password, $user['password']);
+            } else {
+                // Mật khẩu chưa được hash (backward compatible cho dữ liệu cũ)
+                $password_valid = ($user['password'] === $password);
+            }
+            
+            if (!$password_valid) {
                 $error = "Sai tên đăng nhập hoặc mật khẩu!";
                 require_file_view('login', compact('error'));
                 return;

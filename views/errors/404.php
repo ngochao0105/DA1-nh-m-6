@@ -1,5 +1,5 @@
-<?php include "../layout/header.php"; ?>
-<?php include "../layout/sidebar.php"; ?>
+<?php include "views/layout/header.php"; ?>
+<?php include "views/layout/sidebar.php"; ?>
 
 <div class="page-header">
     <h1>404 - Trang không tìm thấy</h1>
@@ -23,5 +23,5 @@
     </div>
 </div>
 
-<?php include "../layout/footer.php"; ?>
+<?php include "views/layout/footer.php"; ?>
 

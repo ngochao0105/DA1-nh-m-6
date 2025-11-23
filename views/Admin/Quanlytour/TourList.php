@@ -78,7 +78,7 @@
 
                     <td>
                         <div class="table-actions">
-                            <a href="index.php?act=schedule-list&id=<?= $cat['id'] ?>"
+                            <a href="?act=schedule-list&id=<?= $cat['id'] ?>"
                                class="table-action-btn edit" title="Lịch trình">
                                 <i class="bi bi-calendar3"></i>
                             </a>
