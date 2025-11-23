@@ -10,3 +10,4 @@ ALTER TABLE booking MODIFY COLUMN trang_thai VARCHAR(50) DEFAULT 'cho_xac_nhan';
 -- Kiểm tra kết quả
 SHOW COLUMNS FROM booking LIKE 'trang_thai';
 
+
