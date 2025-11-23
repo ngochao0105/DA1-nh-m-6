@@ -101,11 +101,27 @@ switch ($act) {
         (new BookingController())->AjaxGetHdv();
          break;
 
+    case 'ajax-check-hdv-busy':
+        (new BookingController())->AjaxCheckHdvBusy();
+        break;
+
     case 'booking-save':
         (new BookingController())->SaveBooking();
         break;
     case 'booking-detail':
         (new BookingController())->BookingDetail();
+        break;
+
+    case 'delete-booking':
+        (new BookingController())->deleteBooking();
+        break;
+
+    case 'update-payment-status':
+        (new BookingController())->updatePaymentStatus();
+        break;
+
+    case 'add-customer-to-booking':
+        (new BookingController())->addCustomerToBooking();
         break;
 
     case 'guide-management':
