@@ -1,188 +1,146 @@
 <?php
-// File: views/layout/header_hdv.php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Xác định xem có phải trang HDV hay không
-$currentAct = $_GET['act'] ?? '';
-$hdvRoutes = ['hdv_dashboard', 'hdv_my_tours', 'hdv_schedule', 'hdv_profile']; // Các route của HDV
-$isHdvPage = in_array($currentAct, $hdvRoutes);
+$currentAct = $_GET['act'] ?? '/';
+$isHdvPage = str_starts_with($currentAct, 'hdv');
+
+// Get current date in Vietnamese
+$days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+$months = ['', 'tháng 1', 'tháng 2', 'tháng 3', 'tháng 4', 'tháng 5', 'tháng 6', 
+           'tháng 7', 'tháng 8', 'tháng 9', 'tháng 10', 'tháng 11', 'tháng 12'];
+$dayName = $days[date('w')];
+$day = date('d');
+$month = $months[date('n')];
+$year = date('Y');
+$currentDate = "$dayName, $day $month, $year";
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDV Panel - Quản lý Tour</title>
+    <title>HDV Panel - Hệ thống quản lý tour du lịch</title>
 
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-<style>
-/* ----------------------- GENERAL ----------------------- */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f8f9fa;
-}
-
-/* ----------------------- NAVBAR ----------------------- */
-.navbar {
-    background-color: #1a252f !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 1031;
-}
-.navbar-brand {
-    font-size: 26px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.navbar-brand i {
-    font-size: 30px;
-    color: #f1c40f;
-}
-.user-box {
-    background: #2c3e50;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #ffffff;
-    transition: 0.2s;
-}
-.user-box:hover { background: #3d566e; }
-.user-dropdown {
-    position: absolute;
-    top: 58px;
-    right: 15px;
-    background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 180px;
-    display: none;
-    animation: fadeIn 0.15s ease-out;
-}
-.user-dropdown a { display: block; padding: 10px 15px; color: #333; text-decoration: none; font-weight: 500; }
-.user-dropdown a:hover { background: #f2f2f2; }
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ----------------------- HDV SIDEBAR ----------------------- */
-<?php if ($isHdvPage): ?>
-.sidebar {
-    height: 100vh;
-    width: 240px;
-    background: linear-gradient(180deg, #1f2d3d, #2c3e50);
-    position: fixed;
-    top: 0;
-    left: 0;
-    color: #ecf0f1;
-    display: flex;
-    flex-direction: column;
-    padding-top: 10px;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.25);
-    z-index: 1030;
-}
-.nav-link {
-    color: #bdc3c7;
-    display: flex;
-    align-items: center;
-    padding: 12px 18px;
-    margin: 6px 12px;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.25s ease-in-out;
-    background: rgba(255,255,255,0.03);
-}
-.nav-link:hover {
-    background: rgba(255,255,255,0.15);
-    color: white;
-    transform: translateX(6px);
-}
-.nav-link.active {
-    background: #1abc9c;
-    color: #fff;
-    font-weight: 600;
-}
-.nav-link i {
-    font-size: 18px;
-    margin-right: 12px;
-}
-
-.content {
-    margin-left: 250px; 
-    padding: 20px;
-}
-<?php endif; ?>
-</style>
-
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Global Styles -->
+    <link href="views/layout/assets/style.css" rel="stylesheet">
 </head>
 <body>
 
-<nav class="navbar navbar-dark fixed-top">
-  <div class="container-fluid">
+<!-- ====================== HEADER ====================== -->
+<header class="header">
+    <div class="header-left">
+        <button class="header-menu-toggle" onclick="toggleSidebar()" id="menuToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="header-greeting">
+            <h3>Chào mừng trở lại!</h3>
+            <p><?= $currentDate ?></p>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <div class="header-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Tìm kiếm...">
+        </div>
+        
+        <div class="header-notification">
+            <button class="header-icon-btn" title="Thông báo">
+                <i class="bi bi-bell"></i>
+                <span class="header-notification-badge">3</span>
+            </button>
+        </div>
+        
+        <?php if(isset($_SESSION['username'])): ?>
+        <div class="header-user" onclick="toggleUserDropdown()">
+            <div class="header-user-avatar">
+                <?= strtoupper(substr($_SESSION['full_name'] ?? $_SESSION['username'], 0, 1)) ?>
+            </div>
+            <div class="header-user-info">
+                <strong><?php echo $_SESSION['full_name'] ?? $_SESSION['username']; ?></strong>
+                <span>Hướng dẫn viên</span>
+            </div>
+        </div>
+        
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+            <a href="?act=hdv_profile">
+                <i class="bi bi-person"></i> Hồ sơ cá nhân
+            </a>
+            <a href="?act=logout" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+            </a>
+        </div>
+        <?php endif; ?>
+    </div>
+</header>
 
-    <a class="navbar-brand text-white" href="?act=hdv_dashboard">
-      <i class="bi bi-person-badge"></i> HDV Panel
-    </a>
-
-    <?php if(isset($_SESSION['username'])): ?>
-    <div class="user-box" onclick="toggleUserDropdown()">
-    <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['full_name']); ?>&background=2c3e50&color=fff&size=32"
-         width="22" height="22" style="border-radius:50%;">
-
-    <span><?php echo $_SESSION['full_name']; ?></span>
-    <i class="bi bi-chevron-down"></i>
-</div>
-
-<div class="user-dropdown" id="userDropdown">
-    <a href="?act=hdv_profile">
-        <i class="bi bi-person"></i> Hồ sơ cá nhân
-    </a>
-    <a href="?act=logout">
-        <i class="bi bi-box-arrow-right"></i> Đăng xuất
-    </a>
-</div>
-    <?php endif; ?>
-
-  </div>
-</nav>
-
-
-<?php
-if ($isHdvPage) {
-    // SỬA LẠI ĐƯỜNG DẪN NÀY:
-    require_once './views/HDV/sidebar_hdv.php';
-}
-?>
-
-<?php
-$contentClass = $isHdvPage ? 'content' : '';
-echo "<div class='{$contentClass}'>";
-?>
+<!-- ====================== MAIN CONTENT ====================== -->
+<div class="main-content">
 
 <script>
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+        const icon = menuToggle.querySelector('i');
+        if (sidebar.classList.contains('open')) {
+            icon.classList.remove('bi-list');
+            icon.classList.add('bi-x-lg');
+        } else {
+            icon.classList.remove('bi-x-lg');
+            icon.classList.add('bi-list');
+        }
+    }
+}
+
 function toggleUserDropdown() {
     let dropdown = document.getElementById("userDropdown");
     dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
 }
+
 document.addEventListener("click", function(e) {
-    const userBox = document.querySelector(".user-box");
+    const userBox = document.querySelector(".header-user");
     const dropdown = document.getElementById("userDropdown");
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+
     if (userBox && dropdown && !userBox.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.style.display = "none";
+    }
+
+    if (window.innerWidth <= 768 && sidebar && menuToggle) {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+            const icon = menuToggle.querySelector('i');
+            icon.classList.remove('bi-x-lg');
+            icon.classList.add('bi-list');
+        }
+    }
+});
+
+window.addEventListener('resize', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    
+    if (window.innerWidth > 768 && sidebar) {
+        sidebar.classList.remove('open');
+        if (menuToggle) {
+            const icon = menuToggle.querySelector('i');
+            icon.classList.remove('bi-x-lg');
+            icon.classList.add('bi-list');
+        }
     }
 });
 </script>
