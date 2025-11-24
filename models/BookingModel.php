@@ -382,5 +382,17 @@ class BookingModel
             'id' => $id
         ]);
     }
+    public function countBookingByStatus($status) {
+        $sql = "SELECT COUNT(*) AS total FROM booking WHERE trang_thai = :status";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':status' => $status]);
+        return $stmt->fetch()['total'] ?? 0;
+    }
 
+    public function sumRevenueByStatus($status) {
+        $sql = "SELECT SUM(tong_tien) AS revenue FROM booking WHERE trang_thai = :status";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':status' => $status]);
+        return $stmt->fetch()['revenue'] ?? 0;
+    }
 }

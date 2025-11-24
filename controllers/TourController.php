@@ -11,6 +11,7 @@ class TourController
     {
         $this->modelTour = new TourModel();
         $this->modelGuide = new GuideModel();
+        $this->modelBooking = new BookingModel();
         
 
           $this->modelSchedule = new ScheduleModel();
@@ -20,6 +21,18 @@ class TourController
     {
         $totalTour = $this->modelTour->countTours();
         $totalHDV = $this->modelGuide->countGuide();
+
+        $bookingDangChay = $this->modelBooking->countBookingByStatus('dang_dien_ra');
+        $revenueDangChay = $this->modelBooking->sumRevenueByStatus('dang_dien_ra');
+
+        // Chờ xác nhận
+        $bookingCho = $this->modelBooking->countBookingByStatus('cho_xac_nhan');
+        $revenueCho = $this->modelBooking->sumRevenueByStatus('cho_xac_nhan');
+
+        // Hoàn tất
+        $bookingHoanTat = $this->modelBooking->countBookingByStatus('hoan_tat');
+        $revenueHoanTat = $this->modelBooking->sumRevenueByStatus('hoan_tat');
+
             
         require_once './views/Admin/trangchu.php';
     }
