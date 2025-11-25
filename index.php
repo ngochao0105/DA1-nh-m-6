@@ -175,6 +175,10 @@ case 'delete-assign':
     case 'hdv_my_tours':
         (new HdvController())->myTours();
         break;
+    
+    case 'CustomerTour':
+        (new HdvController())->CustomerTour();
+        break;
 
   // Customer routes
     case 'customer-list':
