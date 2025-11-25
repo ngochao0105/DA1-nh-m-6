@@ -41,7 +41,7 @@ public function login() {
             }
             
             if (!$password_valid) {
-                $error = "Sai tên đăng nhập hoặc mật khẩu!";
+                $error = "Sai tên đăng nhập hoặac mật khẩu!";
                 require_file_view('login', compact('error'));
                 return;
             }

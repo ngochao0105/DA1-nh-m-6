@@ -12,13 +12,14 @@ class TourController
         $this->modelTour = new TourModel();
         $this->modelGuide = new GuideModel();
         $this->modelBooking = new BookingModel();
-        
-
-          $this->modelSchedule = new ScheduleModel();
+        $this->modelSchedule = new ScheduleModel();
     }
 
     public function Home()
     {
+        // Auto-close expired schedules (ngày kết thúc < hôm nay)
+        $this->modelSchedule->closeExpiredSchedules();
+
         $totalTour = $this->modelTour->countTours();
         $totalHDV = $this->modelGuide->countGuide();
 
@@ -155,8 +156,10 @@ class TourController
     $tourId = $_GET['id'] ?? null;
     if (!$tourId) die("Thiếu ID tour");
 
+    // Auto-close expired schedules for this tour before listing
+    $this->modelSchedule->closeExpiredSchedulesByTour($tourId);
+
     $tour = $this->modelTour->getTourById($tourId);
-    
     if (!$tour) die("Tour không tồn tại");
 
     $schedules = $this->modelSchedule->getSchedulesByTour($tourId);

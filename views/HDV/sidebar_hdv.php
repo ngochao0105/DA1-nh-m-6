@@ -25,11 +25,16 @@
             <i class="bi bi-map"></i>
             <span>Tour được phân công</span>
         </a>
-        
+
         <a href="" 
            class="nav-link <?php echo ($act == 'hdv_schedule' ? 'active' : ''); ?>">
             <i class="bi bi-calendar-check"></i>
             <span>Lịch làm việc</span>
+        </a>
+        <a href="?act=CustomerTour" 
+           class="nav-link <?php echo ($act == 'hdv_schedule' ? 'active' : ''); ?>">
+            <i class="bi bi-calendar-check"></i>
+            <span>Danh sách khách hàng</span>
         </a>
     </nav>
 
