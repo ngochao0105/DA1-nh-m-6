@@ -12,6 +12,7 @@ require_once './models/BookingModel.php';
 require_once './models/CustomerModel.php';
 require_once './models/ScheduleModel.php';
 
+
 require_once './controllers/AuthController.php';
 require_once './controllers/TourController.php';
 require_once './controllers/GuideController.php';
@@ -19,6 +20,10 @@ require_once './controllers/HdvController.php';
 require_once './controllers/BookingController.php';
 require_once './controllers/CustomerController.php';
 
+
+//db
+
+// env.php hoặc index.php
 
 
 // 4. Route
@@ -175,10 +180,28 @@ case 'delete-assign':
     case 'hdv_my_tours':
         (new HdvController())->myTours();
         break;
-    
-    case 'CustomerTour':
-        (new HdvController())->CustomerTour();
-        break;
+   
+
+// diem danh hdv
+// case 'checklist':
+//     $c = new CheckinController();
+//     $c->checklist();
+//     break;
+
+// case 'save-checkin':
+//     $c = new CheckinController();
+//     $c->saveCheckin();
+//     break;
+// case 'checkin-list':
+//     $c = new CheckinController();
+//     $c->checkinList();
+//     break;
+
+
+
+
+
+  
 
   // Customer routes
     case 'customer-list':

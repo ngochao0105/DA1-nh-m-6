@@ -1,81 +1,105 @@
 <?php
+class HdvModel
+{
+    private $pdo;
 
-class HdvModel {
+    public function __construct()
+    {
+        // Kết nối database
+        $host = 'localhost';
+        $db   = 'hao1';
+        $user = 'root';
+        $pass = '';
+        $charset = 'utf8mb4';
 
-    public function getHdvInfoByAccountId($taikhoan_id) {
+        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
         try {
-            $conn = get_db_connection();
-            $sql = "SELECT * FROM nhansu WHERE id_taikhoan = :tk LIMIT 1";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':tk', $taikhoan_id);
-            $stmt->execute();
-
-            return $stmt->fetch();
+            $this->pdo = new PDO($dsn, $user, $pass, $options);
         } catch (PDOException $e) {
-            return null;
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
         }
     }
 
+    // Lấy danh sách tour HDV được phân công
     public function getAssignedTours($hdv_id)
     {
-        try {
-            $conn = get_db_connection();
+        $sql = "
+            SELECT 
+                pc.id AS phan_cong_id,
+                pc.ngay_di,
+                
+                b.id AS booking_id,
+                b.ngay_di,
+                b.trang_thai AS booking_status,
 
-            $sql = "
-                SELECT 
-                    b.id AS booking_id,
-                    t.tour_name,
-                    b.ngay_di
-                FROM phan_cong_hdv p
-                JOIN booking b ON p.id_booking = b.id
-                JOIN tour t ON b.id_tour = t.id
-                WHERE p.id_hdv = :hdv_id
-                ORDER BY b.ngay_di DESC
-            ";
+                t.id AS tour_id,
+                t.tour_name,
+                t.destination,
+                t.status AS tour_status
 
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':hdv_id', $hdv_id);
-            $stmt->execute();
+            FROM phan_cong_hdv pc
+            LEFT JOIN booking b ON pc.id_booking = b.id
+            LEFT JOIN tour t ON b.id_tour = t.id
 
-            return $stmt->fetchAll();
+            WHERE pc.id_hdv = ?
+            ORDER BY pc.ngay_di DESC
+        ";
 
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->pdo_query($sql, [$hdv_id]);
     }
 
-    public function getTourCustomers($hdv_id)
+    // Lấy thông tin HDV theo tài khoản
+    public function getHdvInfoByAccountId($account_id)
     {
-        try {
-            $conn = get_db_connection();
-
-            $sql = "
-                SELECT 
-                    k.ten_khach AS full_name,
-                    k.sdt AS phone,
-                    k.loai_khach,
-                    k.yeu_cau_dac_biet AS special_note,
-                    t.tour_name,
-                    b.ngay_di AS start_date,
-                    b.ngay_di AS end_date,
-                    b.id AS booking_id
-                FROM phan_cong_hdv p
-                JOIN booking b ON p.id_booking = b.id
-                JOIN tour t ON b.id_tour = t.id
-                JOIN khachtour k ON k.id_booking = b.id
-                WHERE p.id_hdv = :hdv_id
-                ORDER BY b.ngay_di DESC, k.ten_khach ASC
-            ";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':hdv_id', $hdv_id);
-            $stmt->execute();
-
-            return $stmt->fetchAll();
-
-        } catch (PDOException $e) {
-            return [];
-        }
+        $sql = "SELECT * FROM nhansu WHERE id_taikhoan = ?";
+        return $this->pdo_query_one($sql, [$account_id]);
     }
+
+    // PHƯƠNG THỨC HỖ TRỢ PDO
+    private function pdo_query($sql, $params = [])
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    private function pdo_query_one($sql, $params = [])
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch(); // trả về 1 row
+    }
+
+    //  // HDV check-in
+    // public function hdvCheckin($hdv_id, $tour_id, $location) {
+    //     $sql = "INSERT INTO diemdanh (id_hdv, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     return $stmt->execute([$hdv_id, $tour_id, $location]);
+    // }
+
+    // Khách hàng check-in
+    // public function customerCheckin($khach_id, $tour_id, $location) {
+    //     $sql = "INSERT INTO diemdanh (id_khach, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     return $stmt->execute([$khach_id, $tour_id, $location]);
+    
+
+    // Lấy danh sách điểm danh theo tour
+    // public function getCheckinByTour($tour_id) {
+    //     $sql = "SELECT dd.*, tk.username AS hdv_name, hk.id_khach AS khach_id
+    //             FROM diemdanh dd
+    //             LEFT JOIN taikhoan tk ON dd.id_hdv = tk.id
+    //             LEFT JOIN hosokhach hk ON dd.id_khach = hk.id_khach
+    //             WHERE dd.id_tour = ?
+    //             ORDER BY dd.check_time DESC";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     $stmt->execute([$tour_id]);
+    //     return $stmt->fetchAll();
+    // }
 }
