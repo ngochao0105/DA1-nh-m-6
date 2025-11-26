@@ -199,4 +199,37 @@ class ScheduleModel
         $available = $this->getAvailableSlots($scheduleId);
         return $available >= $requiredSlots;
     }
+
+    /**
+     * Đóng (set status = 'da_dong') các lịch trình có end_date < today
+     */
+    public function closeExpiredSchedules()
+    {
+        try {
+            $sql = "UPDATE {$this->table}
+                    SET status = 'da_dong', updated_at = NOW()
+                    WHERE DATE(end_date) < CURDATE() AND status != 'da_dong'";
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            // không throw để tránh break trang; log nếu cần
+            return false;
+        }
+    }
+
+    /**
+     * Option: đóng lịch trình đã hết hạn cho 1 tour cụ thể
+     */
+    public function closeExpiredSchedulesByTour($tourId)
+    {
+        try {
+            $sql = "UPDATE {$this->table}
+                    SET status = 'da_dong', updated_at = NOW()
+                    WHERE tour_id = ? AND DATE(end_date) < CURDATE() AND status != 'da_dong'";
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([$tourId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }

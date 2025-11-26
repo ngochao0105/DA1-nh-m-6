@@ -280,19 +280,147 @@
             <div class="step-page">
                 <h3 class="step-title">Khách hàng</h3>
 
-                <div id="customerList"></div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        <i class="bi bi-people"></i> Chọn khách hàng từ danh sách (tích vào checkbox để chọn nhiều):
+                    </label>
+                    <div id="existingCustomersList" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; max-height: 250px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            <i class="bi bi-hourglass-split"></i> Đang tải danh sách khách hàng...
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <button type="button" class="btn" onclick="addSelectedCustomers()" style="background: #3b82f6; color: white; flex: 1;">
+                            <i class="bi bi-plus-circle"></i> Thêm khách đã chọn
+                        </button>
+                        <button type="button" class="btn" onclick="selectAllCustomers()" style="background: #6c757d; color: white;">
+                            <i class="bi bi-check-all"></i> Chọn tất cả
+                        </button>
+                        <button type="button" class="btn" onclick="deselectAllCustomers()" style="background: #6c757d; color: white;">
+                            <i class="bi bi-x-square"></i> Bỏ chọn tất cả
+                        </button>
+                    </div>
+                    <div id="selectedCount" style="margin-top: 8px; font-size: 14px; color: #3b82f6; font-weight: 500;">
+                        Đã chọn: <span id="selectedCountNumber">0</span> khách
+                    </div>
+                </div>
 
-                <button type="button" class="btn add-btn" onclick="addCustomer()">+ Thêm khách</button>
+                <div style="margin: 20px 0; text-align: center; color: #666;">
+                    <strong>HOẶC</strong>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">Nhập thông tin khách mới:</label>
+                    <div id="customerList"></div>
+                    <button type="button" class="btn add-btn" onclick="addNewCustomer()">+ Thêm khách mới</button>
+                </div>
+
+                <div id="customerConflictWarning" style="display: none; margin-top: 15px; padding: 15px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; color: #991b1b; font-size: 14px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 18px; margin-right: 8px;"></i>
+                    <strong>Cảnh báo trùng lịch:</strong>
+                    <div id="customerConflictMessage" style="margin-top: 8px;"></div>
+                </div>
 
                 <div class="btn-group">
                     <button type="button" class="btn secondary prev-btn">Quay lại</button>
-                    <button type="submit" class="btn primary">Hoàn tất Booking</button>
+                    <button type="submit" class="btn primary" id="submitBookingBtn">Hoàn tất Booking</button>
                 </div>
             </div>
 
         </form>
     </div>
 </div>
+
+<script>
+// Kiểm tra conflict trước khi submit form
+document.getElementById('bookingForm')?.addEventListener('submit', function(e) {
+    e.preventDefault(); // Luôn chặn submit để kiểm tra trước
+    
+    // Kiểm tra xem có conflict nào đã được phát hiện không
+    const conflictMessages = document.querySelectorAll('.customer-conflict-message[style*="block"]');
+    if (conflictMessages.length > 0) {
+        alert('Không thể tạo booking do có khách hàng trùng lịch. Vui lòng kiểm tra lại và chọn ngày khác.');
+        return false;
+    }
+    
+    // Kiểm tra lại tất cả khách hàng trước khi submit
+    const customerInputs = document.querySelectorAll('input[name="ten_khach[]"]');
+    const validCustomers = Array.from(customerInputs).filter(input => input.value.trim() !== '');
+    
+    if (validCustomers.length === 0) {
+        alert('Vui lòng thêm ít nhất một khách hàng.');
+        return false;
+    }
+    
+    // Lấy thông tin schedule
+    const startDate = document.getElementById('dateSelect').value;
+    const endDateInput = document.getElementById('endDateInput');
+    const endDate = endDateInput ? endDateInput.value : startDate;
+    
+    if (!startDate) {
+        alert('Vui lòng chọn lịch trình trước khi tạo booking.');
+        return false;
+    }
+    
+    // Disable submit button để tránh double submit
+    const submitBtn = document.getElementById('submitBookingBtn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang kiểm tra...';
+    }
+    
+    // Kiểm tra từng khách hàng
+    const checkPromises = [];
+    let hasConflict = false;
+    let conflictNames = [];
+    
+    validCustomers.forEach(input => {
+        const name = input.value.trim();
+        const phoneInput = input.closest('.customer-box').querySelector('input[name="sdt[]"]');
+        const phone = phoneInput ? phoneInput.value.trim() : '';
+        
+        const promise = fetch(`index.php?act=ajax-check-customer-conflict&customer_name=${encodeURIComponent(name)}&customer_phone=${encodeURIComponent(phone)}&start_date=${startDate}&end_date=${endDate}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.conflict) {
+                    hasConflict = true;
+                    conflictNames.push(name);
+                    // Highlight input
+                    input.style.borderColor = '#ef4444';
+                    const conflictMsg = input.closest('.customer-box').querySelector('.customer-conflict-message');
+                    if (conflictMsg) {
+                        conflictMsg.textContent = data.message;
+                        conflictMsg.style.display = 'block';
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi khi kiểm tra conflict:', err);
+            });
+        
+        checkPromises.push(promise);
+    });
+    
+    // Chờ tất cả kiểm tra hoàn thành
+    Promise.all(checkPromises).then(() => {
+        // Restore submit button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Hoàn tất Booking';
+        }
+        
+        if (hasConflict) {
+            alert('Không thể tạo booking. Các khách hàng sau đã có booking trùng lịch:\n' + conflictNames.join('\n') + '\n\nVui lòng chọn ngày khác.');
+            updateConflictWarning();
+        } else {
+            // Nếu không có conflict, submit form
+            document.getElementById('bookingForm').submit();
+        }
+    });
+    
+    return false;
+});
+</script>
 
 <script>
 /* STEP FORM */
@@ -359,8 +487,18 @@ document.getElementById('tourSelect').addEventListener('change', function () {
                 radio.addEventListener('change', function() {
                     if (this.checked) {
                         const startDate = this.getAttribute('data-start-date');
+                        const endDate = this.getAttribute('data-end-date') || startDate;
                         dateSelect.value = startDate;
                         scheduleIdInput.value = this.value;
+                        // Lưu end_date vào hidden input để dùng cho conflict check
+                        let endDateInput = document.getElementById('endDateInput');
+                        if (!endDateInput) {
+                            endDateInput = document.createElement('input');
+                            endDateInput.type = 'hidden';
+                            endDateInput.id = 'endDateInput';
+                            document.getElementById('bookingForm').appendChild(endDateInput);
+                        }
+                        endDateInput.value = endDate;
                         continueBtn.disabled = false;
                         
                         // Load HDV cho ngày này
@@ -471,21 +609,233 @@ document.getElementById('dateSelect').addEventListener('change', function () {
     loadHdvForDate(this.value);
 });
 
-/* ADD CUSTOMER */
-function addCustomer() {
+/* LOAD EXISTING CUSTOMERS */
+function loadExistingCustomers() {
+    fetch('index.php?act=ajax-get-customers')
+        .then(res => res.json())
+        .then(customers => {
+            const container = document.getElementById('existingCustomersList');
+            if (customers && customers.length > 0) {
+                let html = '';
+                customers.forEach((customer, index) => {
+                    const name = customer.name || customer.ten_khach || '';
+                    const phone = customer.phone || customer.sdt || '';
+                    const displayText = name + (phone ? ' (' + phone + ')' : '');
+                    const value = `${name}|${phone}`;
+                    html += `
+                        <div class="customer-checkbox-item" style="display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background: white; border-radius: 6px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s;" 
+                             onmouseover="this.style.background='#f0f7ff'; this.style.borderColor='#3b82f6';" 
+                             onmouseout="this.style.background='white'; this.style.borderColor='#e0e0e0';"
+                             onclick="toggleCustomerCheckbox(this)">
+                            <input type="checkbox" class="customer-checkbox" value="${value}" data-name="${name}" data-phone="${phone}" 
+                                   style="width: 18px; height: 18px; margin-right: 12px; cursor: pointer;" 
+                                   onchange="updateSelectedCount()">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1d3557; font-size: 15px;">${name}</div>
+                                ${phone ? `<div style="font-size: 13px; color: #666; margin-top: 2px;"><i class="bi bi-telephone"></i> ${phone}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #999;">
+                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>Chưa có khách hàng nào trong hệ thống</p>
+                    </div>
+                `;
+            }
+            updateSelectedCount();
+        })
+        .catch(err => {
+            console.error('Lỗi khi tải danh sách khách hàng:', err);
+            document.getElementById('existingCustomersList').innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #ef4444;">
+                    <i class="bi bi-exclamation-triangle"></i> Lỗi khi tải danh sách khách hàng
+                </div>
+            `;
+        });
+}
+
+function toggleCustomerCheckbox(element) {
+    const checkbox = element.querySelector('.customer-checkbox');
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        updateSelectedCount();
+    }
+}
+
+function selectAllCustomers() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox');
+    checkboxes.forEach(cb => cb.checked = true);
+    updateSelectedCount();
+}
+
+function deselectAllCustomers() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selectedCountNumber').textContent = count;
+}
+
+// Load customers khi vào step 3
+let customerListLoaded = false;
+nextBtns.forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+        if (currentStep === 2 && !customerListLoaded) {
+            loadExistingCustomers();
+            customerListLoaded = true;
+        }
+    });
+});
+
+/* ADD SELECTED CUSTOMERS FROM LIST */
+function addSelectedCustomers() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('Vui lòng chọn ít nhất một khách hàng bằng cách tích vào checkbox');
+        return;
+    }
+    
+    let addedCount = 0;
+    checkboxes.forEach(checkbox => {
+        if (!checkbox.value) return;
+        const name = checkbox.getAttribute('data-name') || checkbox.value.split('|')[0];
+        const phone = checkbox.getAttribute('data-phone') || checkbox.value.split('|')[1] || '';
+        
+        if (!name) return;
+        
+        // Kiểm tra xem khách này đã được thêm chưa
+        const existingInputs = document.querySelectorAll('input[name="ten_khach[]"]');
+        let alreadyAdded = false;
+        existingInputs.forEach(input => {
+            if (input.value.trim() === name.trim()) {
+                alreadyAdded = true;
+            }
+        });
+        
+        if (!alreadyAdded) {
+            addCustomerRow(name, phone);
+            addedCount++;
+        }
+    });
+    
+    if (addedCount > 0) {
+        // Bỏ chọn sau khi thêm
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedCount();
+        
+        // Scroll to customer list
+        document.getElementById('customerList').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        alert('Tất cả khách hàng đã được thêm vào danh sách');
+    }
+}
+
+/* ADD NEW CUSTOMER */
+function addNewCustomer() {
+    addCustomerRow('', '');
+}
+
+function addCustomerRow(name = '', phone = '') {
     const html = `
-        <div class="customer-box">
-            <input class="input" name="ten_khach[]" placeholder="Tên khách" required>
-            <input class="input" name="sdt[]" placeholder="Số điện thoại" required>
+        <div class="customer-box" data-customer-row>
+            <button type="button" onclick="removeCustomerRow(this)" style="float: right; background: #ef4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; margin-bottom: 5px;">Xóa</button>
+            <input class="input" name="ten_khach[]" placeholder="Tên khách *" value="${name}" required onblur="checkCustomerConflict(this)">
+            <input class="input" name="sdt[]" placeholder="Số điện thoại" value="${phone}" onblur="checkCustomerConflict(this)">
             <select class="input" name="loai_khach[]" required>
                 <option value="nguoi_lon">Người lớn</option>
                 <option value="tre_em">Trẻ em</option>
                 <option value="em_be">Em bé</option>
             </select>
             <textarea class="input" name="yeu_cau_dac_biet[]" placeholder="Yêu cầu đặc biệt"></textarea>
+            <div class="customer-conflict-message" style="display: none; color: #ef4444; font-size: 12px; margin-top: 5px;"></div>
         </div>
     `;
     document.getElementById('customerList').insertAdjacentHTML('beforeend', html);
+}
+
+function removeCustomerRow(btn) {
+    btn.closest('.customer-box').remove();
+    updateConflictWarning();
+}
+
+/* CHECK CUSTOMER CONFLICT */
+function checkCustomerConflict(input) {
+    const row = input.closest('.customer-box');
+    const nameInput = row.querySelector('input[name="ten_khach[]"]');
+    const phoneInput = row.querySelector('input[name="sdt[]"]');
+    const conflictMsg = row.querySelector('.customer-conflict-message');
+    
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const startDate = document.getElementById('dateSelect').value;
+    const scheduleId = document.getElementById('scheduleIdInput').value;
+    
+    if (!name || !startDate || !scheduleId) {
+        conflictMsg.style.display = 'none';
+        return;
+    }
+    
+    // Lấy end date từ hidden input hoặc từ schedule
+    let endDate = startDate;
+    const endDateInput = document.getElementById('endDateInput');
+    if (endDateInput && endDateInput.value) {
+        endDate = endDateInput.value;
+    } else {
+        // Fallback: lấy từ selected schedule
+        const selectedSchedule = document.querySelector('input[name="schedule_id"]:checked');
+        if (selectedSchedule) {
+            endDate = selectedSchedule.getAttribute('data-end-date') || startDate;
+        }
+    }
+    
+    fetch(`index.php?act=ajax-check-customer-conflict&customer_name=${encodeURIComponent(name)}&customer_phone=${encodeURIComponent(phone)}&start_date=${startDate}&end_date=${endDate}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.conflict) {
+                conflictMsg.textContent = data.message;
+                conflictMsg.style.display = 'block';
+                nameInput.style.borderColor = '#ef4444';
+            } else {
+                conflictMsg.style.display = 'none';
+                nameInput.style.borderColor = '';
+            }
+            updateConflictWarning();
+        })
+        .catch(err => {
+            console.error('Lỗi khi kiểm tra trùng lịch:', err);
+        });
+}
+
+function updateConflictWarning() {
+    const conflictMessages = document.querySelectorAll('.customer-conflict-message[style*="block"]');
+    const warningDiv = document.getElementById('customerConflictWarning');
+    const messageDiv = document.getElementById('customerConflictMessage');
+    
+    if (conflictMessages.length > 0) {
+        let messages = [];
+        conflictMessages.forEach(msg => {
+            messages.push(msg.textContent);
+        });
+        messageDiv.innerHTML = messages.join('<br>');
+        warningDiv.style.display = 'block';
+    } else {
+        warningDiv.style.display = 'none';
+    }
+}
+
+// Load customers when page loads if we're on step 3
+if (currentStep === 2) {
+    loadExistingCustomers();
+    customerListLoaded = true;
 }
 </script>
 

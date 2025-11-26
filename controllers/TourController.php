@@ -11,15 +11,29 @@ class TourController
     {
         $this->modelTour = new TourModel();
         $this->modelGuide = new GuideModel();
-        
-
-          $this->modelSchedule = new ScheduleModel();
+        $this->modelBooking = new BookingModel();
+        $this->modelSchedule = new ScheduleModel();
     }
 
     public function Home()
     {
+        // Auto-close expired schedules (ngày kết thúc < hôm nay)
+        $this->modelSchedule->closeExpiredSchedules();
+
         $totalTour = $this->modelTour->countTours();
         $totalHDV = $this->modelGuide->countGuide();
+
+        $bookingDangChay = $this->modelBooking->countBookingByStatus('dang_dien_ra');
+        $revenueDangChay = $this->modelBooking->sumRevenueByStatus('dang_dien_ra');
+
+        // Chờ xác nhận
+        $bookingCho = $this->modelBooking->countBookingByStatus('cho_xac_nhan');
+        $revenueCho = $this->modelBooking->sumRevenueByStatus('cho_xac_nhan');
+
+        // Hoàn tất
+        $bookingHoanTat = $this->modelBooking->countBookingByStatus('hoan_tat');
+        $revenueHoanTat = $this->modelBooking->sumRevenueByStatus('hoan_tat');
+
             
         require_once './views/Admin/trangchu.php';
     }
@@ -142,8 +156,10 @@ class TourController
     $tourId = $_GET['id'] ?? null;
     if (!$tourId) die("Thiếu ID tour");
 
+    // Auto-close expired schedules for this tour before listing
+    $this->modelSchedule->closeExpiredSchedulesByTour($tourId);
+
     $tour = $this->modelTour->getTourById($tourId);
-    
     if (!$tour) die("Tour không tồn tại");
 
     $schedules = $this->modelSchedule->getSchedulesByTour($tourId);

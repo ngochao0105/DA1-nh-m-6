@@ -8,7 +8,7 @@
                 <i class="bi bi-calendar3"></i> Lịch trình Tour
             </h1>
             <p style="color: var(--text-secondary); margin: 0; font-size: 1rem;">
-                <strong><?= htmlspecialchars($tour['tour_name']) ?></strong> - <?= htmlspecialchars($tour['destination']) ?>
+                <strong><?= ($tour['tour_name']) ?></strong> - <?= ($tour['destination']) ?>
             </p>
         </div>
         <a href="?act=tour-list" class="btn btn-secondary">
@@ -124,3 +124,13 @@
 </div>
 
 <?php include "views/layout/footer.php"; ?>
+
+<style>
+.badge.bg-success,
+.badge.bg-danger {
+    color: #fff !important;
+}
+.badge.bg-warning {
+    color: #000 !important;
+}
+</style>

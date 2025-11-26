@@ -84,7 +84,7 @@ class BookingController
             
             echo '<div class="schedule-item ' . $radioClass . '" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 2px solid ' . ($canSelect ? '#e0e7ff' : '#fee') . '; cursor: ' . ($canSelect ? 'pointer' : 'not-allowed') . ';">';
             echo '<label style="display: flex; align-items: center; cursor: ' . ($canSelect ? 'pointer' : 'not-allowed') . '; margin: 0;">';
-            echo '<input type="radio" name="schedule_id" value="' . $schedule['id'] . '" data-start-date="' . $schedule['start_date'] . '" data-price="' . ($schedule['price'] ?? 0) . '" ' . $disabled . ' style="margin-right: 15px; cursor: pointer;">';
+            echo '<input type="radio" name="schedule_id" value="' . $schedule['id'] . '" data-start-date="' . $schedule['start_date'] . '" data-end-date="' . ($schedule['end_date'] ?? $schedule['start_date']) . '" data-price="' . ($schedule['price'] ?? 0) . '" ' . $disabled . ' style="margin-right: 15px; cursor: pointer;">';
             echo '<div style="flex: 1;">';
             echo '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">';
             echo '<strong style="font-size: 16px;">' . $startDate . ' - ' . $endDate . '</strong>';
@@ -250,8 +250,8 @@ class BookingController
                 throw new Exception("Lịch trình chỉ còn {$availableSlots} chỗ, nhưng bạn đang đặt {$soKhach} khách");
             }
 
-            // 1. Tạo booking
-            $id_booking = $this->modelBooking->createBooking($id_tour, $ngay_di, $loai_dat);
+            // 1. Tạo booking (lưu schedule_id để liên kết trực tiếp)
+            $id_booking = $this->modelBooking->createBooking($id_tour, $ngay_di, $loai_dat, $schedule_id);
             
             if (!$id_booking) {
                 throw new Exception("Không thể tạo booking");
@@ -278,7 +278,11 @@ class BookingController
                 throw new Exception("Hướng dẫn viên '{$hdvName}' đã được phân công cho {$tourName} (Booking #{$bookingId}) vào ngày " . date('d/m/Y', strtotime($ngay_di)) . ". Vui lòng chọn HDV khác.");
             }
 
-            // 3. Lưu khách
+            // 3. Lấy thông tin schedule để kiểm tra trùng lịch
+            $startDate = $schedule['start_date'] ?? null;
+            $endDate = $schedule['end_date'] ?? null;
+
+            // 4. Lưu khách và kiểm tra trùng lịch
             foreach ($_POST['ten_khach'] as $i => $name) {
                 if (empty(trim($name))) continue; // Bỏ qua nếu tên rỗng
                 
@@ -286,13 +290,28 @@ class BookingController
                 $loai = $_POST['loai_khach'][$i] ?? 'nguoi_lon';
                 $req = $_POST['yeu_cau_dac_biet'][$i] ?? '';
                 
+                // Kiểm tra trùng lịch trước khi thêm
+                if ($startDate && $endDate) {
+                    $conflict = $this->modelBooking->checkCustomerScheduleConflict(
+                        trim($name),
+                        $sdt,
+                        $startDate,
+                        $endDate,
+                        null // Chưa có booking_id vì đang tạo mới
+                    );
+                    
+                    if ($conflict) {
+                        throw new Exception("Khách '{$name}' đã có booking khác cùng ngày. Vui lòng chọn ngày khác.");
+                    }
+                }
+                
                 $this->modelBooking->addCustomer($id_booking, trim($name), $sdt, $loai, $req);
             }
 
-            // 4. Gán HDV
+            // 5. Gán HDV
             $this->modelBooking->assignHdvToDate($id_hdv, $id_booking, $ngay_di);
 
-            // 5. Cập nhật số slot đã đặt trong schedule
+            // 6. Cập nhật số slot đã đặt trong schedule
             for ($i = 0; $i < $soKhach; $i++) {
                 $modelSchedule->updateBookedSlots($schedule_id, true);
             }
@@ -354,11 +373,31 @@ class BookingController
     // Lấy booking
     $booking = $this->modelBooking->findBookingById($id);
 
+    if (!$booking) {
+        die("Không tìm thấy booking với ID: " . $id);
+    }
+
+    // Tự động cập nhật schedule_id cho booking này nếu chưa có
+    if (empty($booking['schedule_id'])) {
+        $this->modelBooking->updateBookingScheduleId($id);
+        // Lấy lại booking sau khi cập nhật
+        $booking = $this->modelBooking->findBookingById($id);
+    }
+
     // Lấy khách của booking
     $customers = $this->modelBooking->getCustomersByBooking($id);
 
     // Lấy HDV
     $hdv = $this->modelBooking->getHdvByBooking($id);
+
+    // Lấy thông tin schedule để có slot tối đa và slot còn lại
+    $schedule = $this->modelBooking->getScheduleByBooking($id);
+    
+    // Debug: Nếu không có schedule, thử lấy lại một lần nữa sau khi cập nhật
+    if (empty($schedule) && !empty($booking['schedule_id'])) {
+        $modelSchedule = new ScheduleModel();
+        $schedule = $modelSchedule->getScheduleById($booking['schedule_id']);
+    }
 
     require "./views/Admin/QuanlyBooking/BookingDetail.php";
     }
@@ -407,6 +446,57 @@ class BookingController
     }
 
     // ================================
+    // AJAX: Lấy danh sách khách hàng đã có
+    // ================================
+    public function AjaxGetCustomers()
+    {
+        $customers = $this->modelBooking->getAllUniqueCustomers();
+        echo json_encode($customers);
+        exit;
+    }
+
+    // ================================
+    // AJAX: Kiểm tra trùng lịch khách hàng
+    // ================================
+    public function AjaxCheckCustomerConflict()
+    {
+        $customerName = $_GET['customer_name'] ?? '';
+        $customerPhone = $_GET['customer_phone'] ?? '';
+        $startDate = $_GET['start_date'] ?? '';
+        $endDate = $_GET['end_date'] ?? '';
+        $excludeBookingId = $_GET['exclude_booking_id'] ?? null;
+
+        if (empty($customerName) || empty($startDate) || empty($endDate)) {
+            echo json_encode(['conflict' => false]);
+            exit;
+        }
+
+        $conflict = $this->modelBooking->checkCustomerScheduleConflict(
+            $customerName,
+            $customerPhone,
+            $startDate,
+            $endDate,
+            $excludeBookingId
+        );
+
+        if ($conflict) {
+            $existingStart = date('d/m/Y', strtotime($conflict['existing_start']));
+            $existingEnd = date('d/m/Y', strtotime($conflict['existing_end']));
+            $newStart = date('d/m/Y', strtotime($conflict['new_start']));
+            $newEnd = date('d/m/Y', strtotime($conflict['new_end']));
+            
+            echo json_encode([
+                'conflict' => true,
+                'message' => "Khách này đã có booking khác cùng ngày. Vui lòng chọn ngày khác.",
+                'details' => "Khách '{$customerName}' đã đặt tour '{$conflict['tour_name']}' (Booking #{$conflict['booking_id']}) từ {$existingStart} đến {$existingEnd}, không thể đặt tour mới từ {$newStart} đến {$newEnd}."
+            ]);
+        } else {
+            echo json_encode(['conflict' => false]);
+        }
+        exit;
+    }
+
+    // ================================
     // Thêm khách hàng vào booking
     // ================================
     public function addCustomerToBooking()
@@ -417,25 +507,99 @@ class BookingController
         }
 
         $id_booking = $_POST['id_booking'] ?? 0;
-        $ten_khach = trim($_POST['ten_khach'] ?? '');
-        $sdt = trim($_POST['sdt'] ?? '');
-        $loai_khach = $_POST['loai_khach'] ?? 'nguoi_lon';
-        $yeu_cau_dac_biet = trim($_POST['yeu_cau_dac_biet'] ?? '');
 
         // Validate
-        if (!$id_booking || empty($ten_khach)) {
+        if (!$id_booking) {
+            header("Location: index.php?act=booking-list");
+            exit;
+        }
+
+        // Kiểm tra xem có khách hàng nào được gửi không
+        $ten_khach_array = $_POST['ten_khach'] ?? [];
+        if (empty($ten_khach_array) || !is_array($ten_khach_array)) {
             // Lấy lại dữ liệu để hiển thị form
             $booking = $this->modelBooking->findBookingById($id_booking);
             $customers = $this->modelBooking->getCustomersByBooking($id_booking);
             $hdv = $this->modelBooking->getHdvByBooking($id_booking);
-            $error = "Tên khách hàng là bắt buộc";
+            $schedule = $this->modelBooking->getScheduleByBooking($id_booking);
+            $error = "Vui lòng thêm ít nhất một khách hàng";
             require "./views/Admin/QuanlyBooking/BookingDetail.php";
             return;
         }
 
         try {
-            // Thêm khách hàng
-            $this->modelBooking->addCustomer($id_booking, $ten_khach, $sdt, $loai_khach, $yeu_cau_dac_biet);
+            // Kiểm tra slot còn lại
+            $schedule = $this->modelBooking->getScheduleByBooking($id_booking);
+            $soKhachMoi = 0;
+            $errors = [];
+            
+            if ($schedule) {
+                $maxSlots = intval($schedule['max_slots'] ?? 0);
+                $bookedSlots = intval($schedule['booked_slots'] ?? 0);
+                $remainingSlots = $maxSlots - $bookedSlots;
+                
+                // Đếm số khách hợp lệ
+                foreach ($ten_khach_array as $i => $ten_khach) {
+                    if (!empty(trim($ten_khach))) {
+                        $soKhachMoi++;
+                    }
+                }
+                
+                if ($remainingSlots < $soKhachMoi) {
+                    throw new Exception("Chỉ còn {$remainingSlots} slot trống, nhưng bạn đang thêm {$soKhachMoi} khách. Vui lòng kiểm tra lại.");
+                }
+                
+                // Kiểm tra trùng lịch cho từng khách
+                $startDate = $schedule['start_date'] ?? null;
+                $endDate = $schedule['end_date'] ?? null;
+                
+                if ($startDate && $endDate) {
+                    foreach ($ten_khach_array as $i => $ten_khach) {
+                        $ten_khach = trim($ten_khach);
+                        if (empty($ten_khach)) continue;
+                        
+                        $sdt = trim($_POST['sdt'][$i] ?? '');
+                        
+                        $conflict = $this->modelBooking->checkCustomerScheduleConflict(
+                            $ten_khach,
+                            $sdt,
+                            $startDate,
+                            $endDate,
+                            $id_booking // Exclude current booking
+                        );
+                        
+                        if ($conflict) {
+                            $errors[] = "Khách '{$ten_khach}' đã có booking khác cùng ngày. Vui lòng chọn ngày khác.";
+                        }
+                    }
+                }
+            }
+
+            if (!empty($errors)) {
+                throw new Exception(implode(" ", $errors));
+            }
+
+            // Thêm từng khách hàng
+            $addedCount = 0;
+            foreach ($ten_khach_array as $i => $ten_khach) {
+                $ten_khach = trim($ten_khach);
+                if (empty($ten_khach)) continue;
+                
+                $sdt = trim($_POST['sdt'][$i] ?? '');
+                $loai_khach = $_POST['loai_khach'][$i] ?? 'nguoi_lon';
+                $yeu_cau_dac_biet = trim($_POST['yeu_cau_dac_biet'][$i] ?? '');
+                
+                $this->modelBooking->addCustomer($id_booking, $ten_khach, $sdt, $loai_khach, $yeu_cau_dac_biet);
+                $addedCount++;
+            }
+
+            // Cập nhật số slot đã đặt trong schedule nếu có
+            if ($schedule && $addedCount > 0) {
+                $modelSchedule = new ScheduleModel();
+                for ($i = 0; $i < $addedCount; $i++) {
+                    $modelSchedule->updateBookedSlots($schedule['id'], true);
+                }
+            }
 
             // Redirect về trang chi tiết với thông báo thành công
             header("Location: index.php?act=booking-detail&id=" . $id_booking . "&success=1");
@@ -445,9 +609,58 @@ class BookingController
             $booking = $this->modelBooking->findBookingById($id_booking);
             $customers = $this->modelBooking->getCustomersByBooking($id_booking);
             $hdv = $this->modelBooking->getHdvByBooking($id_booking);
+            $schedule = $this->modelBooking->getScheduleByBooking($id_booking);
             $error = "Lỗi khi thêm khách hàng: " . $e->getMessage();
             require "./views/Admin/QuanlyBooking/BookingDetail.php";
             return;
+        }
+    }
+
+    // ================================
+    // Xóa khách hàng khỏi booking
+    // ================================
+    public function deleteCustomerFromBooking()
+    {
+        // Set header JSON ngay từ đầu
+        header('Content-Type: application/json; charset=utf-8');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit;
+        }
+
+        $customerId = intval($_POST['customer_id'] ?? 0);
+        $bookingId = intval($_POST['id_booking'] ?? 0);
+
+        if (!$customerId || !$bookingId) {
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin khách hàng hoặc booking']);
+            exit;
+        }
+
+        try {
+            // Xóa khách hàng
+            $result = $this->modelBooking->deleteCustomerFromBooking($customerId, $bookingId);
+            
+            if (!$result) {
+                echo json_encode(['success' => false, 'message' => 'Không thể xóa khách hàng hoặc khách hàng không thuộc booking này']);
+                exit;
+            }
+
+            // Cập nhật số slot đã đặt trong schedule
+            $schedule = $this->modelBooking->getScheduleByBooking($bookingId);
+            if ($schedule) {
+                $modelSchedule = new ScheduleModel();
+                $modelSchedule->updateBookedSlots($schedule['id'], false); // false = giảm slot
+            }
+
+            echo json_encode(['success' => true, 'message' => 'Xóa khách hàng thành công']);
+            exit;
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Lỗi khi xóa khách hàng: ' . $e->getMessage()]);
+            exit;
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Lỗi database: ' . $e->getMessage()]);
+            exit;
         }
     }
 

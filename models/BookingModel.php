@@ -76,22 +76,57 @@ class BookingModel
     // ================================
     // Tạo booking
     // ================================
-    public function createBooking($idTour, $ngayDi, $loaiDat)
+    public function createBooking($idTour, $ngayDi, $loaiDat, $scheduleId = null)
     {
         // Đảm bảo cột trang_thai đủ dài
         $this->ensureTrangThaiColumnSize();
+        
+        // Đảm bảo cột schedule_id tồn tại
+        $this->ensureScheduleIdColumn();
 
-        $sql = "INSERT INTO booking (id_tour, ngay_di, loai_dat, trang_thai)
-                VALUES (:t, :ngay, :l, 'cho_xac_nhan')";
+        $sql = "INSERT INTO booking (id_tour, ngay_di, loai_dat, trang_thai";
+        if ($scheduleId) {
+            $sql .= ", schedule_id";
+        }
+        $sql .= ") VALUES (:t, :ngay, :l, 'cho_xac_nhan'";
+        if ($scheduleId) {
+            $sql .= ", :schedule_id";
+        }
+        $sql .= ")";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
+        $params = [
             't'    => $idTour,
             'ngay' => $ngayDi,
             'l'    => $loaiDat
-        ]);
+        ];
+        
+        if ($scheduleId) {
+            $params['schedule_id'] = $scheduleId;
+        }
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
 
         return $this->conn->lastInsertId();
+    }
+    
+    // ================================
+    // Đảm bảo cột schedule_id tồn tại
+    // ================================
+    private function ensureScheduleIdColumn()
+    {
+        try {
+            // Kiểm tra xem cột schedule_id có tồn tại không
+            $checkCol = $this->conn->query("SHOW COLUMNS FROM booking LIKE 'schedule_id'")->fetch();
+            if (empty($checkCol)) {
+                // Tạo cột schedule_id nếu chưa có
+                $this->conn->exec("ALTER TABLE booking ADD COLUMN schedule_id INT(11) NULL DEFAULT NULL AFTER id_tour");
+                // Thêm foreign key nếu cần (tùy chọn)
+                // $this->conn->exec("ALTER TABLE booking ADD CONSTRAINT fk_booking_schedule FOREIGN KEY (schedule_id) REFERENCES tour_schedule(id) ON DELETE SET NULL");
+            }
+        } catch (PDOException $e) {
+            // Nếu lỗi, có thể cột đã tồn tại hoặc có vấn đề khác, bỏ qua
+        }
     }
 
     // ================================
@@ -132,6 +167,38 @@ class BookingModel
             'type' => $type,
             'req'  => $request
         ]);
+    }
+
+    // ================================
+    // Xóa khách hàng khỏi booking
+    // ================================
+    public function deleteCustomerFromBooking($customerId, $bookingId)
+    {
+        try {
+            // Kiểm tra xem khách hàng có thuộc booking này không
+            $sqlCheck = "SELECT id FROM khachtour WHERE id = :customer_id AND id_booking = :booking_id";
+            $stmtCheck = $this->conn->prepare($sqlCheck);
+            $stmtCheck->execute([
+                'customer_id' => $customerId,
+                'booking_id' => $bookingId
+            ]);
+            
+            if (!$stmtCheck->fetch()) {
+                return false; // Khách hàng không thuộc booking này
+            }
+            
+            // Xóa khách hàng
+            $sql = "DELETE FROM khachtour WHERE id = :customer_id AND id_booking = :booking_id";
+            $stmt = $this->conn->prepare($sql);
+            $result = $stmt->execute([
+                'customer_id' => $customerId,
+                'booking_id' => $bookingId
+            ]);
+            
+            return $result;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
     // ================================
@@ -322,6 +389,44 @@ class BookingModel
     }
 
     // ================================
+    // Lấy thông tin schedule từ booking
+    // ================================
+    public function getScheduleByBooking($idBooking)
+    {
+        // Lấy booking để có schedule_id
+        $booking = $this->findBookingById($idBooking);
+        if (!$booking) {
+            return null;
+        }
+
+        // Ưu tiên lấy schedule từ schedule_id (liên kết trực tiếp)
+        if (!empty($booking['schedule_id'])) {
+            $sql = "SELECT * FROM tour_schedule WHERE id = :schedule_id LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['schedule_id' => $booking['schedule_id']]);
+            $schedule = $stmt->fetch();
+            if ($schedule) {
+                return $schedule;
+            }
+        }
+
+        // Fallback: Tìm schedule dựa vào tour_id và start_date = ngay_di (cho các booking cũ)
+        if (isset($booking['id_tour']) && isset($booking['ngay_di'])) {
+            $sql = "SELECT * FROM tour_schedule 
+                    WHERE tour_id = :tour_id AND start_date = :ngay_di
+                    LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                'tour_id' => $booking['id_tour'],
+                'ngay_di' => $booking['ngay_di']
+            ]);
+            return $stmt->fetch();
+        }
+
+        return null;
+    }
+
+    // ================================
     // Xóa booking
     // ================================
     public function deleteBooking($id)
@@ -382,5 +487,173 @@ class BookingModel
             'id' => $id
         ]);
     }
+    public function countBookingByStatus($status) {
+        $sql = "SELECT COUNT(*) AS total FROM booking WHERE trang_thai = :status";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':status' => $status]);
+        return $stmt->fetch()['total'] ?? 0;
+    }
 
+    public function sumRevenueByStatus($status) {
+        $sql = "SELECT SUM(tong_tien) AS revenue FROM booking WHERE trang_thai = :status";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':status' => $status]);
+        return $stmt->fetch()['revenue'] ?? 0;
+    }
+
+    // ================================
+    // Cập nhật schedule_id cho các booking cũ (migration)
+    // ================================
+    public function updateOldBookingsScheduleId()
+    {
+        try {
+            // Đảm bảo cột schedule_id tồn tại
+            $this->ensureScheduleIdColumn();
+            
+            // Cập nhật schedule_id cho các booking chưa có schedule_id
+            // Tìm schedule dựa vào tour_id và start_date = ngay_di
+            $sql = "UPDATE booking b
+                    INNER JOIN tour_schedule ts ON ts.tour_id = b.id_tour AND ts.start_date = b.ngay_di
+                    SET b.schedule_id = ts.id
+                    WHERE b.schedule_id IS NULL OR b.schedule_id = 0";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            // Nếu lỗi, có thể do cột chưa tồn tại hoặc có vấn đề khác
+            return 0;
+        }
+    }
+    
+    // ================================
+    // Cập nhật schedule_id cho một booking cụ thể
+    // ================================
+    public function updateBookingScheduleId($bookingId)
+    {
+        try {
+            // Đảm bảo cột schedule_id tồn tại
+            $this->ensureScheduleIdColumn();
+            
+            // Lấy booking
+            $booking = $this->findBookingById($bookingId);
+            if (!$booking) {
+                return false;
+            }
+            
+            // Nếu đã có schedule_id, không cần cập nhật
+            if (!empty($booking['schedule_id'])) {
+                return true;
+            }
+            
+            // Tìm schedule dựa vào tour_id và start_date = ngay_di
+            $sql = "UPDATE booking b
+                    INNER JOIN tour_schedule ts ON ts.tour_id = b.id_tour AND ts.start_date = b.ngay_di
+                    SET b.schedule_id = ts.id
+                    WHERE b.id = :booking_id AND (b.schedule_id IS NULL OR b.schedule_id = 0)";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['booking_id' => $bookingId]);
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // ================================
+    // Lấy danh sách khách hàng đã có trong hệ thống (unique by name+phone)
+    // ================================
+    public function getAllUniqueCustomers()
+    {
+        $sql = "SELECT DISTINCT 
+                    ten_khach as name,
+                    sdt as phone,
+                    loai_khach as type
+                FROM khachtour 
+                WHERE ten_khach IS NOT NULL AND ten_khach != ''
+                ORDER BY ten_khach ASC";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // ================================
+    // Kiểm tra khách hàng có trùng lịch không (overlapping dates)
+    // ================================
+    public function checkCustomerScheduleConflict($customerName, $customerPhone, $newStartDate, $newEndDate, $excludeBookingId = null)
+    {
+        // Tìm tất cả booking của khách hàng này (theo tên hoặc số điện thoại)
+        // Khách hàng được xác định bằng tên, hoặc nếu có số điện thoại thì cũng kiểm tra theo số điện thoại
+        $sql = "SELECT DISTINCT b.id as booking_id, b.ngay_di, ts.start_date, ts.end_date, t.tour_name
+                FROM khachtour k
+                JOIN booking b ON k.id_booking = b.id
+                LEFT JOIN tour_schedule ts ON b.schedule_id = ts.id
+                LEFT JOIN tour t ON b.id_tour = t.id
+                WHERE k.ten_khach = :name";
+        
+        $params = ['name' => $customerName];
+        
+        // Nếu có số điện thoại, cũng kiểm tra các booking có cùng số điện thoại (ngay cả khi tên khác)
+        if (!empty($customerPhone)) {
+            $sql = "SELECT DISTINCT b.id as booking_id, b.ngay_di, ts.start_date, ts.end_date, t.tour_name
+                    FROM khachtour k
+                    JOIN booking b ON k.id_booking = b.id
+                    LEFT JOIN tour_schedule ts ON b.schedule_id = ts.id
+                    LEFT JOIN tour t ON b.id_tour = t.id
+                    WHERE (k.ten_khach = :name OR k.sdt = :phone)";
+            $params['phone'] = $customerPhone;
+        }
+        
+        // Loại trừ booking hiện tại nếu đang cập nhật
+        if ($excludeBookingId) {
+            $sql .= " AND b.id != :exclude_id";
+            $params['exclude_id'] = $excludeBookingId;
+        }
+        
+        // Chỉ lấy các booking chưa hủy
+        $sql .= " AND b.trang_thai != 'da_huy'";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        $existingBookings = $stmt->fetchAll();
+        
+        if (empty($existingBookings)) {
+            return null; // Không có booking nào, không trùng
+        }
+        
+        // Kiểm tra trùng lịch
+        foreach ($existingBookings as $booking) {
+            $existingStart = null;
+            $existingEnd = null;
+            
+            // Ưu tiên lấy từ schedule
+            if (!empty($booking['start_date']) && !empty($booking['end_date'])) {
+                $existingStart = $booking['start_date'];
+                $existingEnd = $booking['end_date'];
+            } elseif (!empty($booking['ngay_di'])) {
+                // Fallback: nếu không có schedule, dùng ngay_di làm start_date
+                // Giả sử tour kéo dài 1 ngày nếu không có end_date
+                $existingStart = $booking['ngay_di'];
+                $existingEnd = $booking['ngay_di'];
+            }
+            
+            if ($existingStart && $existingEnd && $newStartDate && $newEndDate) {
+                // Kiểm tra overlap: (start1 <= end2) AND (end1 >= start2)
+                if ($existingStart <= $newEndDate && $existingEnd >= $newStartDate) {
+                    return [
+                        'conflict' => true,
+                        'booking_id' => $booking['booking_id'],
+                        'tour_name' => $booking['tour_name'] ?? 'N/A',
+                        'existing_start' => $existingStart,
+                        'existing_end' => $existingEnd,
+                        'new_start' => $newStartDate,
+                        'new_end' => $newEndDate
+                    ];
+                }
+            }
+        }
+        
+        return null; // Không trùng
+    }
 }

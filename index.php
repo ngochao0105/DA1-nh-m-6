@@ -129,6 +129,18 @@ switch ($act) {
         (new BookingController())->addCustomerToBooking();
         break;
 
+    case 'delete-customer-from-booking':
+        (new BookingController())->deleteCustomerFromBooking();
+        break;
+
+    case 'ajax-check-customer-conflict':
+        (new BookingController())->AjaxCheckCustomerConflict();
+        break;
+
+    case 'ajax-get-customers':
+        (new BookingController())->AjaxGetCustomers();
+        break;
+
     case 'guide-management':
         (new GuideController())->GuideManagement();
         break;

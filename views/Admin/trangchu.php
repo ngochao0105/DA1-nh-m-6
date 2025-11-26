@@ -13,6 +13,17 @@
     }
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
@@ -333,6 +344,117 @@
         font-size: 1.75rem;
     }
 }
+
+/*  
+======================================================
+   ⭐ PHẦN CSS MỚI ĐƯỢC THÊM – GIÚP CÂN ĐỐI GIAO DIỆN ⭐
+======================================================
+*/
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+}
+
+/* Grid cân đối, đẹp trên mọi màn hình */
+.stats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    align-items: stretch;
+}
+
+/* Card đều chiều cao & đẹp hơn */
+.stat-card {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Icon to & cân đối */
+.stat-card .stat-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 1.9rem;
+}
+
+/* Text tối ưu */
+.stat-label {
+    margin-bottom: 0.35rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Hoạt động gần đây nổi bật hơn */
+.activity-card {
+    margin-top: 2rem;
+    padding: 2rem;
+}
+
+.activity-item {
+    padding: 1.2rem 1.3rem;
+}
+
+/* Desktop lớn: chia 3 cột đều */
+@media (min-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobile tối ưu */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+}
+stat-card .bi-hourglass-split {
+    font-size: 2rem;
+    color: #ffffff !important;
+}
+
+.stat-card .bi-check-circle-fill {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    padding: 12px;
+    border-radius: 12px;
+    color: white !important;
+}
+
+/* Nền icon cho Doanh Thu Tổng */
+.stat-card .bi-cash-coin {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    padding: 12px;
+    border-radius: 12px;
+    color: white !important;
+}
+.stat-card:nth-of-type(5) .stat-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white !important;
+}
+
+.stat-card:nth-of-type(5) .stat-value {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+/* Doanh thu tổng */
+.stat-card:nth-of-type(6) .stat-icon {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    color: white !important;
+}
+
+.stat-card:nth-of-type(6) .stat-value {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 </style>
 
 <div class="page-header">
@@ -360,22 +482,6 @@
     <div class="stat-card">
         <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
             <div class="stat-icon">
-                <i class="bi bi-calendar-check"></i>
-            </div>
-            <div style="flex: 1;">
-                <div class="stat-label">Tổng Booking</div>
-                <div class="stat-value" <?= $totalBooking ?? 0 ?>></div>
-                <div class="stat-trend up">
-                    <i class="bi bi-arrow-up"></i>
-                    <span>+12% tháng này</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
-            <div class="stat-icon">
                 <i class="bi bi-person-badge"></i>
             </div>
             <div style="flex: 1;">
@@ -389,14 +495,66 @@
         </div>
     </div>
 
+    <!-- ✅ THÊM: BOOKING ĐANG CHẠY -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
+            <div class="stat-icon">
+                <i class="bi bi-play-circle-fill"></i>
+            </div>
+            <div style="flex: 1;">
+                <div class="stat-label">Booking Đang Chạy</div>
+                <div class="stat-value"><?= $bookingDangChay ?? 0 ?></div>
+                <div class="stat-trend up">
+                    <i class="bi bi-arrow-up"></i>
+                    <span><?= number_format($revenueDangChay ?? 0, 0, ',', '.') ?> VNĐ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ THÊM: BOOKING CHỜ XÁC NHẬN -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
+            <div class="stat-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div style="flex: 1;">
+                <div class="stat-label">Booking Chờ Xác Nhận</div>
+                <div class="stat-value"><?= $bookingCho ?? 0 ?></div>
+                <div class="stat-trend down">
+                    <i class="bi bi-arrow-down"></i>
+                    <span><?= number_format($revenueCho ?? 0, 0, ',', '.') ?> VNĐ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ THÊM: BOOKING ĐÃ KẾT THÚC -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div style="flex: 1;">
+                <div class="stat-label">Booking Đã Kết Thúc</div>
+                <div class="stat-value"><?= $bookingHoanTat ?? 0 ?></div>
+                <div class="stat-trend up">
+                    <i class="bi bi-arrow-up"></i>
+                    <span><?= number_format($revenueHoanTat ?? 0, 0, ',', '.') ?> VNĐ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ THÊM: DOANH THU THÁNG -->
     <div class="stat-card">
         <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem;">
             <div class="stat-icon">
                 <i class="bi bi-cash-coin"></i>
             </div>
             <div style="flex: 1;">
-                <div class="stat-label">Doanh thu tháng</div>
-                <div class="stat-value">4,000$</div>
+                <div class="stat-label">Doanh Thu Tổng</div>
+                <div class="stat-value"><?= number_format(($revenueDangChay ?? 0) + ($revenueCho ?? 0) + ($revenueHoanTat ?? 0), 0, ',', '.') ?></div>
                 <div class="stat-trend up">
                     <i class="bi bi-arrow-up"></i>
                     <span>+25% so với tháng trước</span>
