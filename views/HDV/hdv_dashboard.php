@@ -478,4 +478,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
 <?php include "views/HDV/footer_hdv.php"; ?>

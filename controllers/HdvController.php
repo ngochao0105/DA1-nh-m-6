@@ -1,94 +1,101 @@
 <?php
-// File: controllers/HdvController.php
-
 class HdvController
 {
-
-    public function dashboard()
+     public function dashboard()
     {
-
-        // ============================================================
-        //  BẢO VỆ: KIỂM TRA QUYỀN TRUY CẬP
-        // ============================================================
-        // Kiểm tra xem người dùng đã đăng nhập và có đúng vai trò 'hdv' không
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
-            // Nếu không đúng, đá về trang đăng nhập
-            session_unset();
-            session_destroy();
-            header("Location: ?act=login");
-            exit;
-        }
-
-        // ============================================================
-        //  LẤY DỮ LIỆU
-        // ============================================================
-        $hdvModel = new HdvModel();
-
-        // 1. Lấy thông tin hồ sơ (full_name, email, ...) của HDV
-        //    Lưu ý: $_SESSION['user_id'] là ID từ bảng 'taikhoan'
-        $hdvProfile = $hdvModel->getHdvInfoByAccountId($_SESSION['user_id']);
-        $_SESSION['full_name'] = $hdvProfile['full_name'];
-        $_SESSION['email']     = $hdvProfile['email'];
-        $_SESSION['phone']     = $hdvProfile['phone'];
-          $_SESSION['average_rating']     = $hdvProfile['average_rating'];
-
-        // Nếu không tìm thấy hồ sơ (tài khoản có role 'hdv' nhưng chưa liên kết bảng nhansu)
-        if (!$hdvProfile) {
-            // Hiển thị lỗi hoặc đăng xuất
-            echo "Lỗi: Không tìm thấy hồ sơ nhân sự cho tài khoản này.";
-            exit;
-        }
-
-        // 2. Lấy ID của nhân sự (từ bảng 'nhansu')
-        $hdv_id = $hdvProfile['id'];
-
-        // 3. Lấy các tour đã được phân công
-        $assignedTours = $hdvModel->getAssignedTours($hdv_id);
-
-        // 4. Lấy lịch làm việc
-        $schedule = $hdvModel->getWorkSchedule($hdv_id);
-
-        // ============================================================
-        //  HIỂN THỊ VIEW
-        // ============================================================
-        // Gửi các biến ($hdvProfile, $assignedTours, $schedule) sang view
-        require_file_view('HDV/hdv_dashboard', compact(
-            'hdvProfile',
-            'assignedTours',
-            'schedule'
-        ));
-    }
+       if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+        header("Location: ?act=login");
+        exit;
+       }
+        // Hoặc load view dashboard:
+       require_once 'views/HDV/hdv_dashboard.php';
+       }
     public function myTours()
     {
-
-        // 1. Bảo vệ: Kiểm tra xem có phải HDV không
+        // 1. Kiểm tra quyền truy cập
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
             header("Location: ?act=login");
             exit;
         }
 
-        // 2. Lấy dữ liệu từ Model
         $hdvModel = new HdvModel();
 
-        // Lấy ID tài khoản từ session
-        $taikhoan_id = $_SESSION['user_id'];
-
-        // Lấy hồ sơ nhân sự (để lấy hdv_id)
-        $hdvProfile = $hdvModel->getHdvInfoByAccountId($taikhoan_id);
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
 
         if (!$hdvProfile) {
-            // Lỗi này không nên xảy ra nếu bạn đã liên kết DB chính xác
-            echo "Lỗi: Không tìm thấy hồ sơ nhân sự.";
+            echo "Không tìm thấy thông tin HDV.";
             exit;
         }
 
-        // Lấy ID nhân sự (ví dụ: 1, 2, 3...)
+        // 3. Lấy ID HDV
         $hdv_id = $hdvProfile['id'];
 
-        // Lấy các tour đã gán (Dùng lại hàm từ dashboard)
+        // 4. Lấy các tour được phân công
         $assignedTours = $hdvModel->getAssignedTours($hdv_id);
 
-        // 3. Hiển thị View và gửi dữ liệu sang
-        require_file_view('HDV/hdv_my_tours', compact('assignedTours'));
+        // 5. Gửi sang view
+        require_file_view("HDV/hdv_my_tours", compact("assignedTours"));
     }
+
+
+
+    // // HDV check-in
+    // public function hdvCheckinForm() {
+    //     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+    //         header("Location: ?act=login");
+    //         exit;
+    //     }
+
+    //     $hdv_id = $_SESSION['user_id'];
+    //     $tourModel = new TourModel();
+    //     $assignedTours = $tourModel->getToursByHdv($hdv_id); // cần tạo hàm này
+    //     require_once 'views/Checkin/hdv_checkin_form.php';
+    // }
+
+    // public function hdvCheckinSubmit() {
+    //     $hdv_id = $_SESSION['user_id'];
+    //     $tour_id = $_POST['tour_id'];
+    //     $location = $_POST['location'] ?? '';
+
+    //     $success = $this->model->hdvCheckin($hdv_id, $tour_id, $location);
+    //     if ($success) {
+    //         header("Location: ?act=hdv-checkin&msg=success");
+    //     } else {
+    //         echo "Điểm danh thất bại!";
+    //     }
+    // }
+
+   
+    // public function customerCheckinForm() {
+    //     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
+    //         header("Location: ?act=login");
+    //         exit;
+    //     }
+
+    //     $khach_id = $_SESSION['user_id'];
+    //     $tourModel = new TourModel();
+    //     $bookedTours = $tourModel->getToursByCustomer($khach_id); // cần tạo hàm này
+    //     require_once 'views/Checkin/customer_checkin_form.php';
+    // }
+
+    // public function customerCheckinSubmit() {
+    //     $khach_id = $_SESSION['user_id'];
+    //     $tour_id = $_POST['tour_id'];
+    //     $location = $_POST['location'] ?? '';
+
+    //     $success = $this->model->customerCheckin($khach_id, $tour_id, $location);
+    //     if ($success) {
+    //         header("Location: ?act=customer-checkin&msg=success");
+    //     } else {
+    //         echo "Điểm danh thất bại!";
+    //     }
+    // }
+
+    // // Xem danh sách điểm danh theo tour
+    // public function checkinList($tour_id) {
+    //     $list = $this->model->getCheckinByTour($tour_id);
+    //     require_once 'views/Checkin/checkin_list.php';
+    // }
 }
