@@ -34,30 +34,30 @@
         <!-- Thông tin booking -->
         <div class="booking-info-card">
             <div class="info-section">
-                <h3><?= htmlspecialchars($bookingDetail['tour_name']) ?></h3>
+                <h3><?= htmlspecialchars($bookingDetail['tour_name'] ?? '') ?></h3>
                 <p class="location">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <?= htmlspecialchars($bookingDetail['destination']) ?>
+                    <?= htmlspecialchars($bookingDetail['destination'] ?? '') ?>
                 </p>
             </div>
 
             <div class="info-grid">
                 <div class="info-box">
                     <label>Ngày khởi hành</label>
-                    <p><?= date('d/m/Y', strtotime($bookingDetail['ngay_di'])) ?></p>
+                    <p><?= !empty($bookingDetail['ngay_di']) ? date('d/m/Y', strtotime($bookingDetail['ngay_di'])) : 'Chưa cập nhật' ?></p>
                 </div>
                 <div class="info-box">
                     <label>Thời lượng</label>
-                    <p><?= htmlspecialchars($bookingDetail['duration']) ?> ngày</p>
+                    <p><?= htmlspecialchars($bookingDetail['duration'] ?? '') ?> ngày</p>
                 </div>
                 <div class="info-box">
                     <label>Tổng khách</label>
-                    <p><?= htmlspecialchars($bookingDetail['so_khach']) ?> khách</p>
+                    <p><?= htmlspecialchars($bookingDetail['so_khach'] ?? '') ?> khách</p>
                 </div>
                 <div class="info-box">
                     <label>Trạng thái</label>
                     <p>
-                        <span class="status-badge status-<?= $bookingDetail['trang_thai'] ?>">
+                        <span class="status-badge status-<?= htmlspecialchars($bookingDetail['trang_thai'] ?? '') ?>">
                             <?php 
                             $statusMap = [
                                 'cho_xac_nhan' => 'Chờ xác nhận',
@@ -66,7 +66,8 @@
                                 'da_hoan_thanh' => 'Đã hoàn thành',
                                 'da_huy' => 'Đã hủy'
                             ];
-                            echo $statusMap[$bookingDetail['trang_thai']] ?? $bookingDetail['trang_thai'];
+                            $statusKey = $bookingDetail['trang_thai'] ?? '';
+                            echo $statusMap[$statusKey] ?? $statusKey;
                             ?>
                         </span>
                     </p>
@@ -74,17 +75,17 @@
             </div>
 
             <!-- Nút hành động (chỉ hiển thị khi chờ xác nhận) -->
-            <?php if ($bookingDetail['trang_thai'] === 'cho_xac_nhan'): ?>
+            <?php if (($bookingDetail['trang_thai'] ?? '') === 'cho_xac_nhan'): ?>
                 <div class="action-buttons">
                     <form method="POST" action="?act=hdv_confirm_booking" style="display: inline;">
-                        <input type="hidden" name="booking_id" value="<?= $bookingDetail['id'] ?>">
+                        <input type="hidden" name="booking_id" value="<?= htmlspecialchars($bookingDetail['id'] ?? '') ?>">
                         <button type="submit" name="action" value="confirm" class="btn btn-confirm">
                             <i class="bi bi-check2-circle"></i>
                             Xác nhận nhận tour
                         </button>
                     </form>
                     <form method="POST" action="?act=hdv_confirm_booking" style="display: inline;">
-                        <input type="hidden" name="booking_id" value="<?= $bookingDetail['id'] ?>">
+                        <input type="hidden" name="booking_id" value="<?= htmlspecialchars($bookingDetail['id'] ?? '') ?>">
                         <button type="submit" name="action" value="reject" class="btn btn-reject" onclick="return confirm('Bạn chắc chắn muốn từ chối tour này?')">
                             <i class="bi bi-x-circle"></i>
                             Từ chối tour
@@ -127,7 +128,7 @@
                                     <td class="text-center"><?= $idx + 1 ?></td>
                                     <td>
                                         <span class="customer-name">
-                                            <?= htmlspecialchars($customer['ten_khach']) ?>
+                                            <?= htmlspecialchars($customer['ten_khach'] ?? '') ?>
                                         </span>
                                     </td>
                                     <td><?= htmlspecialchars($customer['so_dien_thoai'] ?? 'N/A') ?></td>
@@ -151,7 +152,7 @@
         <?php if (!empty($bookingDetail['description'])): ?>
             <div class="description-section">
                 <h3>Mô tả tour</h3>
-                <p><?= htmlspecialchars($bookingDetail['description']) ?></p>
+                <p><?= htmlspecialchars($bookingDetail['description'] ?? '') ?></p>
             </div>
         <?php endif; ?>
     </div>

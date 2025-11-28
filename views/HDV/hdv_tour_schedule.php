@@ -38,25 +38,25 @@
             <!-- Danh sách lịch trình -->
             <div class="schedules-grid">
                 <?php foreach ($schedules as $schedule): ?>
-                    <div class="schedule-card" data-status="<?= htmlspecialchars($schedule['tour_status']) ?>">
+                    <div class="schedule-card" data-status="<?= htmlspecialchars($schedule['tour_status'] ?? '') ?>">
                         <!-- Header -->
                         <div class="card-header">
                             <div class="header-left">
-                                <h3><?= htmlspecialchars($schedule['tour_name']) ?></h3>
+                                <h3><?= htmlspecialchars($schedule['tour_name'] ?? '') ?></h3>
                                 <p class="location">
                                     <i class="bi bi-geo-alt-fill"></i>
-                                    <?= htmlspecialchars($schedule['destination']) ?>
+                                    <?= htmlspecialchars($schedule['destination'] ?? '') ?>
                                 </p>
                             </div>
                             <div class="header-right">
-                                <span class="badge badge-<?= htmlspecialchars($schedule['tour_status']) ?>">
+                                <span class="badge badge-<?= htmlspecialchars($schedule['tour_status'] ?? '') ?>">
                                     <?php 
                                     $statusMap = [
                                         'sap_mo' => 'Sắp mở',
                                         'dang_mo' => 'Đang mở',
                                         'da_dong' => 'Đã đóng'
                                     ];
-                                    echo $statusMap[$schedule['tour_status']] ?? $schedule['tour_status'];
+                                    echo $statusMap[$schedule['tour_status'] ?? ''] ?? ($schedule['tour_status'] ?? '');
                                     ?>
                                 </span>
                             </div>
@@ -69,7 +69,7 @@
                                     <label>Ngày khởi hành</label>
                                     <p class="info-value">
                                         <i class="bi bi-calendar-event"></i>
-                                        <?= date('d/m/Y', strtotime($schedule['start_date'])) ?>
+                                        <?= !empty($schedule['start_date']) ? date('d/m/Y', strtotime($schedule['start_date'])) : 'Chưa cập nhật' ?>
                                     </p>
                                 </div>
 
@@ -77,7 +77,7 @@
                                     <label>Ngày kết thúc</label>
                                     <p class="info-value">
                                         <i class="bi bi-calendar-event"></i>
-                                        <?= date('d/m/Y', strtotime($schedule['end_date'])) ?>
+                                        <?= !empty($schedule['end_date']) ? date('d/m/Y', strtotime($schedule['end_date'])) : 'Chưa cập nhật' ?>
                                     </p>
                                 </div>
 
@@ -85,7 +85,7 @@
                                     <label>Thời lượng</label>
                                     <p class="info-value">
                                         <i class="bi bi-hourglass-split"></i>
-                                        <?= htmlspecialchars($schedule['duration']) ?> ngày
+                                        <?= htmlspecialchars($schedule['duration'] ?? '') ?> ngày
                                     </p>
                                 </div>
 
@@ -93,7 +93,7 @@
                                     <label>Số khách</label>
                                     <p class="info-value">
                                         <i class="bi bi-people-fill"></i>
-                                        <?= htmlspecialchars($schedule['so_khach']) ?> khách
+                                        <?= htmlspecialchars($schedule['so_khach'] ?? '') ?> khách
                                     </p>
                                 </div>
                             </div>
@@ -101,7 +101,7 @@
                             <?php if (!empty($schedule['description'])): ?>
                                 <div class="description-box">
                                     <label>Mô tả tour</label>
-                                    <p><?= htmlspecialchars($schedule['description']) ?></p>
+                                    <p><?= htmlspecialchars($schedule['description'] ?? '') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -109,10 +109,10 @@
                         <!-- Footer -->
                         <div class="card-footer">
                             <small class="text-muted">
-                                Tour ID: #<?= htmlspecialchars($schedule['tour_id']) ?> | 
-                                Booking ID: #<?= htmlspecialchars($schedule['booking_id']) ?>
+                                Tour ID: #<?= htmlspecialchars($schedule['tour_id'] ?? '') ?> | 
+                                Booking ID: #<?= htmlspecialchars($schedule['booking_id'] ?? '') ?>
                             </small>
-                            <a href="?act=hdv_schedule_detail&booking_id=<?= $schedule['booking_id'] ?>" class="btn-detail">
+                            <a href="?act=hdv_schedule_detail&booking_id=<?= urlencode($schedule['booking_id'] ?? '') ?>" class="btn-detail">
                                 <i class="bi bi-eye"></i>
                                 Xem chi tiết
                             </a>
