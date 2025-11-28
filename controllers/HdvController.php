@@ -39,6 +39,125 @@ class HdvController
         require_file_view("HDV/hdv_my_tours", compact("assignedTours"));
     }
 
+    public function viewSchedule()
+    {
+        // 1. Kiểm tra quyền truy cập
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            header("Location: ?act=login");
+            exit;
+        }
+
+        $hdvModel = new HdvModel();
+
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo "Không tìm thấy thông tin HDV.";
+            exit;
+        }
+
+        // 3. Lấy ID HDV
+        $hdv_id = $hdvProfile['id'];
+
+        // 4. Lấy lịch trình tour
+        $schedules = $hdvModel->getHdvSchedules($hdv_id);
+
+        // 5. Gửi sang view
+        require_file_view("HDV/hdv_tour_schedule", compact("schedules", "hdvProfile"));
+    }
+
+    public function viewScheduleDetail()
+    {
+        // 1. Kiểm tra quyền truy cập
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            header("Location: ?act=login");
+            exit;
+        }
+
+        $booking_id = $_GET['booking_id'] ?? null;
+        if (!$booking_id) {
+            header("Location: ?act=hdv_tour_schedule");
+            exit;
+        }
+
+        $hdvModel = new HdvModel();
+
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo "Không tìm thấy thông tin HDV.";
+            exit;
+        }
+
+        // 3. Lấy ID HDV
+        $hdv_id = $hdvProfile['id'];
+
+        // 4. Lấy thông tin booking
+        $bookingDetail = $hdvModel->getBookingDetail($booking_id, $hdv_id);
+        if (!$bookingDetail) {
+            header("Location: ?act=hdv_tour_schedule");
+            exit;
+        }
+
+        // 5. Lấy danh sách khách hàng
+        $customers = $hdvModel->getBookingCustomers($booking_id, $hdv_id);
+
+        // 6. Gửi sang view
+        require_file_view("HDV/hdv_schedule_detail", compact("bookingDetail", "customers", "hdvProfile"));
+    }
+
+    public function confirmBookingAction()
+    {
+        // 1. Kiểm tra quyền truy cập
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            header("Location: ?act=login");
+            exit;
+        }
+
+        $booking_id = $_POST['booking_id'] ?? null;
+        if (!$booking_id) {
+            header("Location: ?act=hdv_tour_schedule");
+            exit;
+        }
+
+        $hdvModel = new HdvModel();
+
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo "Không tìm thấy thông tin HDV.";
+            exit;
+        }
+
+        // 3. Lấy ID HDV
+        $hdv_id = $hdvProfile['id'];
+
+        // 4. Xác nhận nhận tour
+        $action = $_POST['action'] ?? null;
+        if ($action === 'confirm') {
+            $result = $hdvModel->confirmBooking($booking_id, $hdv_id);
+            if ($result) {
+                header("Location: ?act=hdv_schedule_detail&booking_id=$booking_id&msg=confirmed");
+            } else {
+                header("Location: ?act=hdv_schedule_detail&booking_id=$booking_id&msg=error");
+            }
+        } elseif ($action === 'reject') {
+            $result = $hdvModel->rejectBooking($booking_id, $hdv_id);
+            if ($result) {
+                header("Location: ?act=hdv_tour_schedule&msg=rejected");
+            } else {
+                header("Location: ?act=hdv_schedule_detail&booking_id=$booking_id&msg=error");
+            }
+        }
+        exit;
+    }
+
 
 
     // // HDV check-in

@@ -61,6 +61,122 @@ class HdvModel
         return $this->pdo_query_one($sql, [$account_id]);
     }
 
+    // Lấy lịch trình tour của HDV (từ booking được phân công)
+    public function getHdvSchedules($hdv_id)
+    {
+        $sql = "SELECT DISTINCT
+                    b.id AS booking_id,
+                    b.ngay_di AS start_date,
+                    ADDDATE(b.ngay_di, INTERVAL t.duration DAY) AS end_date,
+                    t.id AS tour_id,
+                    t.tour_name,
+                    t.destination,
+                    t.duration,
+                    t.description,
+                    t.status AS tour_status,
+                    (SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id) AS so_khach
+                FROM phan_cong_hdv pc
+                INNER JOIN booking b ON pc.id_booking = b.id
+                INNER JOIN tour t ON b.id_tour = t.id
+                WHERE pc.id_hdv = ?
+                ORDER BY b.ngay_di DESC";
+
+        return $this->pdo_query($sql, [$hdv_id]);
+    }
+
+    // Lấy chi tiết khách hàng trong một booking
+    public function getBookingCustomers($booking_id, $hdv_id)
+    {
+        // Kiểm tra quyền: HDV chỉ có thể xem khách hàng của booking mình được phân công
+        $checkSql = "SELECT COUNT(*) as cnt FROM phan_cong_hdv WHERE id_booking = ? AND id_hdv = ?";
+        $checkStmt = $this->pdo->prepare($checkSql);
+        $checkStmt->execute([$booking_id, $hdv_id]);
+        $result = $checkStmt->fetch();
+        
+        if ($result['cnt'] == 0) {
+            return []; // Không có quyền xem
+        }
+
+        $sql = "SELECT 
+                    k.*,
+                    b.ngay_di,
+                    t.tour_name,
+                    t.destination
+                FROM khachtour k
+                INNER JOIN booking b ON k.id_booking = b.id
+                INNER JOIN tour t ON b.id_tour = t.id
+                WHERE k.id_booking = ?
+                ORDER BY k.id ASC";
+
+        return $this->pdo_query($sql, [$booking_id]);
+    }
+
+    // Lấy thông tin booking chi tiết
+    public function getBookingDetail($booking_id, $hdv_id)
+    {
+        // Kiểm tra quyền
+        $checkSql = "SELECT COUNT(*) as cnt FROM phan_cong_hdv WHERE id_booking = ? AND id_hdv = ?";
+        $checkStmt = $this->pdo->prepare($checkSql);
+        $checkStmt->execute([$booking_id, $hdv_id]);
+        $result = $checkStmt->fetch();
+        
+        if ($result['cnt'] == 0) {
+            return null; // Không có quyền xem
+        }
+
+        $sql = "SELECT 
+                    b.*,
+                    t.tour_name,
+                    t.destination,
+                    t.duration,
+                    t.description,
+                    t.status AS tour_status,
+                    (SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id) AS so_khach
+                FROM booking b
+                INNER JOIN tour t ON b.id_tour = t.id
+                WHERE b.id = ?";
+
+        return $this->pdo_query_one($sql, [$booking_id]);
+    }
+
+    // Cập nhật trạng thái HDV đã nhận tour
+    public function confirmBooking($booking_id, $hdv_id)
+    {
+        // Kiểm tra quyền
+        $checkSql = "SELECT COUNT(*) as cnt FROM phan_cong_hdv WHERE id_booking = ? AND id_hdv = ?";
+        $checkStmt = $this->pdo->prepare($checkSql);
+        $checkStmt->execute([$booking_id, $hdv_id]);
+        $result = $checkStmt->fetch();
+        
+        if ($result['cnt'] == 0) {
+            return false; // Không có quyền
+        }
+
+        // Cập nhật trạng thái thành "da_xac_nhan" nếu chưa
+        $sql = "UPDATE booking SET trang_thai = 'da_xac_nhan' WHERE id = ? AND trang_thai = 'cho_xac_nhan'";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$booking_id]);
+    }
+
+    // Từ chối nhận tour
+    public function rejectBooking($booking_id, $hdv_id, $ly_do = null)
+    {
+        // Kiểm tra quyền
+        $checkSql = "SELECT COUNT(*) as cnt FROM phan_cong_hdv WHERE id_booking = ? AND id_hdv = ?";
+        $checkStmt = $this->pdo->prepare($checkSql);
+        $checkStmt->execute([$booking_id, $hdv_id]);
+        $result = $checkStmt->fetch();
+        
+        if ($result['cnt'] == 0) {
+            return false; // Không có quyền
+        }
+
+        // Cập nhật trạng thái thành "da_huy"
+        $sql = "UPDATE booking SET trang_thai = 'da_huy' WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$booking_id]);
+    }
+
     // PHƯƠNG THỨC HỖ TRỢ PDO
     private function pdo_query($sql, $params = [])
     {

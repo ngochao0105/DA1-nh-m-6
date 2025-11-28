@@ -180,7 +180,18 @@ case 'delete-assign':
     case 'hdv_my_tours':
         (new HdvController())->myTours();
         break;
-   
+
+    case 'hdv_tour_schedule':
+        (new HdvController())->viewSchedule();
+        break;
+
+    case 'hdv_schedule_detail':
+        (new HdvController())->viewScheduleDetail();
+        break;
+
+    case 'hdv_confirm_booking':
+        (new HdvController())->confirmBookingAction();
+        break;
 
 // diem danh hdv
 // case 'checklist':

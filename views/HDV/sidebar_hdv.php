@@ -31,6 +31,11 @@
     <i class="bi bi-calendar-check"></i>
     <span>Điểm danh khách hàng</span>
 </a>
+ <a href="?act=hdv_tour_schedule" 
+           class="nav-link <?php echo ($act == 'hdv_tour_schedule' ? 'active' : ''); ?>">
+            <i class="bi bi-calendar"></i>
+            <span>Lịch trình tour</span>
+        </a>
     </nav>
 
     <!-- User Section -->
