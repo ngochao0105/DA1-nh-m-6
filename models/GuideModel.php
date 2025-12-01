@@ -134,7 +134,7 @@ public function getAllGuides($keyword = "")
     public function resetGuideIds()
     {
         $this->conn->query("SET @count = 0;");
-        $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
+        // $this->conn->query("UPDATE nhansu SET id = @count := @count + 1;");
         $this->conn->query("ALTER TABLE nhansu AUTO_INCREMENT = 1;");
     }
 
