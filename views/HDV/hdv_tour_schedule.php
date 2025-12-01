@@ -28,17 +28,76 @@
                     <label for="filterStatus">Lọc theo trạng thái:</label>
                     <select id="filterStatus" class="form-select" onchange="filterSchedules()">
                         <option value="">Tất cả</option>
-                        <option value="sap_mo">Sắp mở</option>
-                        <option value="dang_mo">Đang mở</option>
-                        <option value="da_dong">Đã đóng</option>
+                        <option value="upcoming">Sắp diễn ra</option>
+                        <option value="ongoing">Đang diễn ra</option>
+                        <option value="finished">Đã kết thúc</option>
                     </select>
                 </div>
             </div>
 
             <!-- Danh sách lịch trình -->
             <div class="schedules-grid">
-                <?php foreach ($schedules as $schedule): ?>
-                    <div class="schedule-card" data-status="<?= htmlspecialchars($schedule['tour_status'] ?? '') ?>">
+                <?php 
+                $currentDate = date('Y-m-d');
+                foreach ($schedules as $schedule): 
+                    $startDateRaw = $schedule['start_date'] ?? null;
+                    $endDateRaw = $schedule['end_date'] ?? null;
+                    $bookingStatus = $schedule['booking_status'] ?? '';
+
+                    $startTimestamp = $startDateRaw ? strtotime($startDateRaw) : null;
+                    $endTimestamp = $endDateRaw ? strtotime($endDateRaw) : null;
+
+                    $startDisplay = 'Chưa cập nhật';
+                    $endDisplay = 'Chưa cập nhật';
+
+                    if ($startTimestamp) {
+                        $startDisplay = date('d/m/Y', $startTimestamp);
+                    }
+
+                    $durationValue = $schedule['duration'] ?? null;
+                    if (!is_numeric($durationValue)) {
+                        if (is_string($durationValue) && preg_match('/\d+/', $durationValue, $matches)) {
+                            $durationValue = (int)$matches[0];
+                        } else {
+                            $durationValue = 1;
+                        }
+                    }
+                    $durationDays = max((int)$durationValue, 1);
+
+                    if ($endTimestamp) {
+                        $calculatedEndTimestamp = $endTimestamp;
+                    } elseif ($startTimestamp) {
+                        $calculatedEndTimestamp = $startTimestamp + max($durationDays - 1, 0) * 86400;
+                    } else {
+                        $calculatedEndTimestamp = null;
+                    }
+
+                    if ($calculatedEndTimestamp) {
+                        $endDisplay = date('d/m/Y', $calculatedEndTimestamp);
+                    }
+
+                    $startDate = $startTimestamp ? date('Y-m-d', $startTimestamp) : null;
+                    $effectiveEndDate = $calculatedEndTimestamp ? date('Y-m-d', $calculatedEndTimestamp) : null;
+
+                    $timeStatus = 'unknown';
+                    if ($bookingStatus === 'da_huy' || $bookingStatus === 'hoan_tat') {
+                        $timeStatus = 'finished';
+                    } elseif ($bookingStatus === 'dang_dien_ra') {
+                        $timeStatus = 'ongoing';
+                    } elseif ($startDate) {
+                        if ($startDate > $currentDate) {
+                            $timeStatus = 'upcoming';
+                        } elseif ($effectiveEndDate && $currentDate > $effectiveEndDate) {
+                            $timeStatus = 'finished';
+                        } else {
+                            $timeStatus = 'ongoing';
+                        }
+                    }
+                ?>
+                    <div class="schedule-card" 
+                         data-status="<?= htmlspecialchars($schedule['tour_status'] ?? '') ?>"
+                         data-time-status="<?= $timeStatus ?>"
+                         data-booking-status="<?= htmlspecialchars($bookingStatus) ?>">
                         <!-- Header -->
                         <div class="card-header">
                             <div class="header-left">
@@ -69,7 +128,7 @@
                                     <label>Ngày khởi hành</label>
                                     <p class="info-value">
                                         <i class="bi bi-calendar-event"></i>
-                                        <?= !empty($schedule['start_date']) ? date('d/m/Y', strtotime($schedule['start_date'])) : 'Chưa cập nhật' ?>
+                                        <?= $startDisplay ?>
                                     </p>
                                 </div>
 
@@ -77,7 +136,7 @@
                                     <label>Ngày kết thúc</label>
                                     <p class="info-value">
                                         <i class="bi bi-calendar-event"></i>
-                                        <?= !empty($schedule['end_date']) ? date('d/m/Y', strtotime($schedule['end_date'])) : 'Chưa cập nhật' ?>
+                                        <?= $endDisplay ?>
                                     </p>
                                 </div>
 
@@ -385,12 +444,21 @@ function filterSchedules() {
     const cards = document.querySelectorAll('.schedule-card');
 
     cards.forEach(card => {
-        const status = card.getAttribute('data-status');
-        if (filterValue === '' || status === filterValue) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
+        const timeStatus = card.getAttribute('data-time-status');
+        const bookingStatus = card.getAttribute('data-booking-status');
+        let shouldShow = false;
+
+        if (filterValue === '') {
+            shouldShow = true;
+        } else if (filterValue === 'ongoing') {
+            shouldShow = (timeStatus === 'ongoing') || bookingStatus === 'dang_dien_ra';
+        } else if (filterValue === 'upcoming') {
+            shouldShow = timeStatus === 'upcoming';
+        } else if (filterValue === 'finished') {
+            shouldShow = timeStatus === 'finished' || bookingStatus === 'hoan_tat' || bookingStatus === 'da_huy';
         }
+
+        card.style.display = shouldShow ? '' : 'none';
     });
 }
 </script>

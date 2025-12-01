@@ -26,11 +26,6 @@
             <span>Tour được phân công</span>
         </a>
         
-<a href="?act=checkin-list&tour_id=1&hdv_id=5" 
-   class="nav-link <?php echo ($act == 'checkin-list' ? 'active' : ''); ?>">
-    <i class="bi bi-calendar-check"></i>
-    <span>Điểm danh khách hàng</span>
-</a>
  <a href="?act=hdv_tour_schedule" 
            class="nav-link <?php echo ($act == 'hdv_tour_schedule' ? 'active' : ''); ?>">
             <i class="bi bi-calendar"></i>
