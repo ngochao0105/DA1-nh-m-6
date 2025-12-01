@@ -414,6 +414,7 @@
                         <th>Họ tên</th>
                         <th>SĐT</th>
                         <th>Loại</th>
+                        <th>Điểm danh</th>
                         <th>Yêu cầu</th>
                         <th style="width: 100px; text-align: center;">Thao tác</th>
                     </tr>
@@ -425,6 +426,18 @@
                                 <td><?= htmlspecialchars($c['ten_khach'] ?? $c['name'] ?? '') ?></td>
                                 <td><?= htmlspecialchars($c['sdt'] ?? $c['phone'] ?? '') ?></td>
                                 <td><?= htmlspecialchars($c['loai_khach'] ?? $c['loai'] ?? '') ?></td>
+                                <td>
+                                    <?php
+                                        $checkStatus = $c['da_checkin'] ?? null;
+                                        if ($checkStatus === null || $checkStatus === '') {
+                                            echo "<span class='badge bg-secondary'>Chưa cập nhật</span>";
+                                        } elseif ((int)$checkStatus === 1) {
+                                            echo "<span class='badge bg-success'>Có mặt</span>";
+                                        } else {
+                                            echo "<span class='badge bg-danger'>Vắng mặt</span>";
+                                        }
+                                    ?>
+                                </td>
                                 <td><?= htmlspecialchars($c['yeu_cau_dac_biet'] ?? $c['yeu_cau'] ?? '') ?></td>
                                 <td style="text-align: center;">
                                     <button type="button" 
