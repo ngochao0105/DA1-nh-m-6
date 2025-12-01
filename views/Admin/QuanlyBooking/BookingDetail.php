@@ -445,7 +445,188 @@
         </div>
     </div>
 
-    <!-- Modal Thêm khách hàng (code giữ nguyên) -->
-    <!-- ... [copy từ file gốc - quá dài để dán] ... -->
+    <?php
+        // Tính slot còn lại để chặn thêm quá giới hạn
+        $maxSlots = isset($schedule['max_slots']) ? (int)$schedule['max_slots'] : null;
+        $bookedSlots = isset($schedule['booked_slots']) ? (int)$schedule['booked_slots'] : 0;
+        $remainingSlots = isset($maxSlots) ? max($maxSlots - $bookedSlots, 0) : null;
+    ?>
+
+    <!-- Modal Thêm khách hàng -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus-fill"></i> Thêm khách hàng vào booking
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" onclick="closeAddCustomerModal()"></button>
+                </div>
+                <form id="addCustomerForm" action="index.php?act=add-customer-to-booking" method="POST">
+                    <input type="hidden" name="id_booking" value="<?= $booking['id'] ?>">
+                    <div class="modal-body">
+                        <?php if ($remainingSlots === 0): ?>
+                            <div class="alert alert-warning mb-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Booking đã hết slot, không thể thêm khách mới.
+                            </div>
+                        <?php elseif (isset($remainingSlots)): ?>
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-info-circle"></i>
+                                Còn lại <strong><?= $remainingSlots ?></strong> slot trống cho lịch trình này.
+                            </div>
+                        <?php endif; ?>
+
+                        <div id="addCustomerRows"></div>
+
+                        <button type="button" class="btn btn-outline-primary w-100" onclick="addCustomerRow()">
+                            <i class="bi bi-plus-lg"></i> Thêm dòng khách hàng
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddCustomerModal()">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu khách hàng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let addCustomerModal = null;
+        const bookingId = <?= (int)$booking['id']; ?>;
+        const remainingSlots = <?= $remainingSlots !== null ? $remainingSlots : 'null'; ?>;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modalEl = document.getElementById('addCustomerModal');
+            if (modalEl && window.bootstrap) {
+                addCustomerModal = new bootstrap.Modal(modalEl);
+            }
+            resetAddCustomerForm();
+
+            const addCustomerForm = document.getElementById('addCustomerForm');
+            if (addCustomerForm) {
+                addCustomerForm.addEventListener('submit', handleAddCustomerSubmit);
+            }
+        });
+
+        function openAddCustomerModal() {
+            if (remainingSlots === 0) {
+                alert('Booking đã hết slot, không thể thêm khách mới.');
+                return;
+            }
+            resetAddCustomerForm();
+            addCustomerModal?.show();
+        }
+
+        function closeAddCustomerModal() {
+            addCustomerModal?.hide();
+        }
+
+        function resetAddCustomerForm() {
+            const rowsContainer = document.getElementById('addCustomerRows');
+            if (!rowsContainer) return;
+            rowsContainer.innerHTML = '';
+            addCustomerRow();
+            const form = document.getElementById('addCustomerForm');
+            form?.reset();
+        }
+
+        function addCustomerRow() {
+            const rowsContainer = document.getElementById('addCustomerRows');
+            if (!rowsContainer) return;
+
+            const currentRows = rowsContainer.querySelectorAll('.customer-row').length;
+            if (remainingSlots !== null && currentRows >= remainingSlots) {
+                alert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này.`);
+                return;
+            }
+
+            const row = document.createElement('div');
+            row.className = 'customer-row border rounded p-3 mb-3';
+            row.innerHTML = `
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Họ tên *</label>
+                        <input type="text" name="ten_khach[]" class="form-control" placeholder="VD: Nguyễn Văn A" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">SĐT</label>
+                        <input type="text" name="sdt[]" class="form-control" placeholder="090xxxxxxx">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Loại</label>
+                        <select name="loai_khach[]" class="form-select">
+                            <option value="nguoi_lon">Người lớn</option>
+                            <option value="tre_em">Trẻ em</option>
+                            <option value="tre_nho">Trẻ nhỏ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Yêu cầu</label>
+                        <input type="text" name="yeu_cau_dac_biet[]" class="form-control" placeholder="Ăn chay, dị ứng...">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCustomerRow(this)">
+                        <i class="bi bi-trash"></i> Xóa dòng
+                    </button>
+                </div>
+            `;
+            rowsContainer.appendChild(row);
+        }
+
+        function removeCustomerRow(button) {
+            const rowsContainer = document.getElementById('addCustomerRows');
+            if (!rowsContainer) return;
+            const rows = rowsContainer.querySelectorAll('.customer-row');
+            if (rows.length <= 1) {
+                alert('Cần ít nhất một khách hàng.');
+                return;
+            }
+            button.closest('.customer-row')?.remove();
+        }
+
+        function handleAddCustomerSubmit(event) {
+            if (!remainingSlots) return; // Không giới hạn, submit bình thường
+
+            const rowsContainer = document.getElementById('addCustomerRows');
+            const rows = rowsContainer?.querySelectorAll('.customer-row') ?? [];
+            if (remainingSlots !== null && rows.length > remainingSlots) {
+                event.preventDefault();
+                alert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này.`);
+            }
+        }
+
+        function deleteCustomer(customerId, customerName) {
+            if (!confirm(`Bạn có chắc muốn xóa khách "${customerName}" khỏi booking?`)) {
+                return;
+            }
+
+            fetch('index.php?act=delete-customer-from-booking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams({
+                    customer_id: customerId,
+                    id_booking: bookingId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.getElementById(`customer-row-${customerId}`);
+                    row?.remove();
+                    alert('Đã xóa khách hàng thành công.');
+                } else {
+                    alert(data.message || 'Không thể xóa khách hàng.');
+                }
+            })
+            .catch(() => {
+                alert('Có lỗi xảy ra khi xóa khách hàng.');
+            });
+        }
+    </script>
 
     <?php include "views/layout/footer.php"; ?>
