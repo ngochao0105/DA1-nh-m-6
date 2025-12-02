@@ -78,6 +78,10 @@
 
                     <td>
                         <div class="table-actions">
+                            <a href="?act=tour-detail&id=<?= $cat['id'] ?>"
+                               class="table-action-btn info" title="Chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </a>
                             <a href="?act=schedule-list&id=<?= $cat['id'] ?>"
                                class="table-action-btn edit" title="Lịch trình">
                                 <i class="bi bi-calendar3"></i>

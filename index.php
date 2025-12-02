@@ -60,6 +60,10 @@ switch ($act) {
         (new TourController())->TourList();
         break;
 
+    case 'tour-detail':
+        (new TourController())->tourDetail();
+        break;
+
     case 'createtour':
         (new TourController())->CreateTour();
         break;
