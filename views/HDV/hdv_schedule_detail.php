@@ -52,7 +52,12 @@
                 </div>
                 <div class="info-box">
                     <label>Tổng khách</label>
-                    <p><?= htmlspecialchars($bookingDetail['so_khach']) ?> khách</p>
+                    <p>
+                        <a href="#" class="customer-link" onclick="openCustomerModal(event)">
+                            <i class="bi bi-people-fill"></i>
+                            <?= htmlspecialchars($bookingDetail['so_khach']) ?> khách
+                        </a>
+                    </p>
                 </div>
                 <div class="info-box">
                     <label>Trạng thái</label>
@@ -154,6 +159,64 @@
                 <p><?= htmlspecialchars($bookingDetail['description']) ?></p>
             </div>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- Modal danh sách khách hàng -->
+<div id="customerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>
+                <i class="bi bi-people-fill"></i>
+                Danh sách khách hàng
+            </h2>
+            <button class="close-btn" onclick="closeCustomerModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <?php if (empty($customers)): ?>
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Không có khách hàng nào</p>
+                </div>
+            <?php else: ?>
+                <div class="customer-list">
+                    <?php foreach ($customers as $idx => $customer): ?>
+                        <div class="customer-item">
+                            <div class="customer-number"><?= $idx + 1 ?></div>
+                            <div class="customer-details">
+                                <h4><?= htmlspecialchars($customer['ten_khach']) ?></h4>
+                                <div class="customer-info-row">
+                                    <span class="info-label">
+                                        <i class="bi bi-telephone"></i>
+                                        Điện thoại:
+                                    </span>
+                                    <span class="info-value"><?= htmlspecialchars($customer['so_dien_thoai'] ?? 'N/A') ?></span>
+                                </div>
+                                <div class="customer-info-row">
+                                    <span class="info-label">
+                                        <i class="bi bi-envelope"></i>
+                                        Email:
+                                    </span>
+                                    <span class="info-value"><?= htmlspecialchars($customer['email'] ?? 'N/A') ?></span>
+                                </div>
+                                <?php if (!empty($customer['ghi_chu'])): ?>
+                                    <div class="customer-info-row">
+                                        <span class="info-label">
+                                            <i class="bi bi-sticky"></i>
+                                            Ghi chú:
+                                        </span>
+                                        <span class="info-value"><?= htmlspecialchars($customer['ghi_chu']) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
@@ -273,6 +336,24 @@
     font-size: 16px;
     font-weight: 600;
     color: #333;
+}
+
+.customer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #667eea;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.customer-link:hover {
+    color: #5568d3;
+    background: rgba(102, 126, 234, 0.1);
+    text-decoration: underline;
 }
 
 .status-badge {
@@ -520,6 +601,241 @@
         justify-content: center;
     }
 }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 24px;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.customer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.customer-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    transition: all 0.2s ease;
+}
+
+.customer-item:hover {
+    background: #f0f2f7;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.customer-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #667eea;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.customer-details {
+    flex: 1;
+}
+
+.customer-details h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.customer-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.customer-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 600;
+    min-width: 90px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-label i {
+    color: #667eea;
+}
+
+.info-value {
+    color: #333;
+    flex: 1;
+    word-break: break-word;
+}
+
+.modal .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.modal .empty-state i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.modal .empty-state p {
+    color: #999;
+    font-size: 16px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .customer-item {
+        flex-direction: column;
+    }
+
+    .customer-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}
 </style>
+
+<script>
+function openCustomerModal(e) {
+    e.preventDefault();
+    const modal = document.getElementById('customerModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCustomerModal() {
+    const modal = document.getElementById('customerModal');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
+// Đóng modal khi click vào ngoài
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('customerModal');
+    if (e.target === modal) {
+        closeCustomerModal();
+    }
+});
+
+// Đóng modal khi bấm ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCustomerModal();
+    }
+});
+</script>
 
 <?php require_once 'footer_hdv.php'; ?>

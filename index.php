@@ -11,6 +11,7 @@ require_once './models/HdvModel.php';
 require_once './models/BookingModel.php';
 require_once './models/CustomerModel.php';
 require_once './models/ScheduleModel.php';
+require_once './models/CategoryModel.php';
 
 
 require_once './controllers/AuthController.php';
@@ -19,6 +20,7 @@ require_once './controllers/GuideController.php';
 require_once './controllers/HdvController.php';
 require_once './controllers/BookingController.php';
 require_once './controllers/CustomerController.php';
+require_once './controllers/CategoryController.php';
 
 
 //db
@@ -231,6 +233,29 @@ case 'delete-assign':
         (new CustomerController())->delete();
         break;
 
+    case 'category-list':
+        (new CategoryController())->categoryList();
+        break;
+
+    case 'add-category':
+        (new CategoryController())->addCategory();
+        break;
+
+    case 'save-category':
+        (new CategoryController())->saveCategory();
+        break;
+
+    case 'edit-category':
+        (new CategoryController())->editCategory();
+        break;
+
+    case 'update-category':
+        (new CategoryController())->updateCategory();
+        break;
+
+    case 'delete-category':
+        (new CategoryController())->deleteCategory();
+        break;
 
     default:
         require_file_view('errors/404');
