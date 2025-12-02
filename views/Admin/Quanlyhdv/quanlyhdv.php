@@ -56,8 +56,8 @@
                 <th>Ngày sinh</th>
                 <th>Phone</th>
                 <th>Email</th>
-                <th>Tên đăng nhập</th>
-                <th>Mật khẩu</th>
+                <!-- <th>Tên đăng nhập</th>
+                <th>Mật khẩu</th> -->
                 <th>Loại hướng dẫn</th>
                 <th>Đánh giá</th>
                 <th>Hành động</th>
@@ -89,34 +89,8 @@
                     </td>
                     <td><?= htmlspecialchars($guide['phone'] ?? '') ?></td>
                     <td><?= htmlspecialchars($guide['email'] ?? '') ?></td>
-                    <td>
-                        <?php if (!empty($guide['username'])): ?>
-                            <span style="color: var(--primary-blue); font-weight: 500;">
-                                <i class="bi bi-person-circle"></i> <?= htmlspecialchars($guide['username']) ?>
-                            </span>
-                        <?php else: ?>
-                            <span style="color: #9ca3af;">Chưa có tài khoản</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php 
-                        // Hiển thị mật khẩu gốc từ nhansu (password_display), không phải từ taikhoan (đã hash)
-                        $display_password = $guide['password_display'] ?? $guide['password'] ?? '';
-                        if (!empty($display_password)): ?>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <span class="password-display" data-password="<?= htmlspecialchars($display_password) ?>" style="font-family: monospace; color: #374151;">
-                                    ••••••••
-                                </span>
-                                <button type="button" class="btn-toggle-password" 
-                                        style="background: none; border: none; color: var(--primary-blue); cursor: pointer; padding: 0.25rem; font-size: 0.875rem;"
-                                        onclick="togglePassword(this)" title="Hiện/Ẩn mật khẩu">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        <?php else: ?>
-                            <span style="color: #9ca3af;">-</span>
-                        <?php endif; ?>
-                    </td>
+                    
+                
                     <td><?= htmlspecialchars($guide['guide_type'] ?? '') ?></td>
                     <td>
                         <?php
