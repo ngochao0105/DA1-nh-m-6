@@ -1,6 +1,7 @@
 <?php include "views/HDV/header_hdv.php"; ?>
 <?php include "views/HDV/sidebar_hdv.php"; ?>
 
+
 <div class="page-header">
     <h1>Tour được phân công</h1>
 </div>
@@ -13,13 +14,14 @@
                 <th>Điểm đến</th>
                 <th>Ngày đi</th>
                 <th>Trạng thái Booking</th>
-                <th>Trạng thái Tour</th>
+                <th>Số lượng tour </th>
+                <th>Chi tiết tour</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($assignedTours)): ?>
                 <tr>
-                    <td colspan="5" style="text-align:center; padding:20px;">
+                    <td colspan="6" style="text-align:center; padding:20px;">
                         Chưa có tour nào được phân công.
                     </td>
                 </tr>
@@ -43,6 +45,14 @@
                         <span class="badge bg-success">
                             <?= htmlspecialchars($t['tour_status'] ?? 'N/A') ?>
                         </span>
+                    </td>
+
+                    <!-- Nút xem chi tiết -->
+                    <td>
+                         <a href="index.php?act=booking-detail&id=<?= $item['id'] ?>"
+                           class="btn btn-primary btn-sm">
+                            Xem chi tiết
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
