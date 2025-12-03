@@ -36,7 +36,7 @@
                 <th>Ngày đặt</th>
                 <th>Ngày đi</th>
                 <th>Trạng thái Booking</th>
-                <th>Trạng thái Thanh toán</th>
+                <!-- <th>Trạng thái Thanh toán</th> -->
                 <th>Hướng dẫn viên</th>
                 <th>Chi tiết</th>
                 <th>Xóa</th>
@@ -103,24 +103,11 @@
                         ?>
                     </td>
 
-                    <td>
+                    <!-- <td>
                         <div class="status-cell">
-                        <?php 
-                            $status = $item['trang_thai'] ?? 'cho_xac_nhan';
-                            if($status=='cho_xac_nhan') {
-                                echo "<span class='status-badge status-warning'><i class='bi bi-clock-history'></i> Chờ xác nhận</span>";
-                            } elseif($status=='da_xac_nhan') {
-                                echo "<span class='status-badge status-info'><i class='bi bi-check-circle'></i> Đã xác nhận</span>";
-                            } elseif($status=='dang_dien_ra') {
-                                echo "<span class='status-badge status-info'><i class='bi bi-play-circle-fill'></i> Đang diễn ra</span>";
-                            } elseif($status=='hoan_tat') {
-                                echo "<span class='status-badge status-success'><i class='bi bi-check-circle-fill'></i> Hoàn tất</span>";
-                            } else {
-                                echo "<span class='status-badge status-danger'><i class='bi bi-x-circle-fill'></i> Đã hủy</span>";
-                            }
-                        ?>
+                        
                         </div>
-                    </td>
+                    </td> -->
 
                     <td>
                         <div class="status-cell">

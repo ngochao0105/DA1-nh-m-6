@@ -308,5 +308,24 @@ public function scheduleDelete()
     exit;
 }
 
+public function tourDetail()
+{
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        header("Location: index.php?act=tour-list");
+        exit;
+    }
+
+    $tour = $this->modelTour->getTourById($id);
+
+    if (!$tour) {
+        header("Location: index.php?act=tour-list");
+        exit;
+    }
+
+    require_file_view("Admin/Quanlytour/TourDetail", compact("tour"));
+}
 
 }
+
