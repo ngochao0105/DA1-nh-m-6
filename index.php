@@ -199,6 +199,10 @@ case 'delete-assign':
         (new HdvController())->confirmBookingAction();
         break;
 
+    case 'hdv_update_attendance':
+        (new HdvController())->updateCustomerAttendance();
+        break;
+
 // diem danh hdv
 // case 'checklist':
 //     $c = new CheckinController();

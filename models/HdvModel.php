@@ -7,7 +7,7 @@ class HdvModel
     {
         // Kết nối database
         $host = 'localhost';
-        $db   = 'da_1';
+        $db   = 'hao1';
         $user = 'root';
         $pass = '';
         $charset = 'utf8mb4';
@@ -68,6 +68,7 @@ class HdvModel
                     b.id AS booking_id,
                     b.ngay_di AS start_date,
                     ADDDATE(b.ngay_di, INTERVAL t.duration DAY) AS end_date,
+                    b.trang_thai AS booking_status,
                     t.id AS tour_id,
                     t.tour_name,
                     t.destination,
@@ -156,6 +157,26 @@ class HdvModel
         $sql = "UPDATE booking SET trang_thai = 'da_xac_nhan' WHERE id = ? AND trang_thai = 'cho_xac_nhan'";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([$booking_id]);
+    }
+
+    public function setCustomerAttendance($customerId, $hdvId, $isPresent)
+    {
+        $sql = "UPDATE khachtour k
+                INNER JOIN booking b ON k.id_booking = b.id
+                INNER JOIN phan_cong_hdv pc ON pc.id_booking = b.id
+                SET k.da_checkin = :status
+                WHERE k.id = :customer_id 
+                    AND pc.id_hdv = :hdv_id
+                    AND b.trang_thai = 'dang_dien_ra'
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':status', $isPresent, PDO::PARAM_INT);
+        $stmt->bindValue(':customer_id', $customerId, PDO::PARAM_INT);
+        $stmt->bindValue(':hdv_id', $hdvId, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
     }
 
     // Từ chối nhận tour

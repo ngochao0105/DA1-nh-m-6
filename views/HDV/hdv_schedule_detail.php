@@ -34,21 +34,21 @@
         <!-- Thông tin booking -->
         <div class="booking-info-card">
             <div class="info-section">
-                <h3><?= htmlspecialchars($bookingDetail['tour_name']) ?></h3>
+                <h3><?= htmlspecialchars($bookingDetail['tour_name'] ?? '') ?></h3>
                 <p class="location">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <?= htmlspecialchars($bookingDetail['destination']) ?>
+                    <?= htmlspecialchars($bookingDetail['destination'] ?? '') ?>
                 </p>
             </div>
 
             <div class="info-grid">
                 <div class="info-box">
                     <label>Ngày khởi hành</label>
-                    <p><?= date('d/m/Y', strtotime($bookingDetail['ngay_di'])) ?></p>
+                    <p><?= !empty($bookingDetail['ngay_di']) ? date('d/m/Y', strtotime($bookingDetail['ngay_di'])) : 'Chưa cập nhật' ?></p>
                 </div>
                 <div class="info-box">
                     <label>Thời lượng</label>
-                    <p><?= htmlspecialchars($bookingDetail['duration']) ?> ngày</p>
+                    <p><?= htmlspecialchars($bookingDetail['duration'] ?? '') ?> ngày</p>
                 </div>
                 <div class="info-box">
                     <label>Tổng khách</label>
@@ -62,7 +62,7 @@
                 <div class="info-box">
                     <label>Trạng thái</label>
                     <p>
-                        <span class="status-badge status-<?= $bookingDetail['trang_thai'] ?>">
+                        <span class="status-badge status-<?= htmlspecialchars($bookingDetail['trang_thai'] ?? '') ?>">
                             <?php 
                             $statusMap = [
                                 'cho_xac_nhan' => 'Chờ xác nhận',
@@ -71,7 +71,8 @@
                                 'da_hoan_thanh' => 'Đã hoàn thành',
                                 'da_huy' => 'Đã hủy'
                             ];
-                            echo $statusMap[$bookingDetail['trang_thai']] ?? $bookingDetail['trang_thai'];
+                            $statusKey = $bookingDetail['trang_thai'] ?? '';
+                            echo $statusMap[$statusKey] ?? $statusKey;
                             ?>
                         </span>
                     </p>
@@ -79,17 +80,17 @@
             </div>
 
             <!-- Nút hành động (chỉ hiển thị khi chờ xác nhận) -->
-            <?php if ($bookingDetail['trang_thai'] === 'cho_xac_nhan'): ?>
+            <?php if (($bookingDetail['trang_thai'] ?? '') === 'cho_xac_nhan'): ?>
                 <div class="action-buttons">
                     <form method="POST" action="?act=hdv_confirm_booking" style="display: inline;">
-                        <input type="hidden" name="booking_id" value="<?= $bookingDetail['id'] ?>">
+                        <input type="hidden" name="booking_id" value="<?= htmlspecialchars($bookingDetail['id'] ?? '') ?>">
                         <button type="submit" name="action" value="confirm" class="btn btn-confirm">
                             <i class="bi bi-check2-circle"></i>
                             Xác nhận nhận tour
                         </button>
                     </form>
                     <form method="POST" action="?act=hdv_confirm_booking" style="display: inline;">
-                        <input type="hidden" name="booking_id" value="<?= $bookingDetail['id'] ?>">
+                        <input type="hidden" name="booking_id" value="<?= htmlspecialchars($bookingDetail['id'] ?? '') ?>">
                         <button type="submit" name="action" value="reject" class="btn btn-reject" onclick="return confirm('Bạn chắc chắn muốn từ chối tour này?')">
                             <i class="bi bi-x-circle"></i>
                             Từ chối tour
@@ -100,14 +101,32 @@
         </div>
 
         <!-- Danh sách khách hàng -->
+        <?php $canAttendance = (($bookingDetail['trang_thai'] ?? '') === 'dang_dien_ra'); ?>
         <div class="customers-section">
             <div class="section-header">
-                <h2>
-                    <i class="bi bi-list-ul"></i>
-                    Danh sách khách hàng
-                </h2>
-                <span class="customer-count"><?= count($customers) ?> khách</span>
+                <div class="section-header-left">
+                    <h2>
+                        <i class="bi bi-list-ul"></i>
+                        Danh sách khách hàng
+                    </h2>
+                </div>
+                <div class="section-header-actions">
+                    <span class="customer-count"><?= count($customers) ?> khách</span>
+                    <?php if (!empty($customers)): ?>
+                        <button type="button" class="btn btn-primary btn-save-attendance" id="attendanceSaveBtn" <?= $canAttendance ? '' : 'disabled' ?>>
+                            <i class="bi bi-cloud-check"></i>
+                            Lưu điểm danh
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
+
+            <?php if (!$canAttendance): ?>
+                <div class="alert alert-warning attendance-alert">
+                    <i class="bi bi-info-circle"></i>
+                    Điểm danh chỉ khả dụng khi tour đang ở trạng thái <strong>Đang diễn ra</strong>.
+                </div>
+            <?php endif; ?>
 
             <?php if (empty($customers)): ?>
                 <div class="empty-customers">
@@ -122,24 +141,39 @@
                                 <th>#</th>
                                 <th>Tên khách hàng</th>
                                 <th>Số điện thoại</th>
-                                <th>Email</th>
+                                <th>Điểm danh</th>
                                 <th>Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($customers as $idx => $customer): ?>
+                                <?php
+                                    // Chuẩn hóa dữ liệu để tránh thiếu khóa giữa các nguồn
+                                    $phone = $customer['so_dien_thoai'] ?? $customer['sdt'] ?? $customer['phone'] ?? '';
+                                    $note  = $customer['ghi_chu'] ?? $customer['yeu_cau_dac_biet'] ?? $customer['note'] ?? '';
+                                    $attendanceValue = !empty($customer['da_checkin']) ? 'present' : 'absent';
+                                ?>
                                 <tr>
                                     <td class="text-center"><?= $idx + 1 ?></td>
                                     <td>
                                         <span class="customer-name">
-                                            <?= htmlspecialchars($customer['ten_khach']) ?>
+                                            <?= htmlspecialchars($customer['ten_khach'] ?? '') ?>
                                         </span>
                                     </td>
-                                    <td><?= htmlspecialchars($customer['so_dien_thoai'] ?? 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($customer['email'] ?? 'N/A') ?></td>
+                                    <td><?= !empty($phone) ? htmlspecialchars($phone) : 'N/A' ?></td>
+                                    <td class="attendance-cell">
+                                        <select 
+                                            class="form-select form-select-sm attendance-select"
+                                            data-customer-id="<?= (int)($customer['id'] ?? 0) ?>"
+                                            <?= $canAttendance ? '' : 'disabled' ?>
+                                        >
+                                            <option value="present" <?= $attendanceValue === 'present' ? 'selected' : '' ?>>Có mặt</option>
+                                            <option value="absent" <?= $attendanceValue === 'absent' ? 'selected' : '' ?>>Vắng mặt</option>
+                                        </select>
+                                    </td>
                                     <td class="note-cell">
-                                        <?php if (!empty($customer['ghi_chu'])): ?>
-                                            <span class="note-text"><?= htmlspecialchars($customer['ghi_chu']) ?></span>
+                                        <?php if (!empty($note)): ?>
+                                            <span class="note-text"><?= htmlspecialchars($note) ?></span>
                                         <?php else: ?>
                                             <span class="text-muted">—</span>
                                         <?php endif; ?>
@@ -156,7 +190,7 @@
         <?php if (!empty($bookingDetail['description'])): ?>
             <div class="description-section">
                 <h3>Mô tả tour</h3>
-                <p><?= htmlspecialchars($bookingDetail['description']) ?></p>
+                <p><?= htmlspecialchars($bookingDetail['description'] ?? '') ?></p>
             </div>
         <?php endif; ?>
     </div>
@@ -452,13 +486,21 @@
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 2px solid #f0f0f0;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.section-header h2 {
+.section-header-left h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 700;
     color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -471,6 +513,32 @@
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+}
+
+.btn-save-attendance {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 6px 16px;
+}
+
+.btn-save-attendance:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.attendance-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.attendance-cell select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
 }
 
 .empty-customers {

@@ -158,6 +158,72 @@ class HdvController
         exit;
     }
 
+    public function updateCustomerAttendance()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            echo json_encode(['success' => false, 'message' => 'Không có quyền truy cập.']);
+            exit;
+        }
+
+        $account_id = $_SESSION['user_id'];
+        $hdvModel = new HdvModel();
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy thông tin HDV.']);
+            exit;
+        }
+
+        $rawPayload = $_POST['data'] ?? null;
+
+        if ($rawPayload !== null) {
+            $items = json_decode($rawPayload, true);
+            if (!is_array($items) || empty($items)) {
+                echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ.']);
+                exit;
+            }
+
+            $updated = 0;
+            foreach ($items as $item) {
+                $customerId = isset($item['id']) ? (int)$item['id'] : 0;
+                $status = $item['status'] ?? '';
+                if ($customerId <= 0 || !in_array($status, ['present', 'absent'], true)) {
+                    continue;
+                }
+                if ($hdvModel->setCustomerAttendance($customerId, (int)$hdvProfile['id'], $status === 'present' ? 1 : 0)) {
+                    $updated++;
+                }
+            }
+
+            echo json_encode([
+                'success' => true,
+                'updated' => $updated
+            ]);
+            exit;
+        }
+
+        // Fallback: single update
+        $customerId = isset($_POST['customer_id']) ? (int)$_POST['customer_id'] : 0;
+        $status = $_POST['status'] ?? '';
+
+        if ($customerId <= 0 || !in_array($status, ['present', 'absent'], true)) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ.']);
+            exit;
+        }
+
+        $isPresent = $status === 'present' ? 1 : 0;
+        $updated = $hdvModel->setCustomerAttendance($customerId, (int)$hdvProfile['id'], $isPresent);
+
+        if ($updated) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Không thể cập nhật điểm danh.']);
+        }
+        exit;
+    }
+
 
 
     // // HDV check-in

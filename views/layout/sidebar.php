@@ -54,15 +54,6 @@
             <span>Thống kê</span>
         </a>
 
-        <a href="#" class="nav-link">
-            <i class="bi bi-chat-dots"></i>
-            <span>Tin nhắn</span>
-        </a>
-
-        <a href="#" class="nav-link">
-            <i class="bi bi-gear"></i>
-            <span>Cài đặt</span>
-        </a>
     </nav>
 
     <!-- User Section -->
