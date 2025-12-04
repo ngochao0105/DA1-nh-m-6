@@ -20,16 +20,18 @@
             <span>Tổng quan</span>
         </a>
 
+        <a href="?act=category-list" 
+           class="nav-link <?php echo ($act == 'category-list' ? 'active' : ''); ?>">
+            <i class="bi bi-map"></i>
+            <span>Quản lý danh mục</span>
+        </a>
+
         <a href="?act=tour-list" 
            class="nav-link <?php echo ($act == 'tour-list' ? 'active' : ''); ?>">
             <i class="bi bi-map"></i>
             <span>Quản lý Tour</span>
         </a>
-         <a href="?act=category-list" 
-           class="nav-link <?php echo ($act == 'category-list' ? 'active' : ''); ?>">
-            <i class="bi bi-map"></i>
-            <span>Quản lý danh mục</span>
-        </a>
+         
         
         <a href="?act=booking-list" 
            class="nav-link <?php echo ($act == 'booking-list' ? 'active' : ''); ?>">

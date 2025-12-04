@@ -27,6 +27,14 @@ class GuideController
     public function addGuide()
     {
         $error = '';
+        $formData = [
+            'full_name' => '',
+            'birth_date' => '',
+            'phone' => '',
+            'email' => '',
+            'guide_type' => '',
+            'license_type' => ''
+        ];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $full_name = trim($_POST['full_name'] ?? '');
@@ -34,45 +42,79 @@ class GuideController
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $guide_type = trim($_POST['guide_type'] ?? '');
-            $competency_level = trim($_POST['competency_level'] ?? '');
-            $username = trim($_POST['username'] ?? '');
-            $password = trim($_POST['password'] ?? '');
+            $license_type_display = trim($_POST['license_type'] ?? '');
+            
+            // Lưu dữ liệu form để hiển thị lại khi có lỗi
+            $formData = [
+                'full_name' => $full_name,
+                'birth_date' => $birth_date,
+                'phone' => $phone,
+                'email' => $email,
+                'guide_type' => $guide_type,
+                'license_type' => $license_type_display
+            ];
+            
+            // Convert license_type từ tiếng Việt sang enum database
+            $license_type_map = [
+                'Nội địa' => 'noi_dia',
+                'Quốc tế' => 'quoc_te',
+                'Thực tập' => 'khong_co'
+            ];
+            $license_type = $license_type_map[$license_type_display] ?? '';
 
             // Validation
             if (empty($full_name)) {
                 $error = "Vui lòng nhập tên hướng dẫn viên";
+            } elseif (strlen(trim($full_name)) < 2) {
+                $error = "Tên hướng dẫn viên phải có ít nhất 2 ký tự";
+            } elseif (empty($birth_date)) {
+                $error = "Vui lòng nhập ngày sinh";
             } elseif (empty($phone)) {
                 $error = "Vui lòng nhập số điện thoại";
-            } elseif (empty($username)) {
-                $error = "Vui lòng nhập tên đăng nhập";
-            } elseif (empty($password)) {
-                $error = "Vui lòng nhập mật khẩu";
-            } elseif (strlen($password) < 6) {
-                $error = "Mật khẩu phải có ít nhất 6 ký tự";
+            } elseif (!preg_match('/^[0-9]{9,11}$/', $phone)) {
+                // Chỉ cho phép số, độ dài 9–11 ký tự (bạn có thể chỉnh lại theo quy định của dự án)
+                $error = "Số điện thoại không hợp lệ (chỉ gồm số, 9–11 ký tự)";
+            } elseif (empty($email)) {
+                $error = "Vui lòng nhập email";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error = "Email không đúng định dạng";
+            } elseif (empty($guide_type)) {
+                $error = "Vui lòng chọn loại hướng dẫn";
+            } elseif (empty($license_type_display)) {
+                $error = "Vui lòng chọn loại thẻ hướng dẫn";
             } else {
+                // Tự động tạo tài khoản đăng nhập ẩn cho HDV (không hiển thị trên form)
+                // Username mặc định dựa trên số điện thoại hoặc họ tên + timestamp
+                $baseUsername = !empty($phone)
+                    ? preg_replace('/\D/', '', $phone)
+                    : 'hdv' . time();
+
+                $username = 'hdv_' . $baseUsername;
+
+                // Đảm bảo username là duy nhất
                 $userModel = new UserModel();
-                $existingUser = $userModel->getByUsername($username);
+                $suffix = 1;
+                $uniqueUsername = $username;
+                while ($userModel->getByUsername($uniqueUsername)) {
+                    $uniqueUsername = $username . '_' . $suffix;
+                    $suffix++;
+                }
 
-                if ($existingUser) {
-                    $error = "Tên đăng nhập đã tồn tại";
-                } else {
-                    try {
-                        $this->modelGuide->insertGuide(
-                            $full_name,
-                            $birth_date ?: null,
-                            $phone,
-                            $email,
-                            $guide_type,
-                            $competency_level,
-                            $username,
-                            $password
-                        );
+                try {
+                    $this->modelGuide->insertGuide(
+                        $full_name,
+                        $birth_date ?: null,
+                        $phone,
+                        $email,
+                        $guide_type,
+                        $license_type,
+                        $uniqueUsername
+                    );
 
-                        header("Location: ?act=guide-management");
-                        exit;
-                    } catch (Exception $e) {
-                        $error = "Lỗi khi thêm hướng dẫn viên: " . $e->getMessage();
-                    }
+                    header("Location: ?act=guide-management");
+                    exit;
+                } catch (Exception $e) {
+                    $error = "Lỗi khi thêm hướng dẫn viên: " . $e->getMessage();
                 }
             }
         }
@@ -110,41 +152,39 @@ class GuideController
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $guide_type = trim($_POST['guide_type'] ?? '');
-            $competency_level = trim($_POST['competency_level'] ?? '');
-            $username = trim($_POST['username'] ?? '');
-            $password = trim($_POST['password'] ?? '');
+            $license_type_display = trim($_POST['license_type'] ?? '');
+            
+            // Convert license_type từ tiếng Việt sang enum database
+            $license_type_map = [
+                'Nội địa' => 'noi_dia',
+                'Quốc tế' => 'quoc_te',
+                'Thực tập' => 'khong_co'
+            ];
+            $license_type = $license_type_map[$license_type_display] ?? '';
 
             if (empty($full_name)) {
                 $error = "Vui lòng nhập tên hướng dẫn viên";
             } elseif (empty($phone)) {
                 $error = "Vui lòng nhập số điện thoại";
-            } elseif (empty($username)) {
-                $error = "Vui lòng nhập tên đăng nhập";
             } else {
-                $userModel = new UserModel();
-                $existingUser = $userModel->getByUsername($username);
+                // Khi sửa HDV, không cho chỉnh sửa tài khoản đăng nhập từ form
+                // Giữ nguyên tài khoản hiện tại (nếu có), chỉ cập nhật thông tin nhân sự
+                try {
+                    $this->modelGuide->updateGuide(
+                        $id,
+                        $full_name,
+                        $birth_date ?: null,
+                        $phone,
+                        $email,
+                        $guide_type,
+                        $license_type,
+                        null       // không thay đổi username
+                    );
 
-                if ($existingUser && $existingUser['id'] != ($guide['id_taikhoan'] ?? 0)) {
-                    $error = "Tên đăng nhập đã tồn tại";
-                } else {
-                    try {
-                        $this->modelGuide->updateGuide(
-                            $id,
-                            $full_name,
-                            $birth_date ?: null,
-                            $phone,
-                            $email,
-                            $guide_type,
-                            $competency_level,
-                            $username,
-                            $password ?: null
-                        );
-
-                        header("Location: ?act=guide-management");
-                        exit;
-                    } catch (Exception $e) {
-                        $error = "Lỗi khi cập nhật hướng dẫn viên: " . $e->getMessage();
-                    }
+                    header("Location: ?act=guide-management");
+                    exit;
+                } catch (Exception $e) {
+                    $error = "Lỗi khi cập nhật hướng dẫn viên: " . $e->getMessage();
                 }
             }
         }

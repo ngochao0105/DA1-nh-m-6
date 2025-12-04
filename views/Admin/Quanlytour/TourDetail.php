@@ -28,7 +28,25 @@
                     <label style="font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Điểm đến</label>
                     <p style="margin: 8px 0 0 0; font-size: 16px; color: #333;">
                         <i class="bi bi-geo-alt-fill" style="color: #e74c3c; margin-right: 8px;"></i>
-                        <?= htmlspecialchars($tour['destination']) ?>
+                        <?= htmlspecialchars($tour['destination'] ?? 'Chưa có thông tin') ?>
+                    </p>
+                </div>
+
+                <!-- Điểm khởi hành -->
+                <div>
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Điểm khởi hành</label>
+                    <p style="margin: 8px 0 0 0; font-size: 16px; color: #333;">
+                        <i class="bi bi-geo-alt" style="color: #f39c12; margin-right: 8px;"></i>
+                        <?= htmlspecialchars($tour['departure_point'] ?? 'Chưa có thông tin') ?>
+                    </p>
+                </div>
+
+                <!-- Phương tiện -->
+                <div>
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Phương tiện</label>
+                    <p style="margin: 8px 0 0 0; font-size: 16px; color: #333;">
+                        <i class="bi bi-bus-front" style="color: #27ae60; margin-right: 8px;"></i>
+                        <?= htmlspecialchars($tour['vehicle'] ?? 'Chưa có thông tin') ?>
                     </p>
                 </div>
 
@@ -43,13 +61,7 @@
                 </div>
 
                 <!-- Thời lượng -->
-                <div>
-                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Thời lượng</label>
-                    <p style="margin: 8px 0 0 0; font-size: 16px; color: #333;">
-                        <i class="bi bi-clock" style="color: #3498db; margin-right: 8px;"></i>
-                        <?= htmlspecialchars($tour['duration']) ?> ngày
-                    </p>
-                </div>
+               
 
                 <!-- Trạng thái -->
                 <div>
@@ -76,17 +88,11 @@
     <!-- Mô tả và giá -->
     <div class="card">
         <div class="card-header">
-            <h3><i class="bi bi-file-text"></i> Mô tả và Giá</h3>
+            <h3><i class="bi bi-file-text"></i> Mô tả </h3>
         </div>
         <div class="card-body">
             <div style="display: flex; flex-direction: column; gap: 20px;">
-                <!-- Giá -->
-                <div>
-                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Giá tour</label>
-                    <p style="margin: 8px 0 0 0; font-size: 18px; color: var(--primary-blue); font-weight: bold;">
-                        <?= number_format($tour['price'] ?? 0, 0, ',', '.') ?> VNĐ
-                    </p>
-                </div>
+              
 
                 <!-- Mô tả -->
                 <div>
@@ -107,9 +113,14 @@
             <a href="?act=edit-tour&id=<?= $tour['id'] ?>" class="btn btn-warning">
                 <i class="bi bi-pencil"></i> Sửa Tour
             </a>
+            <?php 
+            $tour_status = $tour['status'];
+            if ($tour_status == 1 || $tour_status == 2 || $tour_status == 'open' || $tour_status == 'upcoming'): 
+            ?>
             <a href="?act=schedule-list&id=<?= $tour['id'] ?>" class="btn btn-info">
                 <i class="bi bi-calendar"></i> Lịch trình
             </a>
+            <?php endif; ?>
             <a href="?act=tour-list" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Quay lại
             </a>

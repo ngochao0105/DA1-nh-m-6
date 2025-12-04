@@ -26,7 +26,21 @@
             <div class="col-md-6">
                 <label class="form-label">Điểm đến <span style="color: #ef4444;">*</span></label>
                 <input type="text" name="destination" class="form-control"
-                        value="<?= htmlspecialchars($tour['destination']) ?>" required>
+                        value="<?= htmlspecialchars($tour['destination'] ?? '') ?>" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Điểm khởi hành</label>
+                <input type="text" name="departure_point" class="form-control"
+                        value="<?= htmlspecialchars($tour['departure_point'] ?? '') ?>"
+                        placeholder="Ví dụ: Hà Nội, TP.HCM...">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phương tiện</label>
+                <input type="text" name="vehicle" class="form-control"
+                        value="<?= htmlspecialchars($tour['vehicle'] ?? '') ?>"
+                        placeholder="Ví dụ: Xe du lịch, Máy bay, Tàu hỏa...">
             </div>
 
             <div class="col-md-6">

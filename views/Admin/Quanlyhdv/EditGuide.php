@@ -43,27 +43,13 @@
                        value="<?= htmlspecialchars($guide['email'] ?? '') ?>">
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label">
-                    Tên đăng nhập <span style="color: #ef4444;">*</span>
-                </label>
-                <input type="text" class="form-control" name="username" required
-                       value="<?= htmlspecialchars($guide['username'] ?? '') ?>">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Dùng để đăng nhập hệ thống</small>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Mật khẩu</label>
-                <input type="password" class="form-control" name="password" minlength="6">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Để trống nếu không muốn đổi mật khẩu</small>
-            </div>
 
             <div class="col-md-6">
                 <label class="form-label">Loại hướng dẫn</label>
                 <select class="form-select" name="guide_type">
                     <option value="">Chọn loại hướng dẫn</option>
                     <?php
-                    $types = ['Tiếng Anh', 'Tiếng Pháp', 'Tiếng Trung', 'Tiếng Nhật', 'Tiếng Việt'];
+                    $types = ['Tiếng Anh', 'Tiếng Trung', 'Tiếng Việt'];
                     foreach ($types as $t) {
                         $sel = (isset($guide['guide_type']) && $guide['guide_type'] === $t) ? 'selected' : '';
                         echo "<option value=\"" . htmlspecialchars($t) . "\" $sel>" . htmlspecialchars($t) . "</option>";
@@ -73,35 +59,25 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Đánh giá năng lực</label>
-                <select class="form-select" name="competency_level">
-                    <option value="">Chọn năng lực</option>
+                <label class="form-label">Loại thẻ hướng dẫn</label>
+                <select class="form-select" name="license_type">
+                    <option value="">Chọn loại thẻ</option>
                     <?php
-                    $competency_levels = ['Nhân viên mới', 'Nhân viên', 'Chuyên viên', 'Chuyên viên cao cấp', 'Quản lý'];
-                    // Get competence_level from database (note: column name is competence_level with 'e')
-                    $current_level = $guide['competence_level'] ?? $guide['competency_level'] ?? '';
+                    // Mapping từ enum database sang giá trị hiển thị
+                    $license_type_map = [
+                        'noi_dia' => 'Nội địa',
+                        'quoc_te' => 'Quốc tế',
+                        'khong_co' => 'Thực tập'
+                    ];
                     
-                    // Handle migration from old numeric rating if needed
-                    if (is_numeric($current_level)) {
-                        $num_rating = floatval($current_level);
-                        if ($num_rating == 0) {
-                            $current_level = '';
-                        } elseif ($num_rating <= 1.5) {
-                            $current_level = 'Nhân viên mới';
-                        } elseif ($num_rating <= 2.5) {
-                            $current_level = 'Nhân viên';
-                        } elseif ($num_rating <= 3.5) {
-                            $current_level = 'Chuyên viên';
-                        } elseif ($num_rating <= 4.5) {
-                            $current_level = 'Chuyên viên cao cấp';
-                        } else {
-                            $current_level = 'Quản lý';
-                        }
-                    }
+                    $license_types = ['Nội địa', 'Quốc tế', 'Thực tập'];
+                    $current_license_db = $guide['license_type'] ?? '';
+                    // Convert từ enum database sang giá trị hiển thị
+                    $current_license = $license_type_map[$current_license_db] ?? '';
                     
-                    foreach ($competency_levels as $level) {
-                        $selected = ($current_level === $level) ? 'selected' : '';
-                        echo "<option value=\"" . htmlspecialchars($level) . "\" $selected>" . htmlspecialchars($level) . "</option>";
+                    foreach ($license_types as $license) {
+                        $selected = ($current_license === $license) ? 'selected' : '';
+                        echo "<option value=\"" . htmlspecialchars($license) . "\" $selected>" . htmlspecialchars($license) . "</option>";
                     }
                     ?>
                 </select>

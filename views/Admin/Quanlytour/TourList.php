@@ -82,14 +82,12 @@
                                class="table-action-btn info" title="Chi tiết">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <?php if ($status == 1 || $status == 2 || $status == 'open' || $status == 'upcoming'): ?>
                             <a href="?act=schedule-list&id=<?= $cat['id'] ?>"
                                class="table-action-btn edit" title="Lịch trình">
                                 <i class="bi bi-calendar3"></i>
                             </a>
-                            <a href="?act=edit-tour&id=<?= $cat['id'] ?>"
-                               class="table-action-btn edit" title="Sửa">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                            <?php endif; ?>
                             <a href="?act=deletetour&id=<?= $cat['id'] ?>"
                                class="table-action-btn delete"
                                onclick="return confirm('Bạn có chắc muốn xóa không?')"

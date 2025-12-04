@@ -58,18 +58,22 @@ class TourModel
         $tour_name,
         $description,
         $destination,
+        $departure_point,
+        $vehicle,
         $id_danh_muc,
         $status
     ) {
         try {
-            $sql = "INSERT INTO tour(tour_name, description, destination, id_danh_muc, status)
-                    VALUES(:tour_name, :description, :destination, :id_danh_muc, :status)";
+            $sql = "INSERT INTO tour(tour_name, description, destination, departure_point, vehicle, id_danh_muc, status)
+                    VALUES(:tour_name, :description, :destination, :departure_point, :vehicle, :id_danh_muc, :status)";
 
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 ":tour_name" => $tour_name,
                 ":description" => $description,
                 ":destination" => $destination,
+                ":departure_point" => $departure_point ?: null,
+                ":vehicle" => $vehicle ?: null,
                 ":id_danh_muc" => $id_danh_muc,
                 ":status" => $status
             ]);
@@ -84,6 +88,8 @@ class TourModel
         $tour_name,
         $description,
         $destination,
+        $departure_point,
+        $vehicle,
         $id_danh_muc,
         $status
     )
@@ -93,6 +99,8 @@ class TourModel
                 SET tour_name = :tour_name,
                     description = :description,
                     destination = :destination,
+                    departure_point = :departure_point,
+                    vehicle = :vehicle,
                     id_danh_muc = :id_danh_muc,
                     status = :status
                 WHERE id = :id";
@@ -103,6 +111,8 @@ class TourModel
                 ":tour_name" => $tour_name,
                 ":description" => $description,
                 ":destination" => $destination,
+                ":departure_point" => $departure_point ?: null,
+                ":vehicle" => $vehicle ?: null,
                 ":id_danh_muc" => $id_danh_muc,
                 ":status" => $status
             ]);
@@ -114,7 +124,11 @@ class TourModel
     }
     public function getOneTour($id) 
     {
-        $sql = "SELECT * FROM tour WHERE id  = :id";
+        $sql = "SELECT tour.*, danhmuctour.category_name 
+                FROM tour
+                LEFT JOIN danhmuctour 
+                ON tour.id_danh_muc = danhmuctour.id
+                WHERE tour.id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
          return $stmt->fetch(); 
@@ -133,7 +147,11 @@ class TourModel
     public function getTourById($id)
 {
     try {
-        $sql = "SELECT * FROM tour WHERE id = ?";
+        $sql = "SELECT tour.*, danhmuctour.category_name 
+                FROM tour
+                LEFT JOIN danhmuctour 
+                ON tour.id_danh_muc = danhmuctour.id
+                WHERE tour.id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetch();
