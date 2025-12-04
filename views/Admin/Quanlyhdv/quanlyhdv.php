@@ -59,7 +59,7 @@
                 <!-- <th>Tên đăng nhập</th>
                 <th>Mật khẩu</th> -->
                 <th>Loại hướng dẫn</th>
-                <th>Đánh giá</th>
+                <th>Loại thẻ hướng dẫn</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -94,46 +94,34 @@
                     <td><?= htmlspecialchars($guide['guide_type'] ?? '') ?></td>
                     <td>
                         <?php
-                        // Get competence_level from database (note: column name is competence_level with 'e')
-                        $competency_level = $guide['competence_level'] ?? $guide['competency_level'] ?? '';
+                        // Mapping từ enum database sang giá trị hiển thị
+                        $license_type_map = [
+                            'noi_dia' => 'Nội địa',
+                            'quoc_te' => 'Quốc tế',
+                            'khong_co' => 'Thực tập'
+                        ];
                         
-                        // Map old numeric ratings to competency levels if needed
-                        if (is_numeric($competency_level)) {
-                            $num_rating = floatval($competency_level);
-                            if ($num_rating == 0 || $num_rating == '') {
-                                $competency_level = 'Chưa đánh giá';
-                            } elseif ($num_rating <= 1.5) {
-                                $competency_level = 'Nhân viên mới';
-                            } elseif ($num_rating <= 2.5) {
-                                $competency_level = 'Nhân viên';
-                            } elseif ($num_rating <= 3.5) {
-                                $competency_level = 'Chuyên viên';
-                            } elseif ($num_rating <= 4.5) {
-                                $competency_level = 'Chuyên viên cao cấp';
-                            } else {
-                                $competency_level = 'Quản lý';
-                            }
-                        } elseif (empty($competency_level)) {
-                            $competency_level = 'Chưa đánh giá';
-                        }
+                        $license_type_db = $guide['license_type'] ?? '';
+                        $license_type = $license_type_map[$license_type_db] ?? '';
                         
-                        // Apply badge styling based on competency level
-                        if (strpos($competency_level, 'mới') !== false || $competency_level == 'Chưa đánh giá') {
+                        if (empty($license_type)) {
+                            $license_type = '-';
                             $badge_color = '#6b7280'; // Gray
-                        } elseif ($competency_level == 'Nhân viên') {
-                            $badge_color = '#3b82f6'; // Blue
-                        } elseif ($competency_level == 'Chuyên viên') {
-                            $badge_color = '#10b981'; // Green
-                        } elseif ($competency_level == 'Chuyên viên cao cấp') {
-                            $badge_color = '#8b5cf6'; // Purple
-                        } elseif ($competency_level == 'Quản lý') {
-                            $badge_color = '#f59e0b'; // Orange
                         } else {
-                            $badge_color = '#6b7280'; // Default Gray
+                            // Apply badge styling based on license type
+                            if ($license_type == 'Nội địa') {
+                                $badge_color = '#3b82f6'; // Blue
+                            } elseif ($license_type == 'Quốc tế') {
+                                $badge_color = '#10b981'; // Green
+                            } elseif ($license_type == 'Thực tập') {
+                                $badge_color = '#f59e0b'; // Orange
+                            } else {
+                                $badge_color = '#6b7280'; // Default Gray
+                            }
                         }
                         ?>
                         <span style="display: inline-block; padding: 0.25rem 0.75rem; background: <?= $badge_color ?>20; color: <?= $badge_color ?>; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500;">
-                            <?= htmlspecialchars($competency_level) ?>
+                            <?= htmlspecialchars($license_type) ?>
                         </span>
                     </td>
                     <td>
@@ -163,28 +151,5 @@
         </tbody>
     </table>
 </div>
-
-<script>
-function togglePassword(button) {
-    const row = button.closest('tr');
-    const passwordDisplay = row.querySelector('.password-display');
-    const icon = button.querySelector('i');
-    
-    if (passwordDisplay) {
-        const isHidden = passwordDisplay.textContent.includes('••••');
-        const realPassword = passwordDisplay.getAttribute('data-password');
-        
-        if (isHidden) {
-            passwordDisplay.textContent = realPassword;
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            passwordDisplay.textContent = '••••••••';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
-    }
-}
-</script>
 
 <?php include "views/layout/footer.php"; ?>

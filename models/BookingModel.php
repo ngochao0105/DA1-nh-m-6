@@ -10,9 +10,16 @@ class BookingModel
 
     // ================================
     // Lấy danh sách booking
+    // Có thể lọc theo nhóm trạng thái:
+    //  - all:      tất cả
+    //  - dang_dien_ra:  booking đang diễn ra
+    //  - sap_dien_ra:   booking sắp diễn ra (chờ/đã xác nhận)
+    //  - da_ket_thuc:   booking đã kết thúc (hoàn tất/đã hủy)
     // ================================
-    public function getAllBooking()
+    public function getAllBooking($timeStatus = 'all')
     {
+        $timeStatus = $timeStatus ?: 'all';
+
         // Kiểm tra xem cột trang_thai_thanh_toan có tồn tại không
         try {
             $checkCols2 = $this->conn->query("SHOW COLUMNS FROM booking LIKE 'trang_thai_thanh_toan'")->fetch();
@@ -39,11 +46,22 @@ class BookingModel
         }
         
         $sql .= " FROM booking b
-                LEFT JOIN tour t ON b.id_tour = t.id
-                ORDER BY b.id DESC";
+                LEFT JOIN tour t ON b.id_tour = t.id";
+
+        // Lọc theo nhóm trạng thái booking
+        $params = [];
+        if ($timeStatus === 'dang_dien_ra') {
+            $sql .= " WHERE b.trang_thai = 'dang_dien_ra'";
+        } elseif ($timeStatus === 'sap_dien_ra') {
+            $sql .= " WHERE b.trang_thai IN ('cho_xac_nhan','da_xac_nhan')";
+        } elseif ($timeStatus === 'da_ket_thuc') {
+            $sql .= " WHERE b.trang_thai IN ('hoan_tat','da_huy')";
+        }
+
+        $sql .= " ORDER BY b.id DESC";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
         $results = $stmt->fetchAll();
         
         // Tính tổng giá cho mỗi booking

@@ -242,16 +242,6 @@
             <div class="info-box">
                 <?php
                 $currentStatus = $booking['trang_thai'] ?? 'cho_xac_nhan';
-                $isLocked = ($currentStatus === 'dang_dien_ra' || $currentStatus === 'hoan_tat' || $currentStatus === 'da_huy');
-                $lockMessage = '';
-                
-                if ($currentStatus === 'dang_dien_ra') {
-                    $lockMessage = '🔒 Booking đang diễn ra không thể thay đổi trạng thái.';
-                } elseif ($currentStatus === 'hoan_tat') {
-                    $lockMessage = '🔒 Booking hoàn tất. Chỉ có thể chuyển sang Đã hủy.';
-                } elseif ($currentStatus === 'da_huy') {
-                    $lockMessage = '🔒 Booking đã hủy không thể hoàn tác.';
-                }
                 ?>
 
                 <form action="index.php?act=update-booking-status" method="POST">
@@ -274,14 +264,8 @@
                             ?>
                         </div>
 
-                        <?php if (!empty($lockMessage)): ?>
-                            <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #fecaca; font-size: 13px;">
-                                <i class="bi bi-exclamation-triangle-fill"></i> <?= $lockMessage ?>
-                            </div>
-                        <?php endif; ?>
-
                         <label class="form-label"><b>Cập nhật trạng thái:</b></label>
-                        <select name="status" class="form-select" style="max-width: 300px;" <?= $isLocked ? 'disabled' : '' ?>>
+                        <select name="status" class="form-select" style="max-width: 300px;">
                             <option value="cho_xac_nhan" <?= $currentStatus=='cho_xac_nhan'?'selected':'' ?>>Chờ xác nhận</option>
                             <option value="da_xac_nhan" <?= $currentStatus=='da_xac_nhan'?'selected':'' ?>>Đã xác nhận</option>
                             <option value="dang_dien_ra" <?= $currentStatus=='dang_dien_ra'?'selected':'' ?>>Đang diễn ra</option>
@@ -289,7 +273,7 @@
                             <option value="da_huy" <?= $currentStatus=='da_huy'?'selected':'' ?>>Đã hủy</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary" <?= $isLocked ? 'disabled' : '' ?>>Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                 </form>
             </div>
 
@@ -298,32 +282,6 @@
             <div class="info-box">
                 <?php 
                 $paymentStatus = $booking['trang_thai_thanh_toan'] ?? 'chua_thanh_toan';
-                $bookingStatus = $booking['trang_thai'] ?? 'cho_xac_nhan';
-
-                // Build allowed options for UI
-                if ($bookingStatus === 'dang_dien_ra') {
-                    $options = [
-                        'da_coc' => 'Đã cọc',
-                        'da_thanh_toan_du' => 'Đã thanh toán đủ'
-                    ];
-                    $isPaymentLocked = false; // allow change between these two
-                    $paymentLockMessage = '🔒 Booking đang diễn ra ';
-                    $infoStyle = 'background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb';
-                } elseif ($bookingStatus === 'da_huy') {
-                    $options = ['chua_thanh_toan' => 'Chưa thanh toán'];
-                    $isPaymentLocked = true;
-                    $paymentLockMessage = '🔒 Booking đã hủy .';
-                    $infoStyle = 'background:#fee2e2;color:#991b1b;border:1px solid #fecaca';
-                } else {
-                    $options = [
-                        'chua_thanh_toan' => 'Chưa thanh toán',
-                        'da_coc' => 'Đã cọc',
-                        'da_thanh_toan_du' => 'Đã thanh toán đủ'
-                    ];
-                    $isPaymentLocked = ($paymentStatus === 'da_thanh_toan_du'); // không đổi nếu đã đủ
-                    $paymentLockMessage = $isPaymentLocked ? '🔒 Đã thanh toán đủ không thể thay đổi.' : '';
-                    $infoStyle = $isPaymentLocked ? 'background:#d4edda;color:#155724;border:1px solid #c3e6cb' : '';
-                }
                 ?>
 
                 <form action="index.php?act=update-payment-status" method="POST">
@@ -339,20 +297,14 @@
                             ?>
                         </div>
 
-                        <?php if (!empty($paymentLockMessage)): ?>
-                            <div style="<?= $infoStyle ?>; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 13px;">
-                                <i class="bi bi-info-circle-fill"></i> <?= $paymentLockMessage ?>
-                            </div>
-                        <?php endif; ?>
-
                         <label class="form-label"><b>Cập nhật trạng thái:</b></label>
-                        <select name="payment_status" class="form-select" style="max-width: 300px; background-color: <?= $isPaymentLocked ? '#f5f5f5' : '#fff' ?>;" <?= $isPaymentLocked ? 'disabled' : '' ?>>
-                            <?php foreach ($options as $val => $label): ?>
-                                <option value="<?= $val ?>" <?= $paymentStatus == $val ? 'selected' : '' ?>><?= $label ?></option>
-                            <?php endforeach; ?>
+                        <select name="payment_status" class="form-select" style="max-width: 300px;">
+                            <option value="chua_thanh_toan" <?= $paymentStatus=='chua_thanh_toan'?'selected':'' ?>>Chưa thanh toán</option>
+                            <option value="da_coc" <?= $paymentStatus=='da_coc'?'selected':'' ?>>Đã cọc</option>
+                            <option value="da_thanh_toan_du" <?= $paymentStatus=='da_thanh_toan_du'?'selected':'' ?>>Đã thanh toán đủ</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary" <?= $isPaymentLocked ? 'disabled' : '' ?>>Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                 </form>
             </div>
 

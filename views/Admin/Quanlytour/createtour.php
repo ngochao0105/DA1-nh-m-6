@@ -32,6 +32,18 @@
             </div>
 
             <div class="col-md-6">
+                <label class="form-label">Điểm khởi hành</label>
+                <input type="text" name="departure_point" class="form-control" 
+                       placeholder="Ví dụ: Hà Nội, TP.HCM...">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phương tiện</label>
+                <input type="text" name="vehicle" class="form-control" 
+                       placeholder="Ví dụ: Xe du lịch, Máy bay, Tàu hỏa...">
+            </div>
+
+            <div class="col-md-6">
                 <label class="form-label">Danh mục tour</label>
                 <select name="id_danh_muc" class="form-select">
                     <option value="">-- Chọn danh mục --</option>

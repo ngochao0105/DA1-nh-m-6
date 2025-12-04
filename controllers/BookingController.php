@@ -15,7 +15,8 @@ class BookingController
     // ================================
     public function BookingList() 
     {
-        $bookings = $this->modelBooking->getAllBooking();
+        $timeStatus = $_GET['time_status'] ?? 'all';
+        $bookings = $this->modelBooking->getAllBooking($timeStatus);
         require_once "./views/Admin/QuanlyBooking/BookingList.php";
     }
 

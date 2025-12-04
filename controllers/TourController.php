@@ -60,6 +60,8 @@ class TourController
             $tour_name = trim($_POST['tour_name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $destination = trim($_POST['destination'] ?? '');
+            $departure_point = trim($_POST['departure_point'] ?? '');
+            $vehicle = trim($_POST['vehicle'] ?? '');
             $id_danh_muc = $_POST['id_danh_muc'] ?? '';
             $status = $_POST['status'] ?? '1';
 
@@ -75,6 +77,8 @@ class TourController
                         $tour_name,
                         $description,
                         $destination,
+                        $departure_point,
+                        $vehicle,
                         $id_danh_muc ?: null,
                         $status
                     );
@@ -106,6 +110,8 @@ class TourController
             $tour_name = trim($_POST['tour_name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $destination = trim($_POST['destination'] ?? '');
+            $departure_point = trim($_POST['departure_point'] ?? '');
+            $vehicle = trim($_POST['vehicle'] ?? '');
             $id_danh_muc = $_POST['id_danh_muc'] ?? '';
             $status = $_POST['status'] ?? '1';
 
@@ -122,11 +128,13 @@ class TourController
                         $tour_name,
                         $description,
                         $destination,
+                        $departure_point,
+                        $vehicle,
                         $id_danh_muc ?: null,
                         $status
                     );
 
-                    header("Location: index.php?act=tour-list");
+                    header("Location: index.php?act=tour-detail&id=" . $id);
                     exit;
                 } catch (Exception $e) {
                     $error = "Lỗi khi cập nhật tour: " . $e->getMessage();

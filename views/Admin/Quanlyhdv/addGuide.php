@@ -19,63 +19,56 @@
                 <label class="form-label">
                     Tên hướng dẫn viên <span style="color: #ef4444;">*</span>
                 </label>
-                <input type="text" class="form-control" name="full_name" required>
+                <input type="text" class="form-control" name="full_name" required
+                       value="<?= htmlspecialchars($formData['full_name'] ?? '') ?>">
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Ngày sinh</label>
-                <input type="date" class="form-control" name="birth_date">
+                <label class="form-label">
+                    Ngày sinh <span style="color: #ef4444;">*</span>
+                </label>
+                <input type="date" class="form-control" name="birth_date" required
+                       value="<?= htmlspecialchars($formData['birth_date'] ?? '') ?>">
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">
                     Điện thoại <span style="color: #ef4444;">*</span>
                 </label>
-                <input type="tel" class="form-control" name="phone" required>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email">
+                <input type="tel" class="form-control" name="phone" required
+                       value="<?= htmlspecialchars($formData['phone'] ?? '') ?>">
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">
-                    Tên đăng nhập <span style="color: #ef4444;">*</span>
+                    Email <span style="color: #ef4444;">*</span>
                 </label>
-                <input type="text" class="form-control" name="username" required>
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Dùng để đăng nhập hệ thống</small>
+                <input type="email" class="form-control" name="email" required
+                       value="<?= htmlspecialchars($formData['email'] ?? '') ?>">
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">
-                    Mật khẩu <span style="color: #ef4444;">*</span>
+                    Loại hướng dẫn <span style="color: #ef4444;">*</span>
                 </label>
-                <input type="password" class="form-control" name="password" required minlength="6">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Tối thiểu 6 ký tự</small>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Loại hướng dẫn</label>
-                <select class="form-select" name="guide_type">
+                <select class="form-select" name="guide_type" required>
                     <option value="">Chọn loại hướng dẫn</option>
-                    <option value="Tiếng Anh">Tiếng Anh</option>
-                    <option value="Tiếng Trung">Tiếng Trung</option>
-                    <option value="Tiếng Việt">Tiếng Việt</option>
-                    <option value="Tiếng Pháp">Tiếng Pháp</option>
-                    <option value="Tiếng Nhật">Tiếng Nhật</option>
+                    <option value="Tiếng Anh" <?= (isset($formData['guide_type']) && $formData['guide_type'] === 'Tiếng Anh') ? 'selected' : '' ?>>Tiếng Anh</option>
+                    <option value="Tiếng Trung" <?= (isset($formData['guide_type']) && $formData['guide_type'] === 'Tiếng Trung') ? 'selected' : '' ?>>Tiếng Trung</option>
+                    <option value="Tiếng Việt" <?= (isset($formData['guide_type']) && $formData['guide_type'] === 'Tiếng Việt') ? 'selected' : '' ?>>Tiếng Việt</option>
+ 
                 </select>
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Đánh giá năng lực</label>
-                <select class="form-select" name="competency_level">
-                    <option value="">Chọn năng lực</option>
-                    <option value="Nhân viên mới">Nhân viên mới</option>
-                    <option value="Nhân viên">Nhân viên</option>
-                    <option value="Chuyên viên">Chuyên viên</option>
-                    <option value="Chuyên viên cao cấp">Chuyên viên cao cấp</option>
-                    <option value="Quản lý">Quản lý</option>
+                <label class="form-label">
+                    Loại thẻ hướng dẫn <span style="color: #ef4444;">*</span>
+                </label>
+                <select class="form-select" name="license_type" required>
+                    <option value="">Chọn loại thẻ</option>
+                    <option value="Nội địa" <?= (isset($formData['license_type']) && $formData['license_type'] === 'Nội địa') ? 'selected' : '' ?>>Nội địa</option>
+                    <option value="Quốc tế" <?= (isset($formData['license_type']) && $formData['license_type'] === 'Quốc tế') ? 'selected' : '' ?>>Quốc tế</option>
+                    <option value="Thực tập" <?= (isset($formData['license_type']) && $formData['license_type'] === 'Thực tập') ? 'selected' : '' ?>>Thực tập</option>
                 </select>
             </div>
 

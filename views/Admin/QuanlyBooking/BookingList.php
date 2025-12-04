@@ -5,6 +5,10 @@
     <h1>Quản lý Booking</h1>
 </div>
 
+<?php
+    $currentTimeFilter = $_GET['time_status'] ?? 'all';
+?>
+
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
     <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
         <strong>Thành công!</strong> Booking đã được tạo và hiển thị trong danh sách.
@@ -13,10 +17,30 @@
 
 <div class="action-bar">
     <div class="action-bar-left">
-        <div class="action-bar-search">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Tìm kiếm...">
-        </div>
+        <form method="get" style="display: flex; gap: 12px; align-items: center;">
+            <input type="hidden" name="act" value="booking-list">
+            <div class="action-bar-search">
+                <i class="bi bi-search"></i>
+                <input type="text" name="keyword" placeholder="Tìm kiếm...">
+            </div>
+
+            <div>
+                <select name="time_status" class="form-select" onchange="this.form.submit()" style="min-width: 200px;">
+                    <option value="all" <?php echo $currentTimeFilter === 'all' ? 'selected' : ''; ?>>
+                        Tất cả thời gian
+                    </option>
+                    <option value="dang_dien_ra" <?php echo $currentTimeFilter === 'dang_dien_ra' ? 'selected' : ''; ?>>
+                        Đang diễn ra
+                    </option>
+                    <option value="sap_dien_ra" <?php echo $currentTimeFilter === 'sap_dien_ra' ? 'selected' : ''; ?>>
+                        Sắp diễn ra
+                    </option>
+                    <option value="da_ket_thuc" <?php echo $currentTimeFilter === 'da_ket_thuc' ? 'selected' : ''; ?>>
+                        Đã kết thúc
+                    </option>
+                </select>
+            </div>
+        </form>
     </div>
     <div class="action-bar-right">
         <a href="index.php?act=add-booking" class="btn btn-primary">
@@ -36,7 +60,7 @@
                 <th>Ngày đặt</th>
                 <th>Ngày đi</th>
                 <th>Trạng thái Booking</th>
-                <!-- <th>Trạng thái Thanh toán</th> -->
+                <th>Trạng thái Thanh toán</th>
                 <th>Hướng dẫn viên</th>
                 <th>Chi tiết</th>
                 <th>Xóa</th>
@@ -56,11 +80,12 @@
 
                 <?php 
                 // Sử dụng dữ liệu từ model đã tính sẵn
-                $countCustomer = $item['so_khach'] ?? 0;
-                $tongGia = $item['tong_gia'] ?? 0;
-                $hdvName = $item['hdv_name'] ?? null;
-                $createdAt = $item['created_at'] ?? null;
-                $paymentStatus = $item['trang_thai_thanh_toan'] ?? 'chua_thanh_toan';
+            $countCustomer  = $item['so_khach'] ?? 0;
+            $tongGia        = $item['tong_gia'] ?? 0;
+            $hdvName        = $item['hdv_name'] ?? null;
+            $createdAt      = $item['created_at'] ?? null;
+            $paymentStatus  = $item['trang_thai_thanh_toan'] ?? 'chua_thanh_toan';
+            $bookingStatus  = $item['trang_thai'] ?? 'cho_xac_nhan';
                 ?>
 
                 <tr>
@@ -103,15 +128,29 @@
                         ?>
                     </td>
 
-                    <!-- <td>
+                    <td>
                         <div class="status-cell">
-                        
+                        <?php 
+                            // Hiển thị trạng thái BOOKING (diễn ra / sắp diễn ra / hoàn tất / hủy)
+                            if ($bookingStatus === 'cho_xac_nhan') {
+                                echo "<span class='status-badge status-warning'><i class=\"bi bi-clock-history\"></i> Chờ xác nhận</span>";
+                            } elseif ($bookingStatus === 'da_xac_nhan') {
+                                echo "<span class='status-badge status-info'><i class=\"bi bi-check-circle\"></i> Đã xác nhận</span>";
+                            } elseif ($bookingStatus === 'dang_dien_ra') {
+                                echo "<span class='status-badge status-info'><i class=\"bi bi-play-circle-fill\"></i> Đang diễn ra</span>";
+                            } elseif ($bookingStatus === 'hoan_tat') {
+                                echo "<span class='status-badge status-success'><i class=\"bi bi-check-circle-fill\"></i> Hoàn tất</span>";
+                            } else {
+                                echo "<span class='status-badge status-danger'><i class=\"bi bi-x-circle-fill\"></i> Đã hủy</span>";
+                            }
+                        ?>
                         </div>
-                    </td> -->
+                    </td>
 
                     <td>
                         <div class="status-cell">
                         <?php 
+                            // Hiển thị trạng thái THANH TOÁN
                             if($paymentStatus=='chua_thanh_toan') {
                                 echo "<span class='status-badge status-secondary'><i class='bi bi-x-circle'></i> Chưa thanh toán</span>";
                             } elseif($paymentStatus=='da_coc') {
