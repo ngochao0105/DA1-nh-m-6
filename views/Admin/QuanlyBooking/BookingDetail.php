@@ -332,7 +332,13 @@
                         $remainingSlots = $maxSlots - $bookedSlots;
                         $currentCustomers = is_array($customers) ? count($customers) : 0;
                         
-                        if ($remainingSlots <= 0) {
+                        // Kiểm tra trạng thái booking
+                        $bookingStatus = $booking['trang_thai'] ?? 'cho_xac_nhan';
+                        if ($bookingStatus === 'dang_dien_ra' || $bookingStatus === 'hoan_tat' || $bookingStatus === 'da_huy') {
+                            echo '<div class="alert alert-danger" style="margin-top: 10px; padding: 10px; border-radius: 8px; background: #f8d7da; border: 1px solid #f5c6cb;">
+                                    <i class="bi bi-x-circle"></i> <strong>Thông báo:</strong> Booking này đã kết thúc hoặc đang diễn ra. Không thể thêm khách hàng mới.
+                                  </div>';
+                        } elseif ($remainingSlots <= 0) {
                             echo '<div class="alert alert-warning" style="margin-top: 10px; padding: 10px; border-radius: 8px; background: #fff3cd; border: 1px solid #ffc107;">
                                     <i class="bi bi-exclamation-triangle"></i> <strong>Cảnh báo:</strong> Đã hết slot. Không thể thêm khách hàng mới.
                                   </div>';
@@ -347,7 +353,11 @@
                 <button type="button" class="btn btn-primary" onclick="openAddCustomerModal()" 
                         style="display: inline-flex; align-items: center; gap: 8px;"
                         <?php 
-                        if (!empty($schedule)) {
+                        // Kiểm tra trạng thái booking
+                        $bookingStatus = $booking['trang_thai'] ?? 'cho_xac_nhan';
+                        if ($bookingStatus === 'dang_dien_ra' || $bookingStatus === 'hoan_tat' || $bookingStatus === 'da_huy') {
+                            echo 'disabled title="Không thể thêm khách vào booking này"';
+                        } elseif (!empty($schedule)) {
                             $maxSlots = intval($schedule['max_slots'] ?? 0);
                             $bookedSlots = intval($schedule['booked_slots'] ?? 0);
                             $remainingSlots = $maxSlots - $bookedSlots;
