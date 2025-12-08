@@ -5,6 +5,7 @@ class TourController
     public $modelTour;
     public $modelGuide;
     public $modelSchedule;
+    public $modelBooking;
 
 
     public function __construct()
