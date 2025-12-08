@@ -199,7 +199,7 @@ class BookingController
     }
 
     // ================================
-    // Lưu Booking
+    // Lưu Booking  
     // ================================
     public function SaveBooking()
     {
@@ -316,6 +316,16 @@ class BookingController
             for ($i = 0; $i < $soKhach; $i++) {
                 $modelSchedule->updateBookedSlots($schedule_id, true);
             }
+                $pricePerPerson = floatval($schedule['price'] ?? 0);
+                $totalPrice = $pricePerPerson * $soKhach;
+
+                $sqlUpdateTotal = "UPDATE booking SET tong_tien = :total WHERE id = :id";
+                $stmtUpdateTotal = $this->modelBooking->conn->prepare($sqlUpdateTotal);
+                $stmtUpdateTotal->execute([
+                    'total' => $totalPrice,
+                    'id'    => $id_booking
+                ]);
+
 
             // Redirect về danh sách với thông báo thành công
             header("Location: index.php?act=booking-list&success=1");
@@ -663,6 +673,54 @@ class BookingController
             echo json_encode(['success' => false, 'message' => 'Lỗi database: ' . $e->getMessage()]);
             exit;
         }
+    }
+
+    // ================================
+    // Báo cáo doanh thu tổng hợp
+    // ================================
+    public function revenueReport()
+    {
+        $year = $_GET['year'] ?? date('Y');
+        
+        // Lấy doanh thu theo tháng
+        $monthlyRevenue = $this->modelBooking->getRevenueByMonth($year);
+        
+        // Lấy tổng doanh thu năm
+        $totalRevenue = $this->modelBooking->getTotalRevenueByYear($year);
+        
+        // Danh sách năm để chọn
+        $availableYears = [];
+        for ($i = date('Y'); $i >= date('Y') - 5; $i--) {
+            $availableYears[] = $i;
+        }
+
+        require "./views/Admin/Reports/RevenueReport.php";
+    }
+
+    // ================================
+    // Chi tiết doanh thu theo tháng
+    // ================================
+    public function revenueDetail()
+    {
+        $year = $_GET['year'] ?? date('Y');
+        $month = $_GET['month'] ?? date('m');
+
+        // Validate month
+        if ($month < 1 || $month > 12) {
+            $month = date('m');
+        }
+
+        // Lấy danh sách booking trong tháng
+        $details = $this->modelBooking->getRevenueDetailByMonth($year, $month);
+
+        // Tính tổng
+        $total = array_sum(array_column($details, 'tong_tien'));
+        $totalBookings = count($details);
+        $totalCustomers = array_sum(array_column($details, 'so_khach'));
+
+        $monthName = date('F', mktime(0, 0, 0, $month, 1));
+
+        require "./views/Admin/Reports/RevenueDetail.php";
     }
 
 }

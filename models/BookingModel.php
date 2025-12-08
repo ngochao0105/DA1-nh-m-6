@@ -674,4 +674,135 @@ class BookingModel
         
         return null; // Không trùng
     }
+
+    // ================================
+    // Báo cáo doanh thu theo tháng
+    // ================================
+    public function getRevenueByMonth($year = null)
+    {
+        if (!$year) {
+            $year = date('Y'); // Năm hiện tại mặc định
+        }
+
+        $sql = "
+            SELECT 
+                MONTH(ngay_di) AS thang,    
+                YEAR(ngay_di) AS nam,
+                COUNT(DISTINCT id) AS so_booking,
+                COUNT(DISTINCT (SELECT id FROM khachtour k WHERE k.id_booking = b.id)) AS so_khach,
+                COALESCE(SUM(tong_tien), 0) AS doanh_thu,
+                COALESCE(AVG(tong_tien), 0) AS doanh_thu_trung_binh
+            FROM booking b
+            WHERE YEAR(ngay_di) = :year
+                AND b.trang_thai NOT IN ('da_huy')
+            GROUP BY MONTH(ngay_di), YEAR(ngay_di)
+            ORDER BY MONTH(ngay_di) ASC
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['year' => $year]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    // ================================
+    // Lấy doanh thu chi tiết theo tháng (danh sách booking)
+    // ================================
+    public function getRevenueDetailByMonth($year, $month)
+    {
+        $sql = "
+            SELECT 
+                b.id,
+                b.id_tour,
+                t.tour_name,
+                b.ngay_di,
+                b.trang_thai,
+                b.trang_thai_thanh_toan,
+                COUNT(k.id) AS so_khach,
+                COALESCE(b.tong_tien, 0) AS tong_tien
+            FROM booking b
+            LEFT JOIN tour t ON b.id_tour = t.id
+            LEFT JOIN khachtour k ON b.id = k.id_booking
+            WHERE YEAR(b.ngay_di) = :year
+                AND MONTH(b.ngay_di) = :month
+                AND b.trang_thai NOT IN ('da_huy')
+            GROUP BY b.id
+            ORDER BY b.ngay_di DESC
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['year' => $year, 'month' => $month]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    // ================================
+    // Lấy tổng doanh thu toàn năm
+    // ================================
+    public function getTotalRevenueByYear($year)
+    {
+        $sql = "
+            SELECT COALESCE(SUM(tong_tien), 0) AS tong_doanh_thu
+            FROM booking b
+            WHERE YEAR(b.ngay_di) = :year
+                AND b.trang_thai NOT IN ('da_huy')
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['year' => $year]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['tong_doanh_thu'] ?? 0;
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
+    
+    // ================================
+    // Cập nhật tong_tien cho tất cả booking (migration)
+    // ================================
+    public function updateAllBookingTotals()
+    {
+        try {
+            // Bước 1: Đảm bảo schedule_id được gán
+            $sql1 = "UPDATE booking b
+                     INNER JOIN tour_schedule ts 
+                        ON ts.tour_id = b.id_tour AND ts.start_date = b.ngay_di
+                     SET b.schedule_id = ts.id
+                     WHERE b.schedule_id IS NULL OR b.schedule_id = 0";
+            $stmt1 = $this->conn->prepare($sql1);
+            $stmt1->execute();
+            $updated1 = $stmt1->rowCount();
+
+            // Bước 2: Cập nhật tong_tien = price_per_person * so_khach
+            $sql2 = "UPDATE booking b
+                     INNER JOIN tour_schedule ts ON b.schedule_id = ts.id
+                     SET b.tong_tien = ts.price * (
+                         SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id
+                     )
+                     WHERE b.schedule_id IS NOT NULL
+                       AND b.trang_thai != 'da_huy'";
+            $stmt2 = $this->conn->prepare($sql2);
+            $stmt2->execute();
+            $updated2 = $stmt2->rowCount();
+
+            return [
+                'success' => true,
+                'schedule_updated' => $updated1,
+                'revenue_updated' => $updated2,
+                'message' => "Đã cập nhật {$updated2} booking với tổng tiền"
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
