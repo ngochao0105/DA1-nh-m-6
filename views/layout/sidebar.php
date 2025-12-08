@@ -51,7 +51,7 @@
             <span>Quản lý khách hàng</span>
         </a>
 
-        <a href="#" class="nav-link">
+        <a href="?act=revenue-report" class="nav-link">
             <i class="bi bi-bar-chart"></i>
             <span>Thống kê</span>
         </a>

@@ -203,27 +203,18 @@ case 'delete-assign':
         (new HdvController())->updateCustomerAttendance();
         break;
 
-// diem danh hdv
-// case 'checklist':
-//     $c = new CheckinController();
-//     $c->checklist();
-//     break;
+    case 'revenue-report':
+        (new BookingController())->revenueReport();
+        break;
 
-// case 'save-checkin':
-//     $c = new CheckinController();
-//     $c->saveCheckin();
-//     break;
-// case 'checkin-list':
-//     $c = new CheckinController();
-//     $c->checkinList();
-//     break;
-
-
-
-
-
-  
-
+    case 'revenue-detail':
+        (new BookingController())->revenueDetail();
+        break;
+        case 'migrate-revenue':
+        $bookingModel = new BookingModel();
+        $result = $bookingModel->updateAllBookingTotals();
+        echo json_encode($result);
+        exit;
   // Customer routes
     case 'customer-list':
         (new CustomerController())->list();
@@ -264,7 +255,7 @@ case 'delete-assign':
     case 'delete-category':
         (new CategoryController())->deleteCategory();
         break;
-
+    
     default:
         require_file_view('errors/404');
         break;
