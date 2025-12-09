@@ -61,25 +61,17 @@
                     <td><?= htmlspecialchars($cat['destination']) ?></td>
                     <td><?= htmlspecialchars($cat['category_name']) ?></td>
 
-                    <td>
+                     <td>
                         <?php
                         $status = $cat['status'];
                         if ($status == 1 || $status == 'open') {
-                            echo "<span class='badge' style='background-color: #10b981; color: white; padding: 8px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;'>
-                                    <i class='bi bi-check-circle-fill'></i> Đang mở
-                                  </span>";
+                            echo "<span class='badge bg-warning'>Đang mở</span>";
                         } elseif ($status == 0 || $status == 'closed') {
-                            echo "<span class='badge' style='background-color: #ef4444; color: white; padding: 8px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;'>
-                                    <i class='bi bi-x-circle-fill'></i> Đã đóng
-                                  </span>";
+                            echo "<span class='badge bg-danger'>Đã đóng</span>";
                         } elseif ($status == 2 || $status == 'upcoming') {
-                            echo "<span class='badge' style='background-color: #f59e0b; color: white; padding: 8px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;'>
-                                    <i class='bi bi-clock-history'></i> Sắp mở
-                                  </span>";
+                            echo "<span class='badge bg-warning'>Sắp mở</span>";
                         } else {
-                            echo "<span class='badge' style='background-color: #6c757d; color: white; padding: 8px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;'>
-                                    <i class='bi bi-question-circle'></i> Không xác định
-                                  </span>";
+                            echo "<span class='badge bg-info'>Không xác định</span>";
                         }
                         ?>
                     </td>
