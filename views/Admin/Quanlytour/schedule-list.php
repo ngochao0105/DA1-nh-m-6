@@ -81,16 +81,11 @@
                         </strong>
                     </td>
                     <td>
-                        <?php
-                        $st = $sc['status'];
-                        if ($st == 'dang_mo') {
-                            echo "<span class='badge bg-success'>Đang mở</span>";
-                        } elseif ($st == 'da_dong') {
-                            echo "<span class='badge bg-danger'>Đã đóng</span>";
-                        } else {
-                            echo "<span class='badge bg-warning'>Sắp mở</span>";
-                        }
-                        ?>
+                        <select class="status-select" data-schedule-id="<?= $sc['id'] ?>" style="border: none; background: transparent; padding: 0.25rem 0.5rem; border-radius: 0.375rem; cursor: pointer; font-weight: 500; min-width: 100px;">
+                            <option value="sap_mo" <?= $sc['status']=='sap_mo'?'selected':'' ?> style="background: #fbbf24; color: #000;">Sắp mở</option>
+                            <option value="dang_mo" <?= $sc['status']=='dang_mo'?'selected':'' ?> style="background: #10b981; color: #fff;">Đang mở</option>
+                            <option value="da_dong" <?= $sc['status']=='da_dong'?'selected':'' ?> style="background: #ef4444; color: #fff;">Đã đóng</option>
+                        </select>
                     </td>
                     <td>
                         <div class="table-actions">
@@ -133,4 +128,136 @@
 .badge.bg-warning {
     color: #000 !important;
 }
+
+.status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    padding-right: 1.5rem !important;
+}
+
+.status-select:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+}
+
+.status-select option[value="sap_mo"] {
+    background: #fbbf24;
+    color: #000;
+}
+
+.status-select option[value="dang_mo"] {
+    background: #10b981;
+    color: #fff;
+}
+
+.status-select option[value="da_dong"] {
+    background: #ef4444;
+    color: #fff;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelects = document.querySelectorAll('.status-select');
+    
+    statusSelects.forEach(select => {
+        // Update visual style based on selected value
+        updateSelectStyle(select);
+        
+        select.addEventListener('change', function() {
+            const scheduleId = this.dataset.scheduleId;
+            const newStatus = this.value;
+            const originalValue = this.dataset.originalValue || this.querySelector('option[selected]')?.value;
+            
+            // Store original value if not set
+            if (!this.dataset.originalValue) {
+                this.dataset.originalValue = originalValue;
+            }
+            
+            // Show loading state
+            const originalBg = this.style.background;
+            this.style.opacity = '0.6';
+            this.disabled = true;
+            
+            // Send AJAX request
+            const formData = new FormData();
+            formData.append('id', scheduleId);
+            formData.append('status', newStatus);
+            
+            fetch('index.php?act=schedule-update-status', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.disabled = false;
+                this.style.opacity = '1';
+                
+                if (data.success) {
+                    // Update visual style
+                    updateSelectStyle(this);
+                    this.dataset.originalValue = newStatus;
+                    
+                    // Show success message (optional)
+                    showNotification('Cập nhật trạng thái thành công', 'success');
+                } else {
+                    // Revert to original value
+                    this.value = this.dataset.originalValue;
+                    updateSelectStyle(this);
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            })
+            .catch(error => {
+                this.disabled = false;
+                this.style.opacity = '1';
+                this.value = this.dataset.originalValue;
+                updateSelectStyle(this);
+                showNotification('Có lỗi xảy ra khi cập nhật', 'error');
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    function updateSelectStyle(select) {
+        const value = select.value;
+        if (value === 'sap_mo') {
+            select.style.background = '#fbbf24';
+            select.style.color = '#000';
+        } else if (value === 'dang_mo') {
+            select.style.background = '#10b981';
+            select.style.color = '#fff';
+        } else if (value === 'da_dong') {
+            select.style.background = '#ef4444';
+            select.style.color = '#fff';
+        }
+    }
+    
+    function showNotification(message, type) {
+        // Create a simple notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+});
+</script>
