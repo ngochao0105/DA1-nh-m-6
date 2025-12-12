@@ -193,6 +193,14 @@ class TourController
         exit;
     }
 
+    // Kiểm tra trạng thái tour - không cho phép thêm lịch trình nếu tour đã đóng
+    $tourStatus = $tour['status'] ?? null;
+    if ($tourStatus == 0 || $tourStatus == 'closed') {
+        $_SESSION['error_message'] = 'Không thể thêm lịch trình cho tour đã đóng. Vui lòng mở tour trước khi thêm lịch trình.';
+        header("Location: index.php?act=schedule-list&id=$tourId");
+        exit;
+    }
+
     $error = '';
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -228,12 +236,18 @@ class TourController
             } elseif ($end_timestamp < $start_timestamp) {
                 $error = "Ngày kết thúc phải sau ngày bắt đầu";
             } else {
-                try {
-                    $this->modelSchedule->createSchedule($tourId, $start, $end, $price, $max, $status);
-                    header("Location: index.php?act=schedule-list&id=$tourId");
-                    exit;
-                } catch (Exception $e) {
-                    $error = "Lỗi khi tạo lịch trình: " . $e->getMessage();
+                // Kiểm tra lại trạng thái tour trước khi lưu (phòng trường hợp tour bị đóng trong lúc đang submit form)
+                $currentTour = $this->modelTour->getTourById($tourId);
+                if ($currentTour && ($currentTour['status'] == 0 || $currentTour['status'] == 'closed')) {
+                    $error = "Không thể thêm lịch trình cho tour đã đóng. Vui lòng mở tour trước khi thêm lịch trình.";
+                } else {
+                    try {
+                        $this->modelSchedule->createSchedule($tourId, $start, $end, $price, $max, $status);
+                        header("Location: index.php?act=schedule-list&id=$tourId");
+                        exit;
+                    } catch (Exception $e) {
+                        $error = "Lỗi khi tạo lịch trình: " . $e->getMessage();
+                    }
                 }
             }
         }
