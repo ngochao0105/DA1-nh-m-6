@@ -13,18 +13,18 @@
             <input type="text" placeholder="Tìm kiếm tên tour...">
         </div>
         <div class="action-bar-filter">
-            <select>
-                <option>Tất cả</option>
-                <option>Đang mở</option>
-                <option>Đã đóng</option>
-                <option>Sắp mở</option>
+            <select id="statusFilter" onchange="filterByStatus(this.value)">
+                <option value="">Tất cả</option>
+                <option value="1" <?= (isset($_GET['filter_status']) && $_GET['filter_status'] == '1') ? 'selected' : '' ?>>Đang mở</option>
+                <option value="0" <?= (isset($_GET['filter_status']) && $_GET['filter_status'] == '0') ? 'selected' : '' ?>>Đã đóng</option>
+                <option value="2" <?= (isset($_GET['filter_status']) && $_GET['filter_status'] == '2') ? 'selected' : '' ?>>Sắp mở</option>
             </select>
         </div>
     </div>
     <div class="action-bar-right">
-        <button class="btn btn-secondary">
+        <a href="?act=tour-list" class="btn btn-secondary">
             <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </button>
+        </a>
         <a href="?act=createtour" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Thêm Tour
         </a>
@@ -111,5 +111,17 @@
         </tbody>
     </table>
 </div>
+
+<script>
+function filterByStatus(status) {
+    const url = new URL(window.location.href);
+    if (status === '') {
+        url.searchParams.delete('filter_status');
+    } else {
+        url.searchParams.set('filter_status', status);
+    }
+    window.location.href = url.toString();
+}
+</script>
 
 <?php include "views/layout/footer.php"; ?>
