@@ -317,6 +317,39 @@ public function scheduleDelete()
     exit;
 }
 
+public function scheduleUpdateStatus()
+{
+    header('Content-Type: application/json');
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+        exit;
+    }
+
+    $id = $_POST['id'] ?? null;
+    $status = $_POST['status'] ?? null;
+
+    if (!$id || !$status) {
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
+        exit;
+    }
+
+    // Validate status
+    $allowedStatuses = ['sap_mo', 'dang_mo', 'da_dong'];
+    if (!in_array($status, $allowedStatuses)) {
+        echo json_encode(['success' => false, 'message' => 'Trạng thái không hợp lệ']);
+        exit;
+    }
+
+    try {
+        $this->modelSchedule->updateStatus($id, $status);
+        echo json_encode(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
 public function tourDetail()
 {
     $id = $_GET['id'] ?? null;

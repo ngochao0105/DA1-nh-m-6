@@ -232,4 +232,25 @@ class ScheduleModel
             return false;
         }
     }
+
+    /**
+     * Update only the status of a schedule
+     */
+    public function updateStatus($id, $status)
+    {
+        try {
+            // Validate and sanitize status
+            $status = $this->validateStatus($status);
+
+            $sql = "UPDATE $this->table 
+                    SET status=?, updated_at=NOW()
+                    WHERE id=?";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$status, $id]);
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Lỗi database: " . $e->getMessage());
+        }
+    }
 }

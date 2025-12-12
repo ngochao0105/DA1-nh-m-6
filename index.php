@@ -90,6 +90,10 @@ switch ($act) {
     case 'schedule-delete':
     (new TourController())->scheduleDelete();
     break;
+
+    case 'schedule-update-status':
+    (new TourController())->scheduleUpdateStatus();
+    break;
         
 
     case 'booking-list':

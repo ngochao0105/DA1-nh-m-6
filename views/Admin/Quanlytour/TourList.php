@@ -65,13 +65,13 @@
                         <?php
                         $status = $cat['status'];
                         if ($status == 1 || $status == 'open') {
-                            echo "<span class='badge bg-warning'>Đang mở</span>";
+                            echo "<span class='badge bg-info' style='color: black;'>Đang mở</span>";
                         } elseif ($status == 0 || $status == 'closed') {
-                            echo "<span class='badge bg-danger'>Đã đóng</span>";
+                            echo "<span class='badge bg-danger' style='color: black;'>Đã đóng</span>";
                         } elseif ($status == 2 || $status == 'upcoming') {
-                            echo "<span class='badge bg-warning'>Sắp mở</span>";
+                            echo "<span class='badge bg-warning' style='color: black;'>Sắp mở</span>";
                         } else {
-                            echo "<span class='badge bg-info'>Không xác định</span>";
+                            echo "<span class='badge bg-info' style='color: black;'>Không xác định</span>";
                         }
                         ?>
                     </td>
