@@ -61,7 +61,7 @@
                     <td><?= htmlspecialchars($cat['destination']) ?></td>
                     <td><?= htmlspecialchars($cat['category_name']) ?></td>
 
-                    <td>
+                     <td>
                         <?php
                         $status = $cat['status'];
                         if ($status == 1 || $status == 'open') {
