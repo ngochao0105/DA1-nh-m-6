@@ -118,7 +118,7 @@
             if ($tour_status == 1 || $tour_status == 2 || $tour_status == 'open' || $tour_status == 'upcoming'): 
             ?>
             <a href="?act=schedule-list&id=<?= $tour['id'] ?>" class="btn btn-info">
-                <i class="bi bi-calendar"></i> Lịch trình
+                <i class="bi bi-calendar"></i> Lịch khởi hành
             </a>
             <?php endif; ?>
             <a href="?act=tour-list" class="btn btn-secondary">

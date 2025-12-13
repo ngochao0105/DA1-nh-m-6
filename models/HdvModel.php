@@ -7,7 +7,7 @@ class HdvModel
     {
         // Kết nối database
         $host = 'localhost';
-        $db   = 'duan1';
+        $db   = 'hao1';
         $user = 'root';
         $pass = '';
         $charset = 'utf8mb4';

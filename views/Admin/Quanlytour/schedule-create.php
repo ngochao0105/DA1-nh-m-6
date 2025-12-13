@@ -5,7 +5,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="margin-bottom: 0.5rem;">
-                <i class="bi bi-plus-circle"></i> Thêm lịch trình
+                <i class="bi bi-plus-circle"></i> Thêm lịch khởi hành
             </h1>
             <p style="color: var(--text-secondary); margin: 0; font-size: 1rem;">
                 Tour: <strong><?= htmlspecialchars($tour['tour_name']) ?></strong>
@@ -25,7 +25,7 @@
     <?php if ($isTourClosed): ?>
         <div class="alert alert-danger" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
             <i class="bi bi-exclamation-triangle-fill"></i>
-            <span><strong>Lỗi:</strong> Không thể thêm lịch trình cho tour đã đóng. Vui lòng mở tour trước khi thêm lịch trình.</span>
+            <span><strong>Lỗi:</strong> Không thể thêm lịch khởi hành cho tour đã đóng. Vui lòng mở tour trước khi thêm lịch khởi hành.</span>
         </div>
     <?php endif; ?>
     
