@@ -624,12 +624,22 @@ class BookingController
             exit;
         } catch (Exception $e) {
             // Lấy lại dữ liệu để hiển thị form với lỗi
-            $booking = $this->modelBooking->findBookingById($id_booking);
-            $customers = $this->modelBooking->getCustomersByBooking($id_booking);
-            $hdv = $this->modelBooking->getHdvByBooking($id_booking);
-            $schedule = $this->modelBooking->getScheduleByBooking($id_booking);
-            $error = "Lỗi khi thêm khách hàng: " . $e->getMessage();
-            require "./views/Admin/QuanlyBooking/BookingDetail.php";
+            try {
+                $booking = $this->modelBooking->findBookingById($id_booking);
+                if (!$booking) {
+                    header("Location: index.php?act=booking-list&error=" . urlencode("Booking không tồn tại"));
+                    exit;
+                }
+                $customers = $this->modelBooking->getCustomersByBooking($id_booking);
+                $hdv = $this->modelBooking->getHdvByBooking($id_booking);
+                $schedule = $this->modelBooking->getScheduleByBooking($id_booking);
+                $error = $e->getMessage();
+                require "./views/Admin/QuanlyBooking/BookingDetail.php";
+            } catch (Exception $e2) {
+                // Nếu có lỗi khi load lại dữ liệu, redirect về danh sách với thông báo lỗi
+                header("Location: index.php?act=booking-detail&id=" . $id_booking . "&error=" . urlencode($e->getMessage()));
+                exit;
+            }
             return;
         }
     }

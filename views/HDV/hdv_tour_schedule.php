@@ -27,10 +27,7 @@
                 <div class="filter-group">
                     <label for="filterDate">Lọc theo ngày khởi hành:</label>
                     <select id="filterDate" class="form-select" onchange="filterSchedules()">
-                        <option value="">Tất cả</option>
-                        <option value="tomorrow">Ngày mai</option>
-                        <option value="2days">2 ngày tới</option>
-                        <option value="3days">3 ngày tới</option>
+                        <option value="ongoing" selected>Đang diễn ra</option>
                         <option value="7days">7 ngày tới</option>
                         <option value="14days">14 ngày tới</option>
                         <option value="30days">30 ngày tới</option>
@@ -468,6 +465,7 @@ function filterSchedules() {
         const timeStatus = card.getAttribute('data-time-status');
         const bookingStatus = card.getAttribute('data-booking-status');
         const startDateStr = card.getAttribute('data-start-date');
+        const endDateStr = card.getAttribute('data-end-date');
         let shouldShow = false;
 
         // Hiển thị tất cả trạng thái
@@ -475,35 +473,29 @@ function filterSchedules() {
 
         // Filter theo ngày
         let dateMatch = false;
-        if (filterDate === '') {
-            dateMatch = true;
-        } else {
-            if (startDateStr) {
-                const startDate = new Date(startDateStr);
-                startDate.setHours(0, 0, 0, 0);
-                const diffTime = startDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (startDateStr) {
+            const startDate = new Date(startDateStr);
+            startDate.setHours(0, 0, 0, 0);
+            const diffTime = startDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                switch (filterDate) {
-                    case 'tomorrow':
-                        dateMatch = diffDays === 1;
-                        break;
-                    case '2days':
-                        dateMatch = diffDays === 2;
-                        break;
-                    case '3days':
-                        dateMatch = diffDays === 3;
-                        break;
-                    case '7days':
-                        dateMatch = diffDays <= 7 && diffDays >= 0;
-                        break;
-                    case '14days':
-                        dateMatch = diffDays <= 14 && diffDays >= 0;
-                        break;
-                    case '30days':
-                        dateMatch = diffDays <= 30 && diffDays >= 0;
-                        break;
-                }
+            switch (filterDate) {
+                case 'ongoing':
+                    // Đang diễn ra: từ hôm nay đến 7 ngày tới
+                    dateMatch = diffDays >= 0 && diffDays <= 7;
+                    break;
+                case '7days':
+                    // 7 ngày tới: từ hôm nay đến 7 ngày tới
+                    dateMatch = diffDays >= 0 && diffDays <= 7;
+                    break;
+                case '14days':
+                    // 14 ngày tới: từ hôm nay đến 14 ngày tới
+                    dateMatch = diffDays >= 0 && diffDays <= 14;
+                    break;
+                case '30days':
+                    // 30 ngày tới: từ hôm nay đến 30 ngày tới (tất cả lịch trình đang diễn ra đến 30 ngày tiếp)
+                    dateMatch = diffDays >= 0 && diffDays <= 30;
+                    break;
             }
         }
 
@@ -511,6 +503,11 @@ function filterSchedules() {
         card.style.display = shouldShow ? '' : 'none';
     });
 }
+
+// Tự động filter khi trang load với option mặc định "Đang diễn ra"
+document.addEventListener('DOMContentLoaded', function() {
+    filterSchedules();
+});
 </script>
 
 <?php require_once 'footer_hdv.php'; ?>
