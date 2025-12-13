@@ -7,7 +7,7 @@ class HdvModel
     {
         // Kết nối database
         $host = 'localhost';
-        $db   = 'hao1';
+        $db   = 'da_1';
         $user = 'root';
         $pass = '';
         $charset = 'utf8mb4';
@@ -123,20 +123,22 @@ class HdvModel
     {
         $sql = "SELECT DISTINCT
                     b.id AS booking_id,
-                    b.ngay_di AS start_date,
-                    ADDDATE(b.ngay_di, INTERVAL t.duration DAY) AS end_date,
+                    ts.start_date,
+                    ts.end_date,
                     t.id AS tour_id,
                     t.tour_name,
                     t.destination,
                     t.duration,
                     t.description,
                     t.status AS tour_status,
+                    b.trang_thai AS booking_status,
                     (SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id) AS so_khach
                 FROM phan_cong_hdv pc
                 INNER JOIN booking b ON pc.id_booking = b.id
-                INNER JOIN tour t ON b.id_tour = t.id
+                INNER JOIN tour_schedule ts ON b.schedule_id = ts.id
+                INNER JOIN tour t ON ts.tour_id = t.id
                 WHERE pc.id_hdv = ?
-                ORDER BY b.ngay_di DESC";
+                ORDER BY ts.start_date DESC";
 
         return $this->pdo_query($sql, [$hdv_id]);
     }
