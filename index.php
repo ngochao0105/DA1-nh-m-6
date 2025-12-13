@@ -197,6 +197,10 @@ switch ($act) {
         (new HdvController())->updateCustomerAttendance();
         break;
 
+    case 'hdv_profile':
+        (new HdvController())->viewProfile();
+        break;
+
     case 'revenue-report':
         (new BookingController())->revenueReport();
         break;

@@ -278,6 +278,36 @@ class HdvController
     //     }
     // }
 
+    // Xem hồ sơ cá nhân
+    public function viewProfile()
+    {
+        // 1. Kiểm tra quyền truy cập
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            header("Location: ?act=login");
+            exit;
+        }
+
+        $hdvModel = new HdvModel();
+
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo "Không tìm thấy thông tin HDV.";
+            exit;
+        }
+
+        // 3. Lấy ID HDV
+        $hdv_id = $hdvProfile['id'];
+
+        // 4. Lấy đánh giá từ database
+        $rating = $hdvModel->getHdvRating($hdv_id);
+
+        // 5. Gửi sang view
+        require_file_view("HDV/hdv_profile", compact("hdvProfile", "rating"));
+    }
+
     // // Xem danh sách điểm danh theo tour
     // public function checkinList($tour_id) {
     //     $list = $this->model->getCheckinByTour($tour_id);
