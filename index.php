@@ -201,6 +201,10 @@ switch ($act) {
         (new HdvController())->viewProfile();
         break;
 
+    case 'hdv_booking_history':
+        (new HdvController())->bookingHistory();
+        break;
+
     case 'revenue-report':
         (new BookingController())->revenueReport();
         break;

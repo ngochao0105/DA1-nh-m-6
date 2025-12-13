@@ -37,6 +37,12 @@
             <i class="bi bi-person-circle"></i>
             <span>Hồ sơ cá nhân</span>
         </a>
+
+        <a href="?act=hdv_booking_history" 
+           class="nav-link <?php echo ($act == 'hdv_booking_history' ? 'active' : ''); ?>">
+            <i class="bi bi-clock-history"></i>
+            <span>Lịch sử dẫn tour</span>
+        </a>
     </nav>
 
     <!-- User Section -->

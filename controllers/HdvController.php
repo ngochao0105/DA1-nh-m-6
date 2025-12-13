@@ -308,6 +308,39 @@ class HdvController
         require_file_view("HDV/hdv_profile", compact("hdvProfile", "rating"));
     }
 
+    // Xem lịch sử dẫn tour
+    public function bookingHistory()
+    {
+        // 1. Kiểm tra quyền truy cập
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'hdv') {
+            header("Location: ?act=login");
+            exit;
+        }
+
+        $hdvModel = new HdvModel();
+
+        // 2. Lấy thông tin HDV từ tài khoản
+        $account_id = $_SESSION['user_id'];
+        $hdvProfile = $hdvModel->getHdvInfoByAccountId($account_id);
+
+        if (!$hdvProfile) {
+            echo "Không tìm thấy thông tin HDV.";
+            exit;
+        }
+
+        // 3. Lấy ID HDV
+        $hdv_id = $hdvProfile['id'];
+
+        // 4. Lấy lịch sử booking
+        $bookingHistory = $hdvModel->getBookingHistory($hdv_id);
+        
+        // 5. Đếm tổng số booking
+        $totalBookings = $hdvModel->countTotalBookings($hdv_id);
+
+        // 6. Gửi sang view
+        require_file_view("HDV/hdv_booking_history", compact("bookingHistory", "totalBookings", "hdvProfile"));
+    }
+
     // // Xem danh sách điểm danh theo tour
     // public function checkinList($tour_id) {
     //     $list = $this->model->getCheckinByTour($tour_id);
