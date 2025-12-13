@@ -136,6 +136,7 @@ if ($isTourClosed): ?>
                 </tr>
                 <?php endforeach; ?>
             <?php else: ?>
+                <?php if (empty($_GET['filter_status'])): ?>
                 <tr>
                     <td colspan="9" class="empty-state">
                         <i class="bi bi-calendar-x"></i>
@@ -155,6 +156,7 @@ if ($isTourClosed): ?>
                         <?php endif; ?>
                     </td>
                 </tr>
+                <?php endif; ?>
             <?php endif; ?>
         </tbody>
     </table>
