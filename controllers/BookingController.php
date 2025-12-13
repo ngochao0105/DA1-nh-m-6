@@ -16,7 +16,14 @@ class BookingController
     public function BookingList() 
     {
         $timeStatus = $_GET['time_status'] ?? 'all';
-        $bookings = $this->modelBooking->getAllBooking($timeStatus);
+        $keyword = $_GET['keyword'] ?? '';
+        
+        if (!empty($keyword)) {
+            $bookings = $this->modelBooking->searchBooking($keyword, $timeStatus);
+        } else {
+            $bookings = $this->modelBooking->getAllBooking($timeStatus);
+        }
+        
         require_once "./views/Admin/QuanlyBooking/BookingList.php";
     }
 
