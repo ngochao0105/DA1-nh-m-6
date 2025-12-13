@@ -306,18 +306,6 @@
                     </div>
                 </div>
                 <?php endif; ?>
-
-                <?php if (!empty($hdvProfile['license_type'])): ?>
-                <div class="info-item">
-                    <div class="info-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                        <i class="bi bi-award-fill"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Loại giấy phép</div>
-                        <div class="info-value"><?= htmlspecialchars($hdvProfile['license_type']) ?></div>
-                    </div>
-                </div>
-                <?php endif; ?>
             </div>
             <?php endif; ?>
         </div>
