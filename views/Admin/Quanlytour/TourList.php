@@ -150,7 +150,7 @@
                                 <i class="bi bi-eye"></i>
                             </a>
                             <a href="?act=schedule-list&id=<?= $cat['id'] ?>"
-                               class="table-action-btn edit" title="Lịch trình">
+                               class="table-action-btn edit" title="Lịch khởi hành">
                                 <i class="bi bi-calendar3"></i>
                             </a>
                             <a href="?act=edit-tour&id=<?= $cat['id'] ?>"

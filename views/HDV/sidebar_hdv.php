@@ -20,11 +20,7 @@
             <span>Trang của tôi</span>
         </a>
 
-        <a href="?act=hdv_my_tours" 
-           class="nav-link <?php echo ($act == 'hdv_my_tours' ? 'active' : ''); ?>">
-            <i class="bi bi-map"></i>
-            <span>Tour được phân công</span>
-        </a>
+      
         
         <a href="?act=hdv_tour_schedule" 
            class="nav-link <?php echo ($act == 'hdv_tour_schedule' ? 'active' : ''); ?>">
@@ -50,10 +46,6 @@
                 <span>Hướng dẫn viên</span>
             </div>
         </div>
-        <a href="?act=hdv_profile" class="nav-link" style="margin-top: 0.5rem; border-radius: 0.5rem; padding: 0.75rem 1rem;">
-            <i class="bi bi-person-circle"></i>
-            <span>Hồ sơ cá nhân</span>
-        </a>
-       
+   
     </div>
 </div>

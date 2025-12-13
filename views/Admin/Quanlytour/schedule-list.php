@@ -31,7 +31,7 @@ $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
 if ($isTourClosed): ?>
     <div class="alert alert-warning" style="margin: 1rem 0; padding: 1rem; background: #fef3c7; color: #92400e; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
         <i class="bi bi-exclamation-triangle-fill"></i>
-        <span><strong>Tour đã đóng:</strong> Không thể thêm lịch trình mới cho tour này. Vui lòng mở tour trước khi thêm lịch trình.</span>
+        <span><strong>Tour đã đóng:</strong> Không thể thêm lịch khởi hành mới cho tour này. Vui lòng mở tour trước khi thêm lịch khởi hành.</span>
     </div>
 <?php endif; ?>
 
@@ -61,7 +61,7 @@ if ($isTourClosed): ?>
         ?>
         <?php if ($isTourClosed): ?>
             <button class="btn btn-primary" disabled title="Không thể thêm lịch trình cho tour đã đóng">
-                <i class="bi bi-plus-circle"></i> Thêm lịch trình
+                <i class="bi bi-plus-circle"></i> Thêm lịch khởi hành
             </button>
         <?php else: ?>
             <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
