@@ -1,8 +1,52 @@
 <?php include "views/layout/header.php"; ?>
 <?php include "views/layout/sidebar.php"; ?>
 
+<style>
+/* CSS cho form tìm kiếm */
+.action-bar-search {
+    position: relative;
+}
+
+.action-bar-search i.bi-search {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 1;
+}
+
+.action-bar-search input[type="text"] {
+    padding-left: 35px !important;
+    border-radius: 4px 0 0 4px !important;
+    border-right: none !important;
+}
+
+.action-bar-search .btn {
+    border-radius: 0 4px 4px 0 !important;
+    border-left: none !important;
+}
+</style>
+
 <div class="page-header">
     <h1>Quản lý Booking</h1>
+    <?php if (!empty($_GET['keyword'])): ?>
+        <p class="text-muted">Kết quả tìm kiếm cho: "<strong><?= htmlspecialchars($_GET['keyword']) ?></strong>" 
+           (<?= count($bookings) ?> kết quả)</p>
+    <?php elseif (!empty($_GET['time_status']) && $_GET['time_status'] !== 'all'): ?>
+        <p class="text-muted">Lọc theo trạng thái: 
+           <strong>
+           <?php
+           $statusText = [
+               'dang_dien_ra' => 'Đang diễn ra',
+               'sap_dien_ra' => 'Sắp diễn ra', 
+               'da_ket_thuc' => 'Đã kết thúc'
+           ];
+           echo $statusText[$_GET['time_status']] ?? $_GET['time_status'];
+           ?>
+           </strong>
+           (<?= count($bookings) ?> kết quả)</p>
+    <?php endif; ?>
 </div>
 
 <?php
@@ -19,9 +63,19 @@
     <div class="action-bar-left">
         <form method="get" style="display: flex; gap: 12px; align-items: center;">
             <input type="hidden" name="act" value="booking-list">
-            <div class="action-bar-search">
+            <div class="action-bar-search" style="display: flex; align-items: center;">
                 <i class="bi bi-search"></i>
-                <input type="text" name="keyword" placeholder="Tìm kiếm...">
+                <input type="text" name="keyword" placeholder="Tìm kiếm tên tour, khách hàng, ID..." 
+                       value="<?= isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '' ?>">
+                <button type="submit" class="btn btn-sm btn-primary" title="Tìm kiếm">
+                    <i class="bi bi-search"></i> Tìm
+                </button>
+                <?php if (!empty($_GET['keyword'])): ?>
+                    <a href="?act=booking-list<?= !empty($_GET['time_status']) ? '&time_status=' . htmlspecialchars($_GET['time_status']) : '' ?>" 
+                       class="btn btn-sm btn-outline-secondary" title="Xóa tìm kiếm">
+                        <i class="bi bi-x"></i>
+                    </a>
+                <?php endif; ?>
             </div>
 
             <div>
@@ -72,7 +126,12 @@
                 <tr>
                     <td colspan="11" style="text-align: center; padding: 40px; color: var(--text-secondary);">
                         <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <p>Chưa có booking nào. <a href="index.php?act=add-booking">Tạo booking mới</a></p>
+                        <?php if (!empty($_GET['keyword'])): ?>
+                            <p>Không tìm thấy booking nào phù hợp với từ khóa "<strong><?= htmlspecialchars($_GET['keyword']) ?></strong>".</p>
+                            <p><a href="?act=booking-list<?= !empty($_GET['time_status']) ? '&time_status=' . htmlspecialchars($_GET['time_status']) : '' ?>">Xem tất cả booking</a></p>
+                        <?php else: ?>
+                            <p>Chưa có booking nào. <a href="index.php?act=add-booking">Tạo booking mới</a></p>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php else: ?>

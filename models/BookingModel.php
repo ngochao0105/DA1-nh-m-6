@@ -75,6 +75,82 @@ class BookingModel
     }
 
     // ================================
+    // Tìm kiếm booking
+    // ================================
+    public function searchBooking($keyword, $timeStatus = 'all')
+    {
+        $timeStatus = $timeStatus ?: 'all';
+
+        // Kiểm tra xem cột trang_thai_thanh_toan có tồn tại không
+        try {
+            $checkCols2 = $this->conn->query("SHOW COLUMNS FROM booking LIKE 'trang_thai_thanh_toan'")->fetch();
+            $hasPaymentStatus = !empty($checkCols2);
+        } catch (Exception $e) {
+            $hasPaymentStatus = false;
+        }
+
+        $sql = "SELECT 
+                    b.*, 
+                    t.tour_name,
+                    (SELECT k.ten_khach FROM khachtour k WHERE k.id_booking = b.id ORDER BY k.id LIMIT 1) AS customer_name,
+                    (SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id) AS so_khach,
+                    (SELECT ts.price FROM tour_schedule ts WHERE ts.tour_id = b.id_tour AND ts.start_date = b.ngay_di LIMIT 1) AS price_per_person,
+                    (SELECT n.full_name FROM phan_cong_hdv p 
+                     JOIN nhansu n ON p.id_hdv = n.id 
+                     WHERE p.id_booking = b.id LIMIT 1) AS hdv_name,
+                    b.ngay_tao AS created_at";
+        
+        if ($hasPaymentStatus) {
+            $sql .= ", COALESCE(b.trang_thai_thanh_toan, 'chua_thanh_toan') AS trang_thai_thanh_toan";
+        } else {
+            $sql .= ", 'chua_thanh_toan' AS trang_thai_thanh_toan";
+        }
+        
+        $sql .= " FROM booking b
+                LEFT JOIN tour t ON b.id_tour = t.id";
+
+        // Điều kiện tìm kiếm
+        $conditions = [];
+        $params = [];
+        
+        if (!empty($keyword)) {
+            $conditions[] = "(t.tour_name LIKE :keyword OR 
+                            (SELECT k.ten_khach FROM khachtour k WHERE k.id_booking = b.id ORDER BY k.id LIMIT 1) LIKE :keyword OR
+                            b.id LIKE :keyword_id)";
+            $params[':keyword'] = '%' . $keyword . '%';
+            $params[':keyword_id'] = '%' . $keyword . '%';
+        }
+
+        // Lọc theo nhóm trạng thái booking
+        if ($timeStatus === 'dang_dien_ra') {
+            $conditions[] = "b.trang_thai = 'dang_dien_ra'";
+        } elseif ($timeStatus === 'sap_dien_ra') {
+            $conditions[] = "b.trang_thai IN ('cho_xac_nhan','da_xac_nhan')";
+        } elseif ($timeStatus === 'da_ket_thuc') {
+            $conditions[] = "b.trang_thai IN ('hoan_tat','da_huy')";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY b.id DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        $results = $stmt->fetchAll();
+        
+        // Tính tổng giá cho mỗi booking
+        foreach ($results as &$row) {
+            $pricePerPerson = floatval($row['price_per_person'] ?? 0);
+            $soKhach = intval($row['so_khach'] ?? 0);
+            $row['tong_gia'] = $pricePerPerson * $soKhach;
+        }
+        
+        return $results;
+    }
+
+    // ================================
     // Lấy HDV rảnh theo ngày
     // ================================
     public function getAvailableHdvByDate($ngayDi)
