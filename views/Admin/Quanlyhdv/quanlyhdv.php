@@ -1,6 +1,24 @@
 <?php include "views/layout/header.php"; ?>
 <?php include "views/layout/sidebar.php"; ?>
 
+<style>
+/* CSS cho nút view */
+.table-action-btn.view {
+    background: #17a2b8 !important;
+    color: white !important;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+}
+.table-action-btn.view:hover {
+    background: #138496 !important;
+    color: white !important;
+}
+</style>
+
 <div class="page-header">
     <h1>Quản lý Hướng dẫn viên</h1>
 </div>
@@ -126,6 +144,10 @@
                     </td>
                     <td>
                         <div class="table-actions">
+                            <a href="?act=view-guide-detail&id=<?= $guide['id'] ?>" 
+                               class="table-action-btn view" title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </a>
                             <a href="?act=edit-guide&id=<?= $guide['id'] ?>" 
                                class="table-action-btn edit" title="Sửa">
                                 <i class="bi bi-pencil"></i>

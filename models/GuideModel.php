@@ -188,71 +188,25 @@ public function getAllGuides($keyword = "")
         }
     }
 
-    // =====================
-    //  PHÂN CÔNG HDV
-    // =====================
-
-    // Lưu phân công
-    public function assignGuideToTour($id_tour, $id_hdv, $role)
-    {
-        try {
-            $sql = "INSERT INTO phancong (id_tour, id_hdv, role) VALUES (?, ?, ?)";
-            $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$id_tour, $id_hdv, $role]);
-        } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
-        }
-    }
-
-    // Lấy danh sách HDV đã phân công theo tour
-    public function getAssignedGuidesByTour($id_tour)
-    {
-        try {
-            $sql = "SELECT pc.*, ns.full_name, ns.phone, ns.email
-                    FROM phancong pc
-                    JOIN nhansu ns ON pc.id_hdv = ns.id
-                    WHERE pc.id_tour = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$id_tour]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
-        }
-    }
-    public function isTourAssigned($id_tour)
-{
-    try {
-        $sql = "SELECT COUNT(*) as total FROM phancong WHERE id_tour = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id_tour]);
-        $count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-        return $count > 0; // true nếu đã có HDV
-    } catch (PDOException $e) {
-        die("Lỗi SQL: " . $e->getMessage());
-    }
-}
-
-    // Xóa phân công
-    public function deleteAssign($assign_id)
-    {
-        try {
-            $sql = "DELETE FROM phancong WHERE id = ?";
-            $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$assign_id]);
-        } catch (PDOException $e) {
-            die("Lỗi SQL: " . $e->getMessage());
-        }
-    }
-
-    // HDV xem danh sách tour được phân công
+    // HDV xem danh sách tour được phân công (dựa trên booking)
     public function getTourAssignedForGuide($id_hdv)
     {
         try {
-            $sql = "SELECT pc.*, t.tour_name, t.start_date, t.end_date, t.destination
-                    FROM phancong pc
-                    JOIN tour t ON pc.id_tour = t.id
+            $sql = "SELECT 
+                        pc.id AS assignment_id,
+                        pc.ngay_di,
+                        b.id AS booking_id,
+                        b.ngay_di AS booking_start_date,
+                        b.trang_thai AS booking_status,
+                        b.trang_thai_thanh_toan AS payment_status,
+                        t.id AS tour_id,
+                        t.tour_name,
+                        t.destination
+                    FROM phan_cong_hdv pc
+                    INNER JOIN booking b ON pc.id_booking = b.id
+                    INNER JOIN tour t ON b.id_tour = t.id
                     WHERE pc.id_hdv = ?
-                    ORDER BY t.start_date ASC";
+                    ORDER BY pc.ngay_di DESC";
 
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$id_hdv]);

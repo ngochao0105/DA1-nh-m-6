@@ -24,6 +24,31 @@ class GuideController
         require_once './views/Admin/Quanlyhdv/quanlyhdv.php';
     }
 
+    // Xem chi tiết HDV
+    public function viewGuideDetail()
+    {
+        $id = intval($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            header("Location: ?act=guide-management");
+            exit();
+        }
+
+        // Lấy thông tin HDV
+        $guide = $this->modelGuide->getGuideById($id);
+        if (!$guide) {
+            header("Location: ?act=guide-management");
+            exit();
+        }
+
+        // Lấy danh sách tour HDV đang dẫn
+        $assignedTours = $this->modelGuide->getTourAssignedForGuide($id);
+
+        // Đếm số tour
+        $totalTours = count($assignedTours);
+
+        require_once './views/Admin/Quanlyhdv/GuideDetail.php';
+    }
+
     public function addGuide()
     {
         $error = '';
@@ -190,58 +215,6 @@ class GuideController
         }
 
         require_once './views/Admin/Quanlyhdv/EditGuide.php';
-    }
-
-    // ==========================
-    // PHÂN CÔNG HDV
-    // ==========================
-
-    public function assignGuide()
-    {
-        $id_tour = $_GET['id'] ?? 0;
-
-        if ($id_tour <= 0) {
-            header("Location: ?act=tour-list");
-            exit();
-        }
-
-        $tour = $this->tourModel->getTourById($id_tour);
-        $guides = $this->modelGuide->getAllGuides();
-        $assignedGuides = $this->modelGuide->getAssignedGuidesByTour($id_tour);
-
-        require_once './views/Admin/Quanlytour/assign_guide.php';
-    }
-
-    public function saveAssignGuide()
-    {
-        $id_tour = $_GET['id'] ?? 0;
-        $id_hdv = $_POST['id_hdv'] ?? 0;
-        $role = $_POST['role'] ?? '';
-
-        if ($this->modelGuide->isTourAssigned($id_tour)) {
-            header("Location: ?act=assign-guide&id=$id_tour&error=assigned");
-            exit();
-        }
-
-        if ($id_tour > 0 && $id_hdv > 0) {
-            $this->modelGuide->assignGuideToTour($id_tour, $id_hdv, $role);
-        }
-
-        header("Location: ?act=assign-guide&id=$id_tour&success=1");
-        exit();
-    }
-
-    public function deleteAssign()
-    {
-        $assign_id = $_GET['id'];
-        $id_tour = $_GET['tour'];
-
-        if ($assign_id > 0) {
-            $this->modelGuide->deleteAssign($assign_id);
-        }
-
-        header("Location: ?act=assign-guide&id=" . $id_tour);
-        exit();
     }
 
     // ==========================
