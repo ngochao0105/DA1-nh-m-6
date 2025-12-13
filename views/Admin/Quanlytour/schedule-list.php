@@ -5,7 +5,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="margin-bottom: 0.5rem;">
-                <i class="bi bi-calendar3"></i> Lịch trình Tour
+                <i class="bi bi-calendar3"></i> Lịch khởi hành
             </h1>
             <p style="color: var(--text-secondary); margin: 0; font-size: 1rem;">
                 <strong><?= ($tour['tour_name']) ?></strong> - <?= ($tour['destination']) ?>
