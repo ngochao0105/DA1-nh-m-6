@@ -18,14 +18,29 @@
 </div>
 
 <div style="background: white; border-radius: 0.75rem; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+    <?php 
+    $tourStatus = $tour['status'] ?? null;
+    $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
+    ?>
+    <?php if ($isTourClosed): ?>
+        <div class="alert alert-danger" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span><strong>Lỗi:</strong> Không thể thêm lịch trình cho tour đã đóng. Vui lòng mở tour trước khi thêm lịch trình.</span>
+        </div>
+    <?php endif; ?>
+    
     <?php if (!empty($error)): ?>
         <div class="alert alert-danger" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
             <i class="bi bi-exclamation-triangle-fill"></i>
             <span><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
+    
+    <?php if ($isTourClosed): ?>
+        <div style="opacity: 0.6; pointer-events: none;">
+    <?php endif; ?>
 
-    <form method="POST" id="scheduleForm" onsubmit="return validateScheduleForm()">
+    <form method="POST" id="scheduleForm" onsubmit="return <?= $isTourClosed ? 'false' : 'validateScheduleForm()' ?>">
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label">
@@ -77,13 +92,16 @@
                     <a href="?act=schedule-list&id=<?= $tour_id ?>" class="btn btn-secondary">
                         <i class="bi bi-x-circle"></i> Hủy
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" <?= $isTourClosed ? 'disabled' : '' ?>>
                         <i class="bi bi-check-circle"></i> Thêm lịch trình
                     </button>
                 </div>
             </div>
         </div>
     </form>
+    <?php if ($isTourClosed): ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

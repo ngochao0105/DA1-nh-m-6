@@ -184,4 +184,16 @@
     </table>
 </div>
 
+<script>
+function filterByStatus(status) {
+    const url = new URL(window.location.href);
+    if (status === '') {
+        url.searchParams.delete('filter_status');
+    } else {
+        url.searchParams.set('filter_status', status);
+    }
+    window.location.href = url.toString();
+}
+</script>
+
 <?php include "views/layout/footer.php"; ?>

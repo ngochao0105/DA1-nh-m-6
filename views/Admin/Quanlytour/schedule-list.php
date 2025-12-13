@@ -17,6 +17,24 @@
     </div>
 </div>
 
+<?php if (isset($_SESSION['error_message'])): ?>
+    <div class="alert alert-danger" style="margin: 1rem 0; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span><?= htmlspecialchars($_SESSION['error_message']) ?></span>
+    </div>
+    <?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
+
+<?php 
+$tourStatus = $tour['status'] ?? null;
+$isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
+if ($isTourClosed): ?>
+    <div class="alert alert-warning" style="margin: 1rem 0; padding: 1rem; background: #fef3c7; color: #92400e; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span><strong>Tour đã đóng:</strong> Không thể thêm lịch trình mới cho tour này. Vui lòng mở tour trước khi thêm lịch trình.</span>
+    </div>
+<?php endif; ?>
+
 <!-- Action Bar -->
 <div class="action-bar">
     <div class="action-bar-left">
@@ -34,12 +52,22 @@
         </div>
     </div>
     <div class="action-bar-right">
-        <button class="btn btn-secondary">
+        <a href="?act=schedule-list&id=<?= $tour['id'] ?>" class="btn btn-secondary">
             <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </button>
-        <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Thêm lịch trình
         </a>
+        <?php 
+        $tourStatus = $tour['status'] ?? null;
+        $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
+        ?>
+        <?php if ($isTourClosed): ?>
+            <button class="btn btn-primary" disabled title="Không thể thêm lịch trình cho tour đã đóng">
+                <i class="bi bi-plus-circle"></i> Thêm lịch trình
+            </button>
+        <?php else: ?>
+            <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Thêm lịch trình
+            </a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -108,9 +136,19 @@
                     <td colspan="9" class="empty-state">
                         <i class="bi bi-calendar-x"></i>
                         <p>Chưa có lịch trình nào cho tour này.</p>
-                        <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary" style="margin-top: 1rem;">
-                            <i class="bi bi-plus-circle"></i> Thêm lịch trình đầu tiên
-                        </a>
+                        <?php 
+                        $tourStatus = $tour['status'] ?? null;
+                        $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
+                        ?>
+                        <?php if ($isTourClosed): ?>
+                            <button class="btn btn-primary" disabled style="margin-top: 1rem;" title="Không thể thêm lịch trình cho tour đã đóng">
+                                <i class="bi bi-plus-circle"></i> Thêm lịch trình đầu tiên
+                            </button>
+                        <?php else: ?>
+                            <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary" style="margin-top: 1rem;">
+                                <i class="bi bi-plus-circle"></i> Thêm lịch trình đầu tiên
+                            </a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endif; ?>
