@@ -25,12 +25,15 @@
             <!-- Bộ lọc -->
             <div class="filter-section">
                 <div class="filter-group">
-                    <label for="filterStatus">Lọc theo trạng thái:</label>
-                    <select id="filterStatus" class="form-select" onchange="filterSchedules()">
+                    <label for="filterDate">Lọc theo ngày khởi hành:</label>
+                    <select id="filterDate" class="form-select" onchange="filterSchedules()">
                         <option value="">Tất cả</option>
-                        <option value="upcoming">Sắp diễn ra</option>
-                        <option value="ongoing">Đang diễn ra</option>
-                        <option value="finished">Đã kết thúc</option>
+                        <option value="tomorrow">Ngày mai</option>
+                        <option value="2days">2 ngày tới</option>
+                        <option value="3days">3 ngày tới</option>
+                        <option value="7days">7 ngày tới</option>
+                        <option value="14days">14 ngày tới</option>
+                        <option value="30days">30 ngày tới</option>
                     </select>
                 </div>
             </div>
@@ -97,7 +100,8 @@
                     <div class="schedule-card" 
                          data-status="<?= htmlspecialchars($schedule['tour_status'] ?? '') ?>"
                          data-time-status="<?= $timeStatus ?>"
-                         data-booking-status="<?= htmlspecialchars($bookingStatus) ?>">
+                         data-booking-status="<?= htmlspecialchars($bookingStatus) ?>"
+                         data-start-date="<?= htmlspecialchars($startDate) ?>">
                         <!-- Header -->
                         <div class="card-header">
                             <div class="header-left">
@@ -225,6 +229,7 @@
     font-weight: 600;
     margin: 0;
     white-space: nowrap;
+    min-width: 150px;
 }
 
 .filter-group select {
@@ -435,29 +440,74 @@
     .page-header-content h1 {
         font-size: 22px;
     }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        min-width: auto;
+    }
+
+    .filter-group select {
+        width: 100%;
+    }
 }
 </style>
 
 <script>
 function filterSchedules() {
-    const filterValue = document.getElementById('filterStatus').value;
+    const filterDate = document.getElementById('filterDate').value;
     const cards = document.querySelectorAll('.schedule-card');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     cards.forEach(card => {
         const timeStatus = card.getAttribute('data-time-status');
         const bookingStatus = card.getAttribute('data-booking-status');
+        const startDateStr = card.getAttribute('data-start-date');
         let shouldShow = false;
 
-        if (filterValue === '') {
-            shouldShow = true;
-        } else if (filterValue === 'ongoing') {
-            shouldShow = (timeStatus === 'ongoing') || bookingStatus === 'dang_dien_ra';
-        } else if (filterValue === 'upcoming') {
-            shouldShow = timeStatus === 'upcoming';
-        } else if (filterValue === 'finished') {
-            shouldShow = timeStatus === 'finished' || bookingStatus === 'hoan_tat' || bookingStatus === 'da_huy';
+        // Hiển thị tất cả trạng thái
+        let statusMatch = true;
+
+        // Filter theo ngày
+        let dateMatch = false;
+        if (filterDate === '') {
+            dateMatch = true;
+        } else {
+            if (startDateStr) {
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                const diffTime = startDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                switch (filterDate) {
+                    case 'tomorrow':
+                        dateMatch = diffDays === 1;
+                        break;
+                    case '2days':
+                        dateMatch = diffDays === 2;
+                        break;
+                    case '3days':
+                        dateMatch = diffDays === 3;
+                        break;
+                    case '7days':
+                        dateMatch = diffDays <= 7 && diffDays >= 0;
+                        break;
+                    case '14days':
+                        dateMatch = diffDays <= 14 && diffDays >= 0;
+                        break;
+                    case '30days':
+                        dateMatch = diffDays <= 30 && diffDays >= 0;
+                        break;
+                }
+            }
         }
 
+        shouldShow = statusMatch && dateMatch;
         card.style.display = shouldShow ? '' : 'none';
     });
 }
