@@ -167,19 +167,9 @@ switch ($act) {
         (new GuideController())->editGuide();
         break;
 
-
-   case 'assign-guide':
-    (new GuideController())->assignGuide();
-    break;
-
-case 'save-assign-guide':
-    (new GuideController())->saveAssignGuide();
-    break;
-
-case 'delete-assign':
-    (new GuideController())->deleteAssign();
-    break;
-
+    case 'view-guide-detail':
+        (new GuideController())->viewGuideDetail();
+        break;
 
         
     case 'hdv_dashboard':
