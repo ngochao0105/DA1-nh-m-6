@@ -18,6 +18,14 @@ class ScheduleModel
         return $stmt->fetchAll();
     }
 
+    public function getSchedulesByTourAndStatus($tourId, $status)
+    {
+        $sql = "SELECT * FROM $this->table WHERE tour_id = ? AND status = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$tourId, $status]);
+        return $stmt->fetchAll();
+    }
+
     public function getScheduleById($id)
     {
         $sql = "SELECT * FROM $this->table WHERE id = ?";

@@ -174,7 +174,12 @@ class TourController
     $tour = $this->modelTour->getTourById($tourId);
     if (!$tour) die("Tour không tồn tại");
 
-    $schedules = $this->modelSchedule->getSchedulesByTour($tourId);
+    $filterStatus = $_GET['filter_status'] ?? '';
+    if (!empty($filterStatus)) {
+        $schedules = $this->modelSchedule->getSchedulesByTourAndStatus($tourId, $filterStatus);
+    } else {
+        $schedules = $this->modelSchedule->getSchedulesByTour($tourId);
+    }
 
     require_file_view('Admin/Quanlytour/schedule-list', [
         'tour' => $tour,
