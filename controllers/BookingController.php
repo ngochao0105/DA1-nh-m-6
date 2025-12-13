@@ -695,6 +695,15 @@ class BookingController
         // Lấy tổng doanh thu năm
         $totalRevenue = $this->modelBooking->getTotalRevenueByYear($year);
         
+        // Lấy số tháng có doanh thu
+        $countMonths = $this->modelBooking->getCountMonthsWithRevenue($year);
+        
+        // Lấy doanh thu trung bình/tháng
+        $avgRevenuePerMonth = $this->modelBooking->getAverageRevenuePerMonth($year);
+        
+        // Lấy thông tin tháng có doanh thu cao nhất
+        $maxRevenueMonth = $this->modelBooking->getMaxRevenueMonth($year);
+        
         // Danh sách năm để chọn
         $availableYears = [];
         for ($i = date('Y'); $i >= date('Y') - 5; $i--) {

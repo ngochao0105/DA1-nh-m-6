@@ -762,17 +762,22 @@ class BookingModel
 
         $sql = "
             SELECT 
-                MONTH(ngay_di) AS thang,    
-                YEAR(ngay_di) AS nam,
-                COUNT(DISTINCT id) AS so_booking,
-                COUNT(DISTINCT (SELECT id FROM khachtour k WHERE k.id_booking = b.id)) AS so_khach,
-                COALESCE(SUM(tong_tien), 0) AS doanh_thu,
-                COALESCE(AVG(tong_tien), 0) AS doanh_thu_trung_binh
+                MONTH(b.ngay_di) AS thang,    
+                YEAR(b.ngay_di) AS nam,
+                COUNT(DISTINCT b.id) AS so_booking,
+                COALESCE(SUM(customer_count.customer_cnt), 0) AS so_khach,
+                COALESCE(SUM(b.tong_tien), 0) AS doanh_thu,
+                COALESCE(AVG(b.tong_tien), 0) AS doanh_thu_trung_binh
             FROM booking b
-            WHERE YEAR(ngay_di) = :year
+            LEFT JOIN (
+                SELECT id_booking, COUNT(*) AS customer_cnt
+                FROM khachtour
+                GROUP BY id_booking
+            ) customer_count ON b.id = customer_count.id_booking
+            WHERE YEAR(b.ngay_di) = :year
                 AND b.trang_thai NOT IN ('da_huy')
-            GROUP BY MONTH(ngay_di), YEAR(ngay_di)
-            ORDER BY MONTH(ngay_di) ASC
+            GROUP BY MONTH(b.ngay_di), YEAR(b.ngay_di)
+            ORDER BY MONTH(b.ngay_di) ASC
         ";
 
         try {
@@ -837,6 +842,79 @@ class BookingModel
             return $result['tong_doanh_thu'] ?? 0;
         } catch (PDOException $e) {
             return 0;
+        }
+    }
+
+    // ================================
+    // Lấy số tháng có doanh thu trong năm
+    // ================================
+    public function getCountMonthsWithRevenue($year)
+    {
+        $sql = "
+            SELECT COUNT(DISTINCT MONTH(ngay_di)) AS so_thang
+            FROM booking b
+            WHERE YEAR(b.ngay_di) = :year
+                AND b.trang_thai NOT IN ('da_huy')
+                AND b.tong_tien > 0
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['year' => $year]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)($result['so_thang'] ?? 0);
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
+
+    // ================================
+    // Lấy doanh thu trung bình/tháng (chỉ tính các tháng có doanh thu)
+    // ================================
+    public function getAverageRevenuePerMonth($year)
+    {
+        $totalRevenue = $this->getTotalRevenueByYear($year);
+        $countMonths = $this->getCountMonthsWithRevenue($year);
+        
+        if ($countMonths > 0) {
+            return $totalRevenue / $countMonths;
+        }
+        
+        return 0;
+    }
+
+    // ================================
+    // Lấy thông tin tháng có doanh thu cao nhất
+    // ================================
+    public function getMaxRevenueMonth($year)
+    {
+        $sql = "
+            SELECT 
+                MONTH(ngay_di) AS thang,
+                COALESCE(SUM(tong_tien), 0) AS doanh_thu
+            FROM booking b
+            WHERE YEAR(b.ngay_di) = :year
+                AND b.trang_thai NOT IN ('da_huy')
+            GROUP BY MONTH(ngay_di)
+            ORDER BY doanh_thu DESC
+            LIMIT 1
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['year' => $year]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && $result['doanh_thu'] > 0) {
+                return [
+                    'thang' => (int)$result['thang'],
+                    'doanh_thu' => floatval($result['doanh_thu'])
+                ];
+            }
+            
+            return null;
+        } catch (PDOException $e) {
+            return null;
         }
     }
     

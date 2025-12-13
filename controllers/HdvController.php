@@ -341,9 +341,5 @@ class HdvController
         require_file_view("HDV/hdv_booking_history", compact("bookingHistory", "totalBookings", "hdvProfile"));
     }
 
-    // // Xem danh sách điểm danh theo tour
-    // public function checkinList($tour_id) {
-    //     $list = $this->model->getCheckinByTour($tour_id);
-    //     require_once 'views/Checkin/checkin_list.php';
-    // }
+    
 }
