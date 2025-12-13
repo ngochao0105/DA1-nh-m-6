@@ -138,11 +138,21 @@
         <h2 class="mb-3 fw-bold">Chi tiết Booking #<?= $booking['id'] ?></h2>
 
         <!-- ✅ HIỂN THỊ THÔNG BÁO LỖI / THÀNH CÔNG -->
-        <?php if (isset($_SESSION['error']) && !empty($_SESSION['error'])): ?>
+        <?php 
+        $displayError = null;
+        if (isset($_SESSION['error']) && !empty($_SESSION['error'])) {
+            $displayError = $_SESSION['error'];
+            unset($_SESSION['error']);
+        } elseif (isset($error) && !empty($error)) {
+            $displayError = $error;
+        } elseif (isset($_GET['error']) && !empty($_GET['error'])) {
+            $displayError = $_GET['error'];
+        }
+        ?>
+        <?php if ($displayError): ?>
             <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #fecaca;">
-                <i class="bi bi-exclamation-circle-fill"></i> <strong>Lỗi:</strong> <?= htmlspecialchars($_SESSION['error']) ?>
+                <i class="bi bi-exclamation-circle-fill"></i> <strong>Lỗi:</strong> <?= htmlspecialchars($displayError) ?>
             </div>
-            <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
         <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
@@ -435,6 +445,9 @@
         $remainingSlots = isset($maxSlots) ? max($maxSlots - $bookedSlots, 0) : null;
     ?>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
     <!-- Modal Thêm khách hàng -->
     <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -448,6 +461,8 @@
                 <form id="addCustomerForm" action="index.php?act=add-customer-to-booking" method="POST">
                     <input type="hidden" name="id_booking" value="<?= $booking['id'] ?>">
                     <div class="modal-body">
+                        <!-- Alert area trong modal -->
+                        <div id="modalAlert" style="display: none;"></div>
                         <?php if ($remainingSlots === 0): ?>
                             <div class="alert alert-warning mb-3">
                                 <i class="bi bi-exclamation-triangle"></i>
@@ -475,10 +490,153 @@
         </div>
     </div>
 
+    <style>
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            min-width: 300px;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid;
+        }
+        .toast-notification.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        .toast-notification.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .toast-notification.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .toast-notification.info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .toast-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-message {
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            font-size: 14px;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .toast-close:hover {
+            color: #1f2937;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .modal-alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .modal-alert.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+    </style>
+
     <script>
         let addCustomerModal = null;
         const bookingId = <?= (int)$booking['id']; ?>;
         const remainingSlots = <?= $remainingSlots !== null ? $remainingSlots : 'null'; ?>;
+
+        // Hàm hiển thị thông báo toast
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || icons.info}</span>
+                <div class="toast-content">
+                    <p class="toast-message">${message}</p>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Tự động xóa sau 5 giây
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Hàm hiển thị thông báo trong modal
+        function showModalAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('modalAlert');
+            if (!alertDiv) return;
+            
+            alertDiv.className = `modal-alert ${type}`;
+            alertDiv.innerHTML = `
+                <i class="bi bi-${type === 'error' ? 'exclamation-circle-fill' : 'exclamation-triangle-fill'}"></i>
+                <span>${message}</span>
+            `;
+            alertDiv.style.display = 'flex';
+            
+            // Tự động ẩn sau 5 giây
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const modalEl = document.getElementById('addCustomerModal');
@@ -494,8 +652,8 @@
         });
 
         function openAddCustomerModal() {
-            if (remainingSlots === 0) {
-                alert('Booking đã hết slot, không thể thêm khách mới.');
+            if (remainingSlots !== null && remainingSlots <= 0) {
+                showNotification('Booking đã hết slot, không thể thêm khách mới.', 'error');
                 return;
             }
             resetAddCustomerForm();
@@ -513,15 +671,26 @@
             addCustomerRow();
             const form = document.getElementById('addCustomerForm');
             form?.reset();
+            // Ẩn alert trong modal khi reset
+            const alertDiv = document.getElementById('modalAlert');
+            if (alertDiv) {
+                alertDiv.style.display = 'none';
+            }
         }
 
         function addCustomerRow() {
             const rowsContainer = document.getElementById('addCustomerRows');
             if (!rowsContainer) return;
 
+            // Kiểm tra nếu không còn slot
+            if (remainingSlots !== null && remainingSlots <= 0) {
+                showModalAlert('Booking đã hết slot, không thể thêm khách mới.', 'error');
+                return;
+            }
+
             const currentRows = rowsContainer.querySelectorAll('.customer-row').length;
             if (remainingSlots !== null && currentRows >= remainingSlots) {
-                alert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này.`);
+                showModalAlert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này.`, 'warning');
                 return;
             }
 
@@ -564,20 +733,45 @@
             if (!rowsContainer) return;
             const rows = rowsContainer.querySelectorAll('.customer-row');
             if (rows.length <= 1) {
-                alert('Cần ít nhất một khách hàng.');
+                showModalAlert('Cần ít nhất một khách hàng.', 'warning');
                 return;
             }
             button.closest('.customer-row')?.remove();
         }
 
         function handleAddCustomerSubmit(event) {
-            if (!remainingSlots) return; // Không giới hạn, submit bình thường
+            // Kiểm tra nếu không còn slot
+            if (remainingSlots !== null && remainingSlots <= 0) {
+                event.preventDefault();
+                showModalAlert('Booking đã hết slot, không thể thêm khách mới.', 'error');
+                return;
+            }
+
+            // Không giới hạn, submit bình thường
+            if (remainingSlots === null) return;
 
             const rowsContainer = document.getElementById('addCustomerRows');
             const rows = rowsContainer?.querySelectorAll('.customer-row') ?? [];
-            if (remainingSlots !== null && rows.length > remainingSlots) {
+            
+            // Đếm số khách hợp lệ (có tên)
+            let validCustomers = 0;
+            rows.forEach(row => {
+                const nameInput = row.querySelector('input[name="ten_khach[]"]');
+                if (nameInput && nameInput.value.trim() !== '') {
+                    validCustomers++;
+                }
+            });
+
+            if (validCustomers > remainingSlots) {
                 event.preventDefault();
-                alert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này.`);
+                showModalAlert(`Bạn chỉ có thể thêm tối đa ${remainingSlots} khách cho booking này. Bạn đang cố thêm ${validCustomers} khách.`, 'error');
+                return;
+            }
+
+            if (validCustomers === 0) {
+                event.preventDefault();
+                showModalAlert('Vui lòng nhập ít nhất một khách hàng.', 'warning');
+                return;
             }
         }
 
@@ -601,13 +795,13 @@
                 if (data.success) {
                     const row = document.getElementById(`customer-row-${customerId}`);
                     row?.remove();
-                    alert('Đã xóa khách hàng thành công.');
+                    showNotification('Đã xóa khách hàng thành công.', 'success');
                 } else {
-                    alert(data.message || 'Không thể xóa khách hàng.');
+                    showNotification(data.message || 'Không thể xóa khách hàng.', 'error');
                 }
             })
             .catch(() => {
-                alert('Có lỗi xảy ra khi xóa khách hàng.');
+                showNotification('Có lỗi xảy ra khi xóa khách hàng.', 'error');
             });
         }
     </script>
