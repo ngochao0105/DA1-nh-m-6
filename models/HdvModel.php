@@ -123,8 +123,8 @@ class HdvModel
     {
         $sql = "SELECT DISTINCT
                     b.id AS booking_id,
-                    ts.start_date,
-                    ts.end_date,
+                    COALESCE(ts.start_date, b.ngay_di) AS start_date,
+                    COALESCE(ts.end_date, DATE_ADD(b.ngay_di, INTERVAL 1 DAY)) AS end_date,
                     t.id AS tour_id,
                     t.tour_name,
                     t.destination,
@@ -135,10 +135,10 @@ class HdvModel
                     (SELECT COUNT(*) FROM khachtour k WHERE k.id_booking = b.id) AS so_khach
                 FROM phan_cong_hdv pc
                 INNER JOIN booking b ON pc.id_booking = b.id
-                INNER JOIN tour_schedule ts ON b.schedule_id = ts.id
-                INNER JOIN tour t ON ts.tour_id = t.id
+                LEFT JOIN tour_schedule ts ON b.schedule_id = ts.id
+                INNER JOIN tour t ON b.id_tour = t.id
                 WHERE pc.id_hdv = ?
-                ORDER BY ts.start_date DESC";
+                ORDER BY COALESCE(ts.start_date, b.ngay_di) DESC";
 
         return $this->pdo_query($sql, [$hdv_id]);
     }
