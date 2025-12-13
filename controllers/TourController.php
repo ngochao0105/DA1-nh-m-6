@@ -42,8 +42,11 @@ class TourController
     public function TourList()
     {
         $filterStatus = $_GET['filter_status'] ?? '';
+        $keyword = $_GET['keyword'] ?? '';
 
-        if ($filterStatus !== '') {
+        if (!empty($keyword)) {
+            $categories = $this->modelTour->searchTour($keyword);
+        } elseif ($filterStatus !== '') {
             $categories = $this->modelTour->getStatus($filterStatus);
         } else {
             $categories = $this->modelTour->getAllTour();

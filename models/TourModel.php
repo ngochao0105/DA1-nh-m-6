@@ -54,6 +54,26 @@ class TourModel
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function searchTour($keyword)
+    {
+        try {
+            $sql = "SELECT tour.*, danhmuctour.category_name 
+                    FROM tour
+                    LEFT JOIN danhmuctour 
+                    ON tour.id_danh_muc = danhmuctour.id
+                    WHERE tour.tour_name LIKE :keyword 
+                       OR tour.destination LIKE :keyword 
+                       OR tour.description LIKE :keyword
+                    ORDER BY tour.id DESC";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([':keyword' => '%' . $keyword . '%']);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Lỗi SQL: " . $e->getMessage());
+        }
+    }
+
     public function createTour(
         $tour_name,
         $description,
