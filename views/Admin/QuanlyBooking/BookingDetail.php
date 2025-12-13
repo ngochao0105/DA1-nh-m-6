@@ -3,7 +3,7 @@
 
     <style>
 /* ===========================
-   BOOKING DETAIL – FULL CSS
+   BOOKING DETAIL – CSS (chỉ sửa độ rõ chữ, KHÔNG IN ĐẬM)
    =========================== */
 
 .detail-card {
@@ -41,7 +41,7 @@
 }
 
 /* ===========================
-   BADGE CHO TRẠNG THÁI BOOKING
+   TRẠNG THÁI BOOKING – chỉ rõ chữ, không đậm
    =========================== */
 
 .status-badge {
@@ -50,45 +50,40 @@
     gap: 6px;
     padding: 6px 12px;
     border-radius: 20px;
-    font-weight: 600;
     font-size: 14px;
+    font-weight: normal; /* ← KHÔNG IN ĐẬM */
     color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); /* tăng độ rõ */
+    white-space: nowrap;
 }
 
-.status-warning {
-    background: #f59e0b !important;
-}
-
-.status-info {
-    background: #3b82f6 !important;
-}
-
-.status-success {
-    background: #10b981 !important;
-}
-
-.status-danger {
-    background: #ef4444 !important;
-}
+.status-warning { background: #f59e0b; }
+.status-info    { background: #3b82f6; }
+.status-success { background: #10b981; }
+.status-danger  { background: #ef4444; } /* đỏ tươi, chữ trắng rõ */
 
 /* ===========================
-   BADGE CHO THANH TOÁN
-   (Fix lỗi bị nền xám che)
+   BADGE (thanh toán, điểm danh) – chỉ rõ chữ, không đậm
    =========================== */
 
 .badge {
     font-size: 13px;
-    padding: 6px 10px !important;
-    border-radius: 8px !important;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: normal; /* ← KHÔNG IN ĐẬM */
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* Badge màu fix chuẩn Bootstrap mới */
-.badge.bg-secondary { background-color: #6c757d !important; color: #fff !important; }
-.badge.bg-info { background-color: #0dcaf0 !important; color: #fff !important; }
-.badge.bg-success { background-color: #198754 !important; color: #fff !important; }
+/* Đảm bảo các badge màu luôn có chữ trắng rõ (trừ nền sáng → dùng chữ đen) */
+.badge.bg-secondary { background-color: #6c757d; }
+.badge.bg-info      { background-color: #0dcaf0; color: #000; text-shadow: none; }
+.badge.bg-success   { background-color: #198754; }
+.badge.bg-danger    { background-color: #dc3545; }
+.badge.bg-warning   { background-color: #ffc107; color: #000; text-shadow: none; }
 
 /* ===========================
-   BUTTON
+   BUTTON – giữ nguyên, chỉ đảm bảo chữ rõ
    =========================== */
 
 .btn-primary {
@@ -96,6 +91,8 @@
     border: none;
     padding: 8px 16px;
     border-radius: 8px;
+    color: white;
+    font-weight: normal;
 }
 
 .btn-primary:hover {
@@ -103,8 +100,16 @@
 }
 
 .btn-danger {
+    background: #dc3545;
+    border: none;
     padding: 4px 10px;
     border-radius: 6px;
+    color: white;
+    font-weight: normal;
+}
+
+.btn-danger:hover {
+    background: #c82333;
 }
 
 /* ===========================
@@ -121,10 +126,13 @@
     .detail-card {
         padding: 18px;
     }
-}
 
-    
-    </style>
+    .status-badge, .badge {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+}
+</style>
 
     <div class="container mt-4">
         <h2 class="mb-3 fw-bold">Chi tiết Booking #<?= $booking['id'] ?></h2>

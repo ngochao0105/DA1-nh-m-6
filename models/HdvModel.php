@@ -7,7 +7,7 @@ class HdvModel
     {
         // Kết nối database
         $host = 'localhost';
-        $db   = 'da_1';
+        $db   = 'hao1';
         $user = 'root';
         $pass = '';
         $charset = 'utf8mb4';
@@ -251,30 +251,5 @@ class HdvModel
         return $stmt->fetch(); // trả về 1 row
     }
 
-    //  // HDV check-in
-    // public function hdvCheckin($hdv_id, $tour_id, $location) {
-    //     $sql = "INSERT INTO diemdanh (id_hdv, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
-    //     $stmt = $this->pdo->prepare($sql);
-    //     return $stmt->execute([$hdv_id, $tour_id, $location]);
-    // }
-
-    // Khách hàng check-in
-    // public function customerCheckin($khach_id, $tour_id, $location) {
-    //     $sql = "INSERT INTO diemdanh (id_khach, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
-    //     $stmt = $this->pdo->prepare($sql);
-    //     return $stmt->execute([$khach_id, $tour_id, $location]);
     
-
-    // Lấy danh sách điểm danh theo tour
-    // public function getCheckinByTour($tour_id) {
-    //     $sql = "SELECT dd.*, tk.username AS hdv_name, hk.id_khach AS khach_id
-    //             FROM diemdanh dd
-    //             LEFT JOIN taikhoan tk ON dd.id_hdv = tk.id
-    //             LEFT JOIN hosokhach hk ON dd.id_khach = hk.id_khach
-    //             WHERE dd.id_tour = ?
-    //             ORDER BY dd.check_time DESC";
-    //     $stmt = $this->pdo->prepare($sql);
-    //     $stmt->execute([$tour_id]);
-    //     return $stmt->fetchAll();
-    // }
 }

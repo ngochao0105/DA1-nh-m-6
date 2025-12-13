@@ -23,8 +23,8 @@
 
 <?php
 $hasRevenue = $totalRevenue > 0;
-$monthsWithData = array_filter($monthlyRevenue, fn($m) => ($m['doanh_thu'] ?? 0) > 0);
-$countMonths = count($monthsWithData);
+$maxRevenue = $maxRevenueMonth ? $maxRevenueMonth['doanh_thu'] : 0;
+$maxRevenueMonthNumber = $maxRevenueMonth ? $maxRevenueMonth['thang'] : null;
 ?>
 
 <?php if (!$hasRevenue): ?>
@@ -47,17 +47,23 @@ $countMonths = count($monthsWithData);
                 <?= number_format($totalRevenue, 0, ',', '.') ?> VNĐ
             </div>
         </div>
-        <div class="card" style="padding: 20px; text-align: center; background: #eff6ff; border-left: 4px solid #3b82f6;">
-            <div style="font-size: 14px; color: #1e40af; margin-bottom: 10px;">📈 Số tháng có doanh thu</div>
-            <div style="font-size: 32px; font-weight: bold; color: #1d4ed8;">
-                <?= $countMonths ?>
-            </div>
-        </div>
+       
         <div class="card" style="padding: 20px; text-align: center; background: #fffbeb; border-left: 4px solid #f59e0b;">
             <div style="font-size: 14px; color: #b45309; margin-bottom: 10px;">📊 Doanh thu trung bình/tháng</div>
             <div style="font-size: 32px; font-weight: bold; color: #d97706;">
-                <?= number_format($totalRevenue / 12, 0, ',', '.') ?> VNĐ
+                <?= number_format($avgRevenuePerMonth, 0, ',', '.') ?> VNĐ
             </div>
+        </div>
+        <div class="card" style="padding: 20px; text-align: center; background: #fef2f2; border-left: 4px solid #ef4444;">
+            <div style="font-size: 14px; color: #991b1b; margin-bottom: 10px;">🏆 Doanh thu cao nhất</div>
+            <div style="font-size: 32px; font-weight: bold; color: #dc2626;">
+                <?= number_format($maxRevenue, 0, ',', '.') ?> VNĐ
+            </div>
+            <?php if ($maxRevenueMonthNumber): ?>
+                <div style="font-size: 12px; color: #991b1b; margin-top: 5px;">
+                    (Tháng <?= str_pad($maxRevenueMonthNumber, 2, '0', STR_PAD_LEFT) ?>)
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -76,7 +82,8 @@ $countMonths = count($monthsWithData);
                         <th>Tháng</th>
                         <th>Số booking</th>
                         <th>Số khách</th>
-                        <th>Doanh thu</th>    
+                        <th>Doanh thu</th>
+                        <th>Doanh thu trung bình/booking</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,10 +127,10 @@ $countMonths = count($monthsWithData);
                                     <span style="color: #9ca3af;">—</span>
                                 <?php endif; ?>
                             </td>
-                           
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
+            
             </table>
         </div>
     </div>
