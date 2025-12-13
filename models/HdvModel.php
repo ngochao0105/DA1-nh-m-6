@@ -61,6 +61,39 @@ class HdvModel
         return $this->pdo_query_one($sql, [$account_id]);
     }
 
+    // Lấy lịch sử booking đã dẫn của HDV (chỉ tour đã hoàn thành)
+    public function getBookingHistory($hdv_id)
+    {
+        $sql = "SELECT 
+                    b.id AS booking_id,
+                    b.ngay_di,
+                    b.trang_thai AS booking_status,
+                    t.id AS tour_id,
+                    t.tour_name,
+                    t.destination,
+                    pc.id AS phan_cong_id,
+                    pc.ngay_di AS ngay_phan_cong
+                FROM phan_cong_hdv pc
+                INNER JOIN booking b ON pc.id_booking = b.id
+                INNER JOIN tour t ON b.id_tour = t.id
+                WHERE pc.id_hdv = ? AND b.trang_thai = 'hoan_tat'
+                ORDER BY b.ngay_di DESC, b.id DESC";
+        
+        return $this->pdo_query($sql, [$hdv_id]);
+    }
+
+    // Đếm tổng số booking đã hoàn thành
+    public function countTotalBookings($hdv_id)
+    {
+        $sql = "SELECT COUNT(*) as total 
+                FROM phan_cong_hdv pc
+                INNER JOIN booking b ON pc.id_booking = b.id
+                WHERE pc.id_hdv = ? AND b.trang_thai = 'hoan_tat'";
+        
+        $result = $this->pdo_query_one($sql, [$hdv_id]);
+        return $result['total'] ?? 0;
+    }
+
     // Lấy đánh giá trung bình của HDV từ database
     public function getHdvRating($hdv_id)
     {
