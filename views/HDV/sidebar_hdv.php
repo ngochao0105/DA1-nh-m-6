@@ -32,12 +32,6 @@
             <span>Lịch trình tour</span>
         </a>
 
-        <a href="?act=hdv_profile" 
-           class="nav-link <?php echo ($act == 'hdv_profile' ? 'active' : ''); ?>">
-            <i class="bi bi-person-circle"></i>
-            <span>Hồ sơ cá nhân</span>
-        </a>
-
         <a href="?act=hdv_booking_history" 
            class="nav-link <?php echo ($act == 'hdv_booking_history' ? 'active' : ''); ?>">
             <i class="bi bi-clock-history"></i>
@@ -47,12 +41,19 @@
 
     <!-- User Section -->
     <div class="sidebar-user">
-        <div class="sidebar-user-icon">
-            <i class="bi bi-person"></i>
-        </div>
         <div class="sidebar-user-info">
-            <strong><?php echo isset($_SESSION['full_name']) ? $_SESSION['full_name'] : (isset($_SESSION['username']) ? $_SESSION['username'] : 'HDV'); ?></strong>
-            <span>Hướng dẫn viên</span>
+            <div class="sidebar-user-icon">
+                <i class="bi bi-person"></i>
+            </div>
+            <div>
+                <strong><?php echo isset($_SESSION['full_name']) ? $_SESSION['full_name'] : (isset($_SESSION['username']) ? $_SESSION['username'] : 'HDV'); ?></strong>
+                <span>Hướng dẫn viên</span>
+            </div>
         </div>
+        <a href="?act=hdv_profile" class="nav-link" style="margin-top: 0.5rem; border-radius: 0.5rem; padding: 0.75rem 1rem;">
+            <i class="bi bi-person-circle"></i>
+            <span>Hồ sơ cá nhân</span>
+        </a>
+       
     </div>
 </div>
