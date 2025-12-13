@@ -26,10 +26,16 @@
             <span>Tour được phân công</span>
         </a>
         
- <a href="?act=hdv_tour_schedule" 
+        <a href="?act=hdv_tour_schedule" 
            class="nav-link <?php echo ($act == 'hdv_tour_schedule' ? 'active' : ''); ?>">
             <i class="bi bi-calendar"></i>
             <span>Lịch trình tour</span>
+        </a>
+
+        <a href="?act=hdv_profile" 
+           class="nav-link <?php echo ($act == 'hdv_profile' ? 'active' : ''); ?>">
+            <i class="bi bi-person-circle"></i>
+            <span>Hồ sơ cá nhân</span>
         </a>
     </nav>
 

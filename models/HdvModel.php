@@ -61,6 +61,30 @@ class HdvModel
         return $this->pdo_query_one($sql, [$account_id]);
     }
 
+    // Lấy đánh giá trung bình của HDV từ database
+    public function getHdvRating($hdv_id)
+    {
+        try {
+            // Lấy đánh giá từ cột average_rating trong bảng nhansu
+            $sql = "SELECT average_rating 
+                    FROM nhansu 
+                    WHERE id = ?";
+            $result = $this->pdo_query_one($sql, [$hdv_id]);
+            
+            if ($result && isset($result['average_rating']) && $result['average_rating'] !== null) {
+                $rating = floatval($result['average_rating']);
+                // Trả về rating nếu > 0, nếu không trả về 0
+                return $rating > 0 ? $rating : 0;
+            }
+
+            // Trả về 0 nếu chưa có đánh giá
+            return 0;
+        } catch (Exception $e) {
+            // Nếu có lỗi, trả về 0
+            return 0;
+        }
+    }
+
     // Lấy lịch trình tour của HDV (từ booking được phân công)
     public function getHdvSchedules($hdv_id)
     {
