@@ -36,40 +36,44 @@ if ($isTourClosed): ?>
 <?php endif; ?>
 
 <!-- Action Bar -->
-<div class="action-bar">
-    <div class="action-bar-left">
-        <div class="action-bar-search">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Tìm kiếm lịch trình...">
+<form method="GET" action="" id="filterForm">
+    <input type="hidden" name="act" value="schedule-list">
+    <input type="hidden" name="id" value="<?= $tour['id'] ?>">
+    <div class="action-bar">
+        <div class="action-bar-left">
+            <div class="action-bar-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Tìm kiếm lịch trình...">
+            </div>
+            <div class="action-bar-filter">
+                <select name="filter_status" onchange="this.form.submit()">
+                    <option value="">Tất cả</option>
+                    <option value="sap_mo" <?= ($_GET['filter_status'] ?? '') == 'sap_mo' ? 'selected' : '' ?>>Sắp mở</option>
+                    <option value="dang_mo" <?= ($_GET['filter_status'] ?? '') == 'dang_mo' ? 'selected' : '' ?>>Đang mở</option>
+                    <option value="da_dong" <?= ($_GET['filter_status'] ?? '') == 'da_dong' ? 'selected' : '' ?>>Đã đóng</option>
+                </select>
+            </div>
         </div>
-        <div class="action-bar-filter">
-            <select>
-                <option>Tất cả</option>
-                <option>Sắp mở</option>
-                <option>Đang mở</option>
-                <option>Đã đóng</option>
-            </select>
-        </div>
-    </div>
-    <div class="action-bar-right">
-        <a href="?act=schedule-list&id=<?= $tour['id'] ?>" class="btn btn-secondary">
-            <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </a>
-        <?php 
-        $tourStatus = $tour['status'] ?? null;
-        $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
-        ?>
-        <?php if ($isTourClosed): ?>
-            <button class="btn btn-primary" disabled title="Không thể thêm lịch trình cho tour đã đóng">
-                <i class="bi bi-plus-circle"></i> Thêm lịch khởi hành
-            </button>
-        <?php else: ?>
-            <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Thêm lịch trình
+        <div class="action-bar-right">
+            <a href="?act=schedule-list&id=<?= $tour['id'] ?>" class="btn btn-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
             </a>
-        <?php endif; ?>
+            <?php 
+            $tourStatus = $tour['status'] ?? null;
+            $isTourClosed = ($tourStatus == 0 || $tourStatus == 'closed');
+            ?>
+            <?php if ($isTourClosed): ?>
+                <button class="btn btn-primary" disabled title="Không thể thêm lịch trình cho tour đã đóng">
+                    <i class="bi bi-plus-circle"></i> Thêm lịch khởi hành
+                </button>
+            <?php else: ?>
+                <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Thêm lịch trình
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
+</form>
 
 <!-- Table -->
 <div class="table-container">
