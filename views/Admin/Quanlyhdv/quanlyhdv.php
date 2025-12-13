@@ -17,10 +17,45 @@
     background: #138496 !important;
     color: white !important;
 }
+
+/* CSS cho form tìm kiếm */
+.action-bar-search {
+    position: relative;
+}
+
+.action-bar-search i.bi-search {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 1;
+}
+
+.action-bar-search input[type="text"] {
+    padding-left: 35px !important;
+    border-radius: 4px 0 0 4px !important;
+    border-right: none !important;
+}
+
+.action-bar-search .btn {
+    border-radius: 0 4px 4px 0 !important;
+    border-left: none !important;
+}
+
+.action-bar-search .btn-outline-secondary {
+    border-radius: 4px !important;
+    border-left: 1px solid #dee2e6 !important;
+    margin-left: 5px !important;
+}
 </style>
 
 <div class="page-header">
     <h1>Quản lý Hướng dẫn viên</h1>
+    <?php if (!empty($_GET['keyword'])): ?>
+        <p class="text-muted">Kết quả tìm kiếm cho: "<strong><?= htmlspecialchars($_GET['keyword']) ?></strong>" 
+           (<?= count($guides) ?> kết quả)</p>
+    <?php endif; ?>
 </div>
 
 <!-- Action Bar -->
@@ -34,8 +69,16 @@
             <i class="bi bi-search"></i>
             <input type="text" 
                    name="keyword"
-                   placeholder="Tìm kiếm tên hướng dẫn viên..."
+                   placeholder="Tìm kiếm tên, SĐT, email..."
                    value="<?= isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '' ?>">
+            <button type="submit" class="btn btn-sm btn-primary ms-2" title="Tìm kiếm">
+                <i class="bi bi-search"></i> Tìm
+            </button>
+            <?php if (!empty($_GET['keyword'])): ?>
+                <a href="?act=guide-management" class="btn btn-sm btn-outline-secondary ms-2" title="Xóa tìm kiếm">
+                    <i class="bi bi-x"></i>
+                </a>
+            <?php endif; ?>
         </form>
 
         <div class="action-bar-filter">
@@ -166,7 +209,12 @@
                 <tr>
                     <td colspan="10" class="empty-state">
                         <i class="bi bi-inbox"></i>
-                        <p>Chưa có dữ liệu hướng dẫn viên.</p>
+                        <?php if (!empty($_GET['keyword'])): ?>
+                            <p>Không tìm thấy hướng dẫn viên nào phù hợp với từ khóa "<strong><?= htmlspecialchars($_GET['keyword']) ?></strong>".</p>
+                            <p><a href="?act=guide-management">Xem tất cả hướng dẫn viên</a></p>
+                        <?php else: ?>
+                            <p>Chưa có dữ liệu hướng dẫn viên.</p>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endif; ?>
