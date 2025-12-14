@@ -36,6 +36,13 @@
             </div>
 
             <!-- Danh sách lịch trình -->
+            <div id="emptyMessage" style="display: none; text-align: center; padding: 40px 20px; background: white; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <div style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+                <h3 style="color: #64748b; margin-bottom: 8px;">Bạn chưa được phân công</h3>
+                <p style="color: #94a3b8; margin: 0;">Không có lịch trình nào đang diễn ra vào hôm nay.</p>
+            </div>
             <div class="schedules-grid">
                 <?php 
                 $currentDate = date('Y-m-d');
@@ -481,8 +488,16 @@ function filterSchedules() {
 
             switch (filterDate) {
                 case 'ongoing':
-                    // Đang diễn ra: từ hôm nay đến 7 ngày tới
-                    dateMatch = diffDays >= 0 && diffDays <= 7;
+                    // Đang diễn ra: booking đang diễn ra vào hôm nay (start_date <= hôm nay và end_date >= hôm nay)
+                    const endDateStr = card.getAttribute('data-end-date');
+                    if (endDateStr) {
+                        const endDate = new Date(endDateStr);
+                        endDate.setHours(0, 0, 0, 0);
+                        dateMatch = startDate <= today && endDate >= today;
+                    } else {
+                        // Nếu không có end_date, chỉ kiểm tra start_date = hôm nay
+                        dateMatch = diffDays === 0;
+                    }
                     break;
                 case '7days':
                     // 7 ngày tới: từ hôm nay đến 7 ngày tới
@@ -502,6 +517,20 @@ function filterSchedules() {
         shouldShow = statusMatch && dateMatch;
         card.style.display = shouldShow ? '' : 'none';
     });
+
+    // Kiểm tra và hiển thị thông báo nếu không có lịch trình
+    const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
+    const emptyMessage = document.getElementById('emptyMessage');
+    
+    if (filterDate === 'ongoing' && visibleCards.length === 0) {
+        if (emptyMessage) {
+            emptyMessage.style.display = 'block';
+        }
+    } else {
+        if (emptyMessage) {
+            emptyMessage.style.display = 'none';
+        }
+    }
 }
 
 // Tự động filter khi trang load với option mặc định "Đang diễn ra"
