@@ -61,20 +61,30 @@
                         $startDisplay = date('d/m/Y', $startTimestamp);
                     }
 
-                    $durationValue = $schedule['duration'] ?? null;
-                    if (!is_numeric($durationValue)) {
-                        if (is_string($durationValue) && preg_match('/\d+/', $durationValue, $matches)) {
-                            $durationValue = (int)$matches[0];
-                        } else {
-                            $durationValue = 1;
+                    // Tính thời lượng dựa trên ngày khởi hành và ngày kết thúc
+                    $calculatedDuration = null;
+                    if ($startTimestamp && $endTimestamp) {
+                        // Tính số ngày giữa start_date và end_date
+                        $diffSeconds = $endTimestamp - $startTimestamp;
+                        $calculatedDuration = max(1, floor($diffSeconds / 86400)); // Đảm bảo ít nhất là 1 ngày
+                    } elseif ($startTimestamp && !$endTimestamp) {
+                        // Nếu chỉ có start_date, dùng duration từ database hoặc mặc định là 1
+                        $durationValue = $schedule['duration'] ?? null;
+                        if (!is_numeric($durationValue)) {
+                            if (is_string($durationValue) && preg_match('/\d+/', $durationValue, $matches)) {
+                                $durationValue = (int)$matches[0];
+                            } else {
+                                $durationValue = 1;
+                            }
                         }
+                        $calculatedDuration = max((int)$durationValue, 1);
                     }
-                    $durationDays = max((int)$durationValue, 1);
 
+                    // Tính end_date nếu chưa có
                     if ($endTimestamp) {
                         $calculatedEndTimestamp = $endTimestamp;
-                    } elseif ($startTimestamp) {
-                        $calculatedEndTimestamp = $startTimestamp + max($durationDays - 1, 0) * 86400;
+                    } elseif ($startTimestamp && $calculatedDuration) {
+                        $calculatedEndTimestamp = $startTimestamp + max($calculatedDuration - 1, 0) * 86400;
                     } else {
                         $calculatedEndTimestamp = null;
                     }
@@ -85,6 +95,9 @@
 
                     $startDate = $startTimestamp ? date('Y-m-d', $startTimestamp) : null;
                     $effectiveEndDate = $calculatedEndTimestamp ? date('Y-m-d', $calculatedEndTimestamp) : null;
+                    
+                    // Sử dụng duration đã tính toán
+                    $displayDuration = $calculatedDuration ?? ($schedule['duration'] ?? 'N/A');
 
                     $timeStatus = 'unknown';
                     if ($bookingStatus === 'da_huy' || $bookingStatus === 'hoan_tat') {
@@ -152,7 +165,7 @@
                                     <label>Thời lượng</label>
                                     <p class="info-value">
                                         <i class="bi bi-hourglass-split"></i>
-                                        <?= htmlspecialchars($schedule['duration'] ?? '') ?> ngày
+                                        <?= is_numeric($displayDuration) ? (int)$displayDuration : htmlspecialchars($displayDuration) ?> <?= is_numeric($displayDuration) ? 'ngày' : '' ?>
                                     </p>
                                 </div>
 
