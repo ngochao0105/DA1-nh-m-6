@@ -904,6 +904,86 @@ document.addEventListener('keydown', function(e) {
         closeCustomerModal();
     }
 });
+
+// Xử lý lưu điểm danh
+document.addEventListener('DOMContentLoaded', function() {
+    const saveBtn = document.getElementById('attendanceSaveBtn');
+    if (!saveBtn) return;
+
+    saveBtn.addEventListener('click', function() {
+        if (saveBtn.disabled) return;
+
+        // Thu thập dữ liệu điểm danh từ tất cả các select
+        const attendanceSelects = document.querySelectorAll('.attendance-select');
+        const attendanceData = [];
+
+        attendanceSelects.forEach(function(select) {
+            const customerId = select.getAttribute('data-customer-id');
+            const status = select.value;
+            
+            if (customerId && customerId > 0) {
+                attendanceData.push({
+                    id: parseInt(customerId),
+                    status: status
+                });
+            }
+        });
+
+        if (attendanceData.length === 0) {
+            alert('Không có dữ liệu điểm danh để lưu.');
+            return;
+        }
+
+        // Disable nút trong khi đang xử lý
+        saveBtn.disabled = true;
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang lưu...';
+
+        // Gửi dữ liệu đến server
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(attendanceData));
+
+        fetch('?act=hdv_update_attendance', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hiển thị thông báo thành công
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.innerHTML = '<i class="bi bi-check-circle"></i> Đã lưu điểm danh thành công cho ' + data.updated + ' khách hàng!';
+                alertDiv.style.marginBottom = '20px';
+                
+                // Chèn thông báo vào đầu phần customers-section
+                const customersSection = document.querySelector('.customers-section');
+                if (customersSection) {
+                    customersSection.insertBefore(alertDiv, customersSection.firstChild);
+                    
+                    // Tự động ẩn thông báo sau 3 giây
+                    setTimeout(function() {
+                        alertDiv.remove();
+                    }, 3000);
+                }
+
+                // Cập nhật lại nút
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể lưu điểm danh. Vui lòng thử lại.'));
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi lưu điểm danh. Vui lòng thử lại.');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+        });
+    });
+});
 </script>
 
 <?php require_once 'footer_hdv.php'; ?>
