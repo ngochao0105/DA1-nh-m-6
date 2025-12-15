@@ -66,7 +66,7 @@
                 </label>
                 <input type="number" name="price" class="form-control" 
                        placeholder="Nhập giá tour" required min="0">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Giá cho lịch trình này</small>
+                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Giá cho lịch khởi hành này</small>
             </div>
 
             <div class="col-md-6">
@@ -75,7 +75,7 @@
                 </label>
                 <input type="number" name="max_slots" class="form-control" 
                        placeholder="Nhập số lượng slot" required min="1">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Số lượng người tối đa cho lịch trình này</small>
+                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Số lượng người tối đa cho lịch khởi hành này</small>
             </div>
 
             <div class="col-md-6">
@@ -93,7 +93,7 @@
                         <i class="bi bi-x-circle"></i> Hủy
                     </a>
                     <button type="submit" class="btn btn-primary" <?= $isTourClosed ? 'disabled' : '' ?>>
-                        <i class="bi bi-check-circle"></i> Thêm lịch trình
+                        <i class="bi bi-check-circle"></i> Thêm lịch khởi hành
                     </button>
                 </div>
             </div>

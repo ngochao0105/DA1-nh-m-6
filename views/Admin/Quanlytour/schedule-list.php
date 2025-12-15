@@ -43,7 +43,7 @@ if ($isTourClosed): ?>
         <div class="action-bar-left">
             <div class="action-bar-search">
                 <i class="bi bi-search"></i>
-                <input type="text" placeholder="Tìm kiếm lịch trình...">
+                <input type="text" placeholder="Tìm kiếm lịch khởi hành...">
             </div>
             <div class="action-bar-filter">
                 <select name="filter_status" onchange="this.form.submit()">
@@ -68,7 +68,7 @@ if ($isTourClosed): ?>
                 </button>
             <?php else: ?>
                 <a href="?act=schedule-create&tour_id=<?= $tour['id'] ?>" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Thêm lịch trình
+                    <i class="bi bi-plus-circle"></i> Thêm lịch khởi hành
                 </a>
             <?php endif; ?>
         </div>

@@ -5,7 +5,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="margin-bottom: 0.5rem;">
-                <i class="bi bi-pencil-square"></i> Sửa lịch trình
+                <i class="bi bi-pencil-square"></i> Sửa lịch khởi hành
             </h1>
             <p style="color: var(--text-secondary); margin: 0; font-size: 1rem;">
                 ID: <strong><?= $schedule['id'] ?></strong>
@@ -51,7 +51,7 @@
                 </label>
                 <input type="number" name="price" class="form-control" 
                        value="<?= $schedule['price'] ?? 0 ?>" required min="0">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Giá cho lịch trình này</small>
+                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Giá cho lịch khởi hành này</small>
             </div>
 
             <div class="col-md-6">
@@ -60,7 +60,7 @@
                 </label>
                 <input type="number" name="max_slots" class="form-control" 
                        value="<?= $schedule['max_slots'] ?>" required min="1">
-                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Số lượng người tối đa cho lịch trình này</small>
+                <small class="text-muted" style="font-size: 0.75rem; color: #6b7280;">Số lượng người tối đa cho lịch khởi hành này</small>
             </div>
 
             <div class="col-md-6">

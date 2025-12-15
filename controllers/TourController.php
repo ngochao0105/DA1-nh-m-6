@@ -391,5 +391,6 @@ public function tourDetail()
     require_file_view("Admin/Quanlytour/TourDetail", compact("tour"));
 }
 
+
 }
 
