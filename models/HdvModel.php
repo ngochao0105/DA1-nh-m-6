@@ -236,6 +236,43 @@ class HdvModel
         return $stmt->execute([$booking_id]);
     }
 
+    // Cập nhật điểm danh khách hàng
+    public function setCustomerAttendance($customer_id, $hdv_id, $is_present)
+    {
+        try {
+            // Kiểm tra quyền: HDV chỉ có thể cập nhật điểm danh cho khách hàng trong booking mình được phân công
+            $checkSql = "SELECT k.id_booking 
+                        FROM khachtour k
+                        INNER JOIN phan_cong_hdv pc ON k.id_booking = pc.id_booking
+                        WHERE k.id = ? AND pc.id_hdv = ?";
+            $checkStmt = $this->pdo->prepare($checkSql);
+            $checkStmt->execute([$customer_id, $hdv_id]);
+            $result = $checkStmt->fetch();
+            
+            if (!$result) {
+                return false; // Không có quyền
+            }
+
+            // Kiểm tra xem cột da_checkin có tồn tại không
+            $checkColSql = "SHOW COLUMNS FROM khachtour LIKE 'da_checkin'";
+            $colResult = $this->pdo->query($checkColSql)->fetch();
+            
+            if (!$colResult) {
+                // Nếu cột chưa tồn tại, thêm cột
+                $alterSql = "ALTER TABLE khachtour ADD COLUMN da_checkin TINYINT(1) DEFAULT 0";
+                $this->pdo->exec($alterSql);
+            }
+
+            // Cập nhật điểm danh
+            $sql = "UPDATE khachtour SET da_checkin = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([$is_present, $customer_id]);
+        } catch (PDOException $e) {
+            error_log("Error in setCustomerAttendance: " . $e->getMessage());
+            return false;
+        }
+    }
+
     // PHƯƠNG THỨC HỖ TRỢ PDO
     private function pdo_query($sql, $params = [])
     {
@@ -251,5 +288,30 @@ class HdvModel
         return $stmt->fetch(); // trả về 1 row
     }
 
+    //  // HDV check-in
+    // public function hdvCheckin($hdv_id, $tour_id, $location) {
+    //     $sql = "INSERT INTO diemdanh (id_hdv, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     return $stmt->execute([$hdv_id, $tour_id, $location]);
+    // }
+
+    // Khách hàng check-in
+    // public function customerCheckin($khach_id, $tour_id, $location) {
+    //     $sql = "INSERT INTO diemdanh (id_khach, id_tour, check_time, location) VALUES (?, ?, NOW(), ?)";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     return $stmt->execute([$khach_id, $tour_id, $location]);
     
+
+    // Lấy danh sách điểm danh theo tour
+    // public function getCheckinByTour($tour_id) {
+    //     $sql = "SELECT dd.*, tk.username AS hdv_name, hk.id_khach AS khach_id
+    //             FROM diemdanh dd
+    //             LEFT JOIN taikhoan tk ON dd.id_hdv = tk.id
+    //             LEFT JOIN hosokhach hk ON dd.id_khach = hk.id_khach
+    //             WHERE dd.id_tour = ?
+    //             ORDER BY dd.check_time DESC";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     $stmt->execute([$tour_id]);
+    //     return $stmt->fetchAll();
+    // }
 }
